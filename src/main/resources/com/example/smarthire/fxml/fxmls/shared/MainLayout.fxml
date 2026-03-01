@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<BorderPane fx:id="mainPane" prefHeight="700.0" prefWidth="1000.0"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.smarthire.controllers.MainLayoutController">
+    <left>
+        <fx:include source="Sidebar.fxml" />
+    </left>
+    <top>
+        <fx:include source="Navbar.fxml" />
+    </top>
+    <center>
+        <AnchorPane fx:id="contentArea" style="-fx-background-color: #f4f7f6;" />
+    </center>
+</BorderPane>
