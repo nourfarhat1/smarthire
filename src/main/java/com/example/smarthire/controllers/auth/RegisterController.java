@@ -2,7 +2,9 @@ package com.example.smarthire.controllers.auth;
 
 import com.example.smarthire.HelloApplication;
 import com.example.smarthire.entities.user.User;
+import com.example.smarthire.services.FaceService;
 import com.example.smarthire.services.UserService;
+import com.example.smarthire.utils.WebcamCaptureDialog;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,6 +12,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -18,12 +21,48 @@ public class RegisterController {
     @FXML private TextField fnameField, lnameField, emailField, phoneField;
     @FXML private PasswordField passField;
     @FXML private ComboBox<String> roleCombo;
+    @FXML private Label faceStatusLabel;
+    @FXML private Button captureFaceBtn;
 
     private final UserService userService = new UserService();
+    private final FaceService faceService = new FaceService();
+    private String capturedFaceToken = null;
 
     @FXML
     public void initialize() {
         roleCombo.getItems().addAll("Candidate", "HR");
+    }
+
+    @FXML
+    private void handleCaptureFace() {
+        faceStatusLabel.setText("Opening camera...");
+        faceStatusLabel.setStyle("-fx-text-fill: #666;");
+
+        WebcamCaptureDialog dialog = new WebcamCaptureDialog();
+        BufferedImage image = dialog.capture();
+
+        if (image == null) {
+            faceStatusLabel.setText("❌ Capture cancelled.");
+            faceStatusLabel.setStyle("-fx-text-fill: #d9534f;");
+            return;
+        }
+
+        try {
+            String token = faceService.detectFace(image);
+            if (token != null) {
+                capturedFaceToken = token;
+                faceStatusLabel.setText("✔ Face captured successfully!");
+                faceStatusLabel.setStyle("-fx-text-fill: #87a042; -fx-font-weight: bold;");
+                captureFaceBtn.setText("Re-capture Face");
+            } else {
+                faceStatusLabel.setText("❌ No face detected. Please try again.");
+                faceStatusLabel.setStyle("-fx-text-fill: #d9534f;");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            faceStatusLabel.setText("❌ API error. Check your connection.");
+            faceStatusLabel.setStyle("-fx-text-fill: #d9534f;");
+        }
     }
 
     private boolean validateInputs() {
@@ -37,17 +76,17 @@ public class RegisterController {
         }
 
         if (!emailField.getText().matches(emailRegex)) {
-            showAlert("Invalid Email", "Please enter a valid email address (e.g., name@domain.com).");
+            showAlert("Invalid Email", "Please enter a valid email address.");
             return false;
         }
 
         if (!phoneField.getText().matches("\\d{8}")) {
-            showAlert("Invalid Phone", "The phone number must contain exactly 8 digits.");
+            showAlert("Invalid Phone", "Phone number must be exactly 8 digits.");
             return false;
         }
 
         if (passField.getText().length() < 6) {
-            showAlert("Weak Password", "The password must be at least 6 characters long.");
+            showAlert("Weak Password", "Password must be at least 6 characters.");
             return false;
         }
 
@@ -59,7 +98,6 @@ public class RegisterController {
         if (!validateInputs()) return;
 
         try {
-            // Check if email already exists
             if (userService.emailExists(emailField.getText())) {
                 showAlert("Error", "This email is already registered.");
                 return;
@@ -77,7 +115,20 @@ public class RegisterController {
             );
 
             userService.add(newUser);
-            showAlert("Success", "Registration Successful!");
+
+            // If face was captured, fetch the new user and save the token
+            if (capturedFaceToken != null) {
+                User saved = userService.getByEmail(emailField.getText());
+                if (saved != null) {
+                    userService.saveFaceToken(saved.getId(), capturedFaceToken);
+                }
+            }
+
+            String msg = capturedFaceToken != null
+                    ? "Registration Successful!\nFace recognition has been enabled for your account."
+                    : "Registration Successful!\n(No face registered — password login only)";
+
+            showAlert("Success", msg);
             goToLogin();
 
         } catch (SQLException e) {
@@ -87,7 +138,7 @@ public class RegisterController {
     }
 
     private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);
@@ -97,7 +148,8 @@ public class RegisterController {
     @FXML
     private void goToLogin() {
         try {
-            FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("/com/example/smarthire/fxml/fxmls/frontend/auth/Login.fxml"));
+            FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource(
+                    "/com/example/smarthire/fxml/fxmls/frontend/auth/Login.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) emailField.getScene().getWindow();
             stage.setScene(new Scene(root));

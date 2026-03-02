@@ -9,9 +9,10 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import java.sql.SQLException;
 import java.util.List;
+import javafx.scene.chart.PieChart;
 
 public class UserManagementController {
-
+    @FXML private PieChart verificationChart;
     @FXML private TableView<User> userTable;
     @FXML private TableColumn<User, Integer> colId;
     @FXML private TableColumn<User, String> colEmail;
@@ -80,13 +81,51 @@ public class UserManagementController {
             userList.addAll(users);
             userTable.setItems(userList);
             userTable.refresh();
+            updateChart(users); // <-- add this line
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Database Error: " + e.getMessage());
         }
     }
 
+    private void updateChart(List<User> users) {
+        long verified = users.stream().filter(User::isVerified).count();
+        long unverified = users.size() - verified;
+
+        ObservableList<PieChart.Data> chartData = FXCollections.observableArrayList(
+                new PieChart.Data("Verified (" + verified + ")", verified),
+                new PieChart.Data("Pending (" + unverified + ")", unverified)
+        );
+
+        verificationChart.setData(chartData);
+    }
+
     // --- BAN ACTIONS ---
 
+    @FXML
+    private void handleDeleteUser() {
+        User selectedUser = userTable.getSelectionModel().getSelectedItem();
+        if (selectedUser == null) {
+            showAlert(Alert.AlertType.WARNING, "Please select a user to delete.");
+            return;
+        }
+
+        // Confirmation dialog before deleting
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setHeaderText(null);
+        confirm.setContentText("Are you sure you want to delete " + selectedUser.getEmail() + "? This cannot be undone.");
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                try {
+                    userService.delete(selectedUser.getId());
+                    loadUserData();
+                    showAlert(Alert.AlertType.INFORMATION, "User " + selectedUser.getEmail() + " has been deleted.");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    showAlert(Alert.AlertType.ERROR, "Database error: Could not delete user.");
+                }
+            }
+        });
+    }
     @FXML
     private void handleBanUser() {
         User selectedUser = userTable.getSelectionModel().getSelectedItem();

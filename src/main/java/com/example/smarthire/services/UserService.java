@@ -135,4 +135,67 @@ public class UserService implements IService<User> {
             ps.setInt(2, userId);
             ps.executeUpdate();
         }
-    }}
+    }
+    public User findByEmailAndPhone(String email, String phone) throws SQLException {
+        String sql = "SELECT * FROM APP_USER WHERE email = ? AND phone_number = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ps.setString(2, phone);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return mapRowToUser(rs);
+            }
+        }
+        return null;
+    }
+
+    public void updatePassword(int userId, String newPassword) throws SQLException {
+        String sql = "UPDATE APP_USER SET password_hash = ? WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, newPassword);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
+
+    public void saveFaceToken(int userId, String faceToken) throws SQLException {
+        String sql = "UPDATE app_user SET face_token = ? WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, faceToken);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
+
+    public String getFaceToken(int userId) throws SQLException {
+        String sql = "SELECT face_token FROM app_user WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getString("face_token");
+            }
+        }
+        return null;
+    }
+
+    public User getByEmail(String email) throws SQLException {
+        String sql = "SELECT * FROM app_user WHERE email = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return mapRowToUser(rs);
+            }
+        }
+        return null;
+    }
+
+    public User getByPhone(String phone) throws SQLException {
+        String sql = "SELECT * FROM app_user WHERE phone_number = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, phone);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return mapRowToUser(rs);
+            }
+        }
+        return null;
+    }
+}
