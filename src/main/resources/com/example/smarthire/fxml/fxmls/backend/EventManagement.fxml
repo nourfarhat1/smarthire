@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+
+<AnchorPane prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #f4f7f6;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.smarthire.controllers.event.AdminEventController">
+    <children>
+        <Label layoutX="30.0" layoutY="25.0" text="Global Event Management (Admin)" textFill="#2f4188" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+
+        <HBox layoutX="30.0" layoutY="75.0" spacing="15.0" alignment="CENTER_LEFT">
+            <children>
+                <TextField fx:id="searchField" promptText="Search event name..." prefWidth="200.0" style="-fx-padding: 8; -fx-background-radius: 5;" />
+                <Button onAction="#handleSearch" text="Search" textFill="WHITE" style="-fx-background-color: #4686c2; -fx-cursor: hand;" />
+
+                <Separator orientation="VERTICAL" prefHeight="30.0" />
+
+                <MenuButton text="Sort By Criteria" style="-fx-background-color: white; -fx-border-color: #ddd; -fx-cursor: hand;">
+                    <items>
+                        <MenuItem text="Event Name (A-Z)" onAction="#sortByName" />
+                        <MenuItem text="Date (Recent First)" onAction="#sortByDate" />
+                        <MenuItem text="Max Capacity" onAction="#sortByCapacity" />
+                    </items>
+                </MenuButton>
+
+                <Button onAction="#showStatistics" text="📈 View Statistics" textFill="WHITE" style="-fx-background-color: #2f4188; -fx-background-radius: 5; -fx-font-weight: bold; -fx-cursor: hand;" />
+            </children>
+        </HBox>
+
+        <TableView fx:id="eventTable" layoutX="30.0" layoutY="130.0" prefHeight="400.0" prefWidth="840.0" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 1);">
+            <columns>
+                <TableColumn fx:id="colId" text="ID" prefWidth="50.0" />
+                <TableColumn fx:id="colName" text="Event Name" prefWidth="200.0" />
+                <TableColumn fx:id="colHrId" text="HR Organizer (ID)" prefWidth="120.0" />
+                <TableColumn fx:id="colDate" text="Date" prefWidth="140.0" />
+                <TableColumn fx:id="colLocation" text="Location" prefWidth="160.0" />
+                <TableColumn fx:id="colMax" text="Max Participants" prefWidth="150.0" />
+            </columns>
+        </TableView>
+
+        <HBox layoutX="600.0" layoutY="545.0" spacing="15.0">
+            <Button onAction="#loadEvents" text="Refresh Data" style="-fx-background-color: #87a042; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;" />
+            <Button onAction="#handleDeleteEvent" text="DELETE EVENT" textFill="WHITE" style="-fx-background-color: #961f17; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5; -fx-cursor: hand;" />
+        </HBox>
+    </children>
+</AnchorPane>

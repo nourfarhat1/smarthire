@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
+
+<BorderPane prefHeight="700.0" prefWidth="1100.0" style="-fx-background-color: #F3F4F6; -fx-font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.smarthire.controllers.reclamation.ReclamationController">
+
+    <top>
+        <VBox spacing="5.0" style="-fx-padding: 35 40 25 40;">
+            <Label text="My Complaints" style="-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #1E3A8A;" />
+            <Label text="Submit new requests and track your complaint history" style="-fx-font-size: 14px; -fx-text-fill: #64748B;" />
+        </VBox>
+    </top>
+
+    <center>
+        <HBox spacing="30.0" style="-fx-padding: 0 40 40 40;">
+
+            <VBox spacing="25.0" prefWidth="420.0" minWidth="420.0" maxWidth="420.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.04), 15, 0, 0, 4); -fx-padding: 30;">
+
+                <Label text="Make a Request" style="-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #DB2777;" />
+
+                <VBox spacing="15.0">
+                    <VBox spacing="8.0">
+                        <Label text="RECLAMATION TYPE" style="-fx-font-size: 11px; -fx-font-weight: 800; -fx-text-fill: #9CA3AF; -fx-letter-spacing: 1px;" />
+                        <ComboBox fx:id="typeComboBox" promptText="Select Type..." maxWidth="Infinity" style="-fx-padding: 8; -fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-size: 14px; -fx-text-base-color: black;" />
+                    </VBox>
+
+                    <VBox spacing="8.0">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="SUBJECT" style="-fx-font-size: 11px; -fx-font-weight: 800; -fx-text-fill: #9CA3AF; -fx-letter-spacing: 1px;" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label text="Max 50" style="-fx-font-size: 10px; -fx-text-fill: #CBD5E1;" />
+                        </HBox>
+                        <TextField fx:id="subjectField" promptText="Brief title of your issue..." style="-fx-padding: 12; -fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 6; -fx-background-radius: 6; -fx-text-fill: black; -fx-font-size: 14px;" />
+                    </VBox>
+
+                    <VBox spacing="8.0">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="DESCRIPTION" style="-fx-font-size: 11px; -fx-font-weight: 800; -fx-text-fill: #9CA3AF; -fx-letter-spacing: 1px;" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label fx:id="charCountLabel" text="0 / 500" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #3B82F6;" />
+                        </HBox>
+                        <TextArea fx:id="descriptionArea" prefHeight="140.0" promptText="Explain your issue in detail..." wrapText="true" style="-fx-padding: 5; -fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 6; -fx-background-radius: 6; -fx-text-fill: black; -fx-font-size: 14px;" />
+                    </VBox>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <VBox spacing="12.0">
+                    <Button fx:id="submitButton" onAction="#handleSubmit" text="Submit Request" maxWidth="Infinity" style="-fx-background-color: #2563EB; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 700; -fx-padding: 12; -fx-background-radius: 6; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(37,99,235,0.3), 8, 0, 0, 3);" />
+
+                    <Button onAction="#handleRefresh" text="Clear / Cancel" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-border-color: #CBD5E1; -fx-text-fill: #64748B; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 11; -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand;" />
+                </VBox>
+            </VBox>
+
+            <VBox spacing="15.0" HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.04), 15, 0, 0, 4); -fx-padding: 25;">
+
+                <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-padding: 0 0 10 0; -fx-border-width: 0 0 1 0; -fx-border-color: #F1F5F9;">
+                    <Label text="History" style="-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #1E3A8A;" />
+
+                    <Region HBox.hgrow="ALWAYS" />
+
+                    <ComboBox fx:id="historyStatusFilter" prefWidth="130.0" promptText="All Statuses" style="-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 6; -fx-background-radius: 6; -fx-text-base-color: black; -fx-font-size: 13px;" />
+                    <ComboBox fx:id="historySortFilter" prefWidth="130.0" promptText="Sort Date" style="-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 6; -fx-background-radius: 6; -fx-text-base-color: black; -fx-font-size: 13px;" />
+                </HBox>
+
+                <ListView fx:id="historyListView" VBox.vgrow="ALWAYS" style="-fx-background-color: #FFFFFF; -fx-border-color: transparent; -fx-control-inner-background: #FFFFFF; -fx-text-inner-color: black; -fx-font-size: 14px; -fx-padding: 5;" />
+            </VBox>
+
+        </HBox>
+    </center>
+
+</BorderPane>
