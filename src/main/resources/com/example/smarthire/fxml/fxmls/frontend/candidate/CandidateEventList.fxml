@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.paint.Color?>
+
+<AnchorPane prefHeight="700.0" prefWidth="1000.0" style="-fx-background-color: #f4f7f6;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.smarthire.controllers.event.EventClientController">
+    <children>
+        <VBox layoutX="40.0" layoutY="30.0" spacing="10.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="20.0">
+                    <children>
+                        <Label fx:id="viewTitle" text="Upcoming Events" textFill="#2f4188">
+                            <font>
+                                <Font name="System Bold" size="32.0" />
+                            </font>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button onAction="#handleAiNotifications" text="✨ AI Recommendations"
+                                style="-fx-background-color: #f1c40f; -fx-text-fill: #2c3e50; -fx-font-weight: bold; -fx-background-radius: 25; -fx-padding: 10 20; -fx-cursor: hand; -fx-font-size: 14px;">
+                            <effect>
+                                <DropShadow blurType="THREE_PASS_BOX" color="#00000026" height="10.0" radius="4.5" width="10.0" />
+                            </effect>
+                        </Button>
+                    </children>
+                </HBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 30; -fx-padding: 10 20;">
+                    <effect>
+                        <DropShadow blurType="THREE_PASS_BOX" color="#0000001a" height="15.0" radius="7.0" width="15.0" />
+                    </effect>
+                    <children>
+                        <TextField fx:id="searchField" prefWidth="280.0" promptText="🔍 Search events by name or location..."
+                                   style="-fx-background-color: #f4f7f6; -fx-background-radius: 20; -fx-padding: 8 15; -fx-border-color: transparent;" />
+
+                        <Button onAction="#handleFilter" text="Filter" textFill="WHITE"
+                                style="-fx-background-color: #4686c2; -fx-background-radius: 20; -fx-padding: 8 25; -fx-font-weight: bold; -fx-cursor: hand;" />
+
+                        <Region HBox.hgrow="ALWAYS" />
+
+                        <HBox alignment="CENTER_LEFT" spacing="5.0">
+                            <children>
+                                <Button onAction="#loadAllEvents" text="All Events"
+                                        style="-fx-background-color: transparent; -fx-text-fill: #2f4188; -fx-font-weight: bold; -fx-cursor: hand; -fx-border-color: #2f4188; -fx-border-radius: 15; -fx-border-width: 1;" />
+                                <Button onAction="#loadMyTickets" text="My Tickets" textFill="WHITE"
+                                        style="-fx-background-color: #2f4188; -fx-background-radius: 15; -fx-padding: 8 20; -fx-font-weight: bold; -fx-cursor: hand;" />
+                            </children>
+                        </HBox>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <ScrollPane fitToWidth="true" layoutY="160.0" prefHeight="500.0" style="-fx-background-color: transparent; -fx-background: transparent;"
+                    AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="160.0">
+            <content>
+                <FlowPane fx:id="eventsContainer" hgap="30.0" vgap="30.0" style="-fx-padding: 20;">
+                </FlowPane>
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>

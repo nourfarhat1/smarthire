@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+
+<AnchorPane prefHeight="620.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.smarthire.controllers.user.UserManagementController">
+
+    <Label layoutX="30.0" layoutY="20.0" text="User Management"
+           style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2f4188;" />
+
+    <!-- Table (shrunk to make room for chart) -->
+    <TableView fx:id="userTable" layoutX="30.0" layoutY="60.0" prefHeight="450.0" prefWidth="720.0">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="40.0" />
+            <TableColumn fx:id="colFirstName" text="First Name" prefWidth="100.0" />
+            <TableColumn fx:id="colLastName" text="Last Name" prefWidth="100.0" />
+            <TableColumn fx:id="colEmail" text="Email" prefWidth="180.0" />
+            <TableColumn fx:id="colRole" text="Role" prefWidth="100.0" />
+            <TableColumn fx:id="colStatus" text="Verification" prefWidth="120.0" />
+            <TableColumn fx:id="colBanned" text="Account Status" prefWidth="120.0" />
+        </columns>
+    </TableView>
+
+    <!-- Pie Chart to the right of the table -->
+    <PieChart fx:id="verificationChart"
+              layoutX="760.0" layoutY="60.0"
+              prefWidth="310.0" prefHeight="310.0"
+              title="Verification Status"
+              legendVisible="true" />
+
+    <!-- Buttons (unchanged) -->
+    <HBox layoutX="30.0" layoutY="530.0" spacing="10.0">
+        <Button text="Verify" onAction="#handleVerifyUser"
+                style="-fx-background-color: #87a042; -fx-text-fill: white; -fx-font-weight: bold;" />
+        <Button text="Unverify" onAction="#handleUnverifyUser"
+                style="-fx-background-color: #666; -fx-text-fill: white;" />
+        <Separator orientation="VERTICAL" prefHeight="25.0" />
+        <Button text="Ban User" onAction="#handleBanUser"
+                style="-fx-background-color: #d9534f; -fx-text-fill: white; -fx-font-weight: bold;" />
+        <Button text="Unban User" onAction="#handleUnbanUser"
+                style="-fx-background-color: #5bc0de; -fx-text-fill: white;" />
+        <Button text="Delete User" onAction="#handleDeleteUser"
+                style="-fx-background-color: #8B0000; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" />
+    </HBox>
+
+</AnchorPane>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="680.0" prefWidth="800.0" style="-fx-background-color: #f4f7f6;"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.smarthire.controllers.auth.RegisterController">
+
+    <VBox alignment="CENTER" spacing="12.0" layoutX="250.0" layoutY="30.0" prefWidth="300.0"
+          style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 10;
+                 -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+
+        <Label text="Create Account"
+               style="-fx-font-size: 24px; -fx-text-fill: #2f4188; -fx-font-weight: bold;" />
+
+        <TextField fx:id="fnameField" promptText="First Name" style="-fx-padding: 10;" />
+        <TextField fx:id="lnameField" promptText="Last Name" style="-fx-padding: 10;" />
+        <TextField fx:id="phoneField" promptText="Phone Number" style="-fx-padding: 10;" />
+        <TextField fx:id="emailField" promptText="Email Address" style="-fx-padding: 10;" />
+        <PasswordField fx:id="passField" promptText="Password" style="-fx-padding: 10;" />
+
+        <Label text="I am a:" style="-fx-text-fill: #666;" />
+        <ComboBox fx:id="roleCombo" promptText="Select Role" maxWidth="Infinity"
+                  style="-fx-padding: 5;" />
+
+        <!-- Face Recognition Section -->
+        <Separator />
+
+        <Label text="Face Recognition (Optional)"
+               style="-fx-text-fill: #2f4188; -fx-font-weight: bold; -fx-font-size: 13px;" />
+
+        <Label text="Register your face to enable facial login."
+               style="-fx-text-fill: #999; -fx-font-size: 11px;" wrapText="true"
+               textAlignment="CENTER" />
+
+        <Button fx:id="captureFaceBtn" text="📸  Capture Face"
+                onAction="#handleCaptureFace"
+                maxWidth="Infinity"
+                style="-fx-background-color: #2f4188; -fx-text-fill: white;
+                       -fx-font-weight: bold; -fx-padding: 10;
+                       -fx-background-radius: 5; -fx-cursor: hand;" />
+
+        <Label fx:id="faceStatusLabel" text=""
+               maxWidth="Infinity" wrapText="true"
+               style="-fx-font-size: 12px;" />
+
+        <Separator />
+
+        <Button text="Sign Up" onAction="#handleRegister"
+                maxWidth="Infinity"
+                style="-fx-background-color: #e91e63; -fx-text-fill: white;
+                       -fx-font-weight: bold; -fx-padding: 10;
+                       -fx-background-radius: 5; -fx-cursor: hand;" />
+
+        <Hyperlink text="Already have an account? Login"
+                   onAction="#goToLogin" textFill="#4686c2" />
+
+    </VBox>
+</AnchorPane>
