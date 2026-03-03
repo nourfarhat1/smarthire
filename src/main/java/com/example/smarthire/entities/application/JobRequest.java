@@ -14,6 +14,8 @@ public class JobRequest {
     // UI Helpers (Not in DB, but used for TableView display)
     private String jobTitle;
     private String candidateName;
+    private String candidateEmail;
+
 
     public JobRequest() {}
 
@@ -55,4 +57,11 @@ public class JobRequest {
 
     public String getCandidateName() { return candidateName; }
     public void setCandidateName(String candidateName) { this.candidateName = candidateName; }
+    public String getCandidateEmail() {
+        return candidateEmail;
+    }
+
+    public void setCandidateEmail(String candidateEmail) {
+        this.candidateEmail = candidateEmail;
+    }
 }
