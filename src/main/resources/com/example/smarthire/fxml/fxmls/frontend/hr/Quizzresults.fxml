@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" stylesheets="@../../../../css/mainstyle.css" style="-fx-background-color: #f4f7f6;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.smarthire.controllers.test.ResultController">
+    <children>
+        <VBox spacing="15.0" AnchorPane.topAnchor="15.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.bottomAnchor="15.0">
+            <HBox alignment="CENTER_LEFT" spacing="15.0">
+                <Label text="Quiz Results" styleClass="header-label" />
+                <Button text="Back to Quizzes" onAction="#handleBack" styleClass="button, button-primary" />
+            </HBox>
+
+            <HBox spacing="15.0">
+                <VBox prefWidth="160.0" styleClass="card">
+                    <Label text="Total Results" style="-fx-text-fill: #666;" />
+                    <Label fx:id="totalResults" text="0" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2196F3;" />
+                </VBox>
+                <VBox prefWidth="160.0" styleClass="card">
+                    <Label text="Pass Rate" style="-fx-text-fill: #666;" />
+                    <Label fx:id="passRate" text="0%" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #4CAF50;" />
+                </VBox>
+                <VBox prefWidth="160.0" styleClass="card">
+                    <Label text="Avg Score" style="-fx-text-fill: #666;" />
+                    <Label fx:id="avgScore" text="0" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #e91e63;" />
+                </VBox>
+                <VBox alignment="CENTER_LEFT" spacing="5.0" style="-fx-padding: 5 0;">
+                    <Label text="Filter by Quiz:" style="-fx-text-fill: #555; -fx-font-weight: bold;" />
+                    <ComboBox fx:id="quizFilter" promptText="All Quizzes" prefWidth="200.0" onAction="#handleFilterByQuiz" />
+                </VBox>
+            </HBox>
+
+            <ListView fx:id="resultListView" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;" />
+            <Label fx:id="statusLabel" style="-fx-font-size: 12px;" />
+        </VBox>
+    </children>
+</AnchorPane>
