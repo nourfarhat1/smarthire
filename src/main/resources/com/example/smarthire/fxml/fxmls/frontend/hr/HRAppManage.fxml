@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <SplitPane dividerPositions="0.4" prefHeight="600.0" prefWidth="800.0">
+        <items>
+            <AnchorPane>
+                <ListView prefHeight="600.0" prefWidth="320.0" />
+            </AnchorPane>
+            <AnchorPane style="-fx-background-color: white;">
+                <VBox layoutX="20.0" layoutY="20.0" spacing="15.0">
+                    <Label text="Applicant Details" textFill="#2f4188" style="-fx-font-size: 20px;" />
+                    <Label text="Name: Jane Smith" />
+                    <Label text="Email: jane@example.com" />
+                    <Label text="Status: Pending" textFill="#e91e63" style="-fx-font-weight: bold;" />
+                    <Button text="Download CV" style="-fx-background-color: #4686c2; -fx-text-fill: white;" />
+                    <Button text="Schedule Interview" style="-fx-background-color: #87a042; -fx-text-fill: white;" />
+                    <Button text="Reject Application" style="-fx-background-color: #961f17; -fx-text-fill: white;" />
+                </VBox>
+            </AnchorPane>
+        </items>
+    </SplitPane>
+</AnchorPane>
