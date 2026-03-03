@@ -11,8 +11,6 @@ public class SmsService {
         Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
     }
 
-  er must be in international format e.g. +21612345678
-     */
     public void sendOtp(String toPhoneNumber, String otpCode) {
         String messageBody =
                 "Your SmartHire password reset code is: " + otpCode + "\n" +

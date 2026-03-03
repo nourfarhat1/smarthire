@@ -11,10 +11,12 @@ import java.util.Base64;
 
 public class FaceService {
 
-    private static final String DETECT_URL  = "https://api-us.faceplusplus.com/facepp/v3/detect";
-    private static final String COMPARE_URL = "https://api-us.faceplusplus.com/facepp/v3/compare";
+    private final OkHttpClient client = new OkHttpClient();
 
-
+    /**
+     * Sends an image to Face++ and returns a face_token.
+     * Returns null if no face is detected.
+     */
     public String detectFace(BufferedImage image) throws IOException {
         String base64Image = toBase64(image);
 

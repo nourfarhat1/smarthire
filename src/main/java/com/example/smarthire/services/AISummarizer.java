@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 public class AISummarizer {
 
-   // private static final String API_KEY = "";
 
     private static final String API_URL =
             "https://api.groq.com/openai/v1/chat/completions";
@@ -54,7 +53,7 @@ public class AISummarizer {
 
             Request request = new Request.Builder()
                     .url(API_URL)
-                    .addHeader("Authorization", "Bearer " )
+                    .addHeader("Authorization", "Bearer " + API_KEY)
                     .addHeader("Content-Type", "application/json")
                     .post(body)
                     .build();
