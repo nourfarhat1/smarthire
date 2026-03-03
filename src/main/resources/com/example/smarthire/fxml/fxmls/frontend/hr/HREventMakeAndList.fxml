@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.smarthire.controllers.event.EventController">
+    <TabPane fx:id="mainTabPane" prefHeight="600.0" prefWidth="800.0" tabClosingPolicy="UNAVAILABLE" style="-fx-background-color: #f4f7f6;">
+        <tabs>
+            <Tab fx:id="myEventsTab" text="My Events">
+                <AnchorPane>
+                    <TableView fx:id="eventTable" layoutX="10.0" layoutY="30.0" prefHeight="480.0" prefWidth="780.0">
+                        <columns>
+                            <TableColumn fx:id="colName" text="Event Name" prefWidth="120.0" />
+                            <TableColumn fx:id="colDate" text="Date" prefWidth="100.0" />
+                            <TableColumn fx:id="colLocation" text="Location" prefWidth="110.0" />
+                            <TableColumn fx:id="colMax" text="Max Part." prefWidth="70.0" />
+                            <TableColumn fx:id="colDesc" text="Description" prefWidth="180.0" />
+                            <TableColumn fx:id="colActions" text="Actions" prefWidth="180.0" />
+                        </columns>
+                    </TableView>
+                    <Button layoutX="20.0" layoutY="530.0" onAction="#switchToCreateTab" prefHeight="40.0" prefWidth="160.0" text="+ ADD NEW EVENT" textFill="WHITE" style="-fx-background-color: #87a042; -fx-font-weight: bold; -fx-cursor: hand;" />
+                </AnchorPane>
+            </Tab>
+
+            <Tab fx:id="createEventTab" text="Create / Edit">
+                <AnchorPane style="-fx-background-color: white;">
+                    <VBox layoutX="100.0" layoutY="20.0" spacing="5.0" prefWidth="600.0">
+                        <Label fx:id="formTitle" text="Host a New Event" textFill="#2f4188" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-margin-bottom: 10;" />
+
+                        <Label text="Event Title" style="-fx-font-weight: bold;" />
+                        <TextField fx:id="nameField" promptText="Enter event name" style="-fx-padding: 8;" />
+                        <Label fx:id="nameError" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+
+                        <Label text="Date &amp; Time" style="-fx-font-weight: bold;" />
+                        <DatePicker fx:id="datePicker" prefWidth="600.0" promptText="Select date" />
+                        <Label fx:id="dateError" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+
+                        <Label text="Location" style="-fx-font-weight: bold;" />
+                        <TextField fx:id="locationField" promptText="Enter address or city" style="-fx-padding: 8;" />
+                        <Label fx:id="locationError" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+
+                        <Label text="Description" style="-fx-font-weight: bold;" />
+                        <TextArea fx:id="descriptionArea" prefHeight="80.0" promptText="Describe the event details..." wrapText="true" />
+                        <Label fx:id="descError" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+
+                        <Label text="Max Participants" style="-fx-font-weight: bold;" />
+                        <TextField fx:id="maxParticipantsField" promptText="e.g. 50" style="-fx-padding: 8;" />
+                        <Label fx:id="maxError" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+
+                        <Region prefHeight="10.0" /> <Button fx:id="submitButton" onAction="#handlePublishEvent" text="Publish Event" maxWidth="Infinity" textFill="WHITE" style="-fx-background-color: #87a042; -fx-padding: 12; -fx-font-weight: bold; -fx-cursor: hand;" />
+                    </VBox>
+                </AnchorPane>
+            </Tab>
+        </tabs>
+    </TabPane>
+</AnchorPane>
