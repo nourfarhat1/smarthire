@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.smarthire.controllers.application.SavedJobController"
+            prefHeight="600.0" prefWidth="850.0" style="-fx-background-color: #f8f9fa;">
+    <children>
+        <VBox spacing="20.0" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <padding>
+                <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
+            </padding>
+            <children>
+                <!-- Header without back button -->
+                <Label text="My Saved Favorites" textFill="#2f4188">
+                    <font>
+                        <Font name="System Bold" size="24.0"/>
+                    </font>
+                </Label>
+
+                <!-- Subheader / description -->
+                <Label text="Here are the jobs you've bookmarked for later application." textFill="#666666"/>
+
+                <!-- List of saved jobs -->
+                <ListView fx:id="savedListView" VBox.vgrow="ALWAYS"
+                          style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-background-color: white;"/>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

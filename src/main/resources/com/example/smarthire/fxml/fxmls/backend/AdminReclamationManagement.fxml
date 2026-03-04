@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="700.0" prefWidth="1100.0"
+            style="-fx-background-color: #F3F4F6; -fx-font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.smarthire.controllers.reclamation.AdminComplaintController">
+
+    <SplitPane dividerPositions="0.32" prefHeight="700.0" prefWidth="1100.0"
+               style="-fx-background-color: transparent; -fx-padding: 15;"
+               AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+
+        <VBox spacing="15" style="-fx-background-color: #E0F2FE; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 2);">
+
+            <Label text="Complaints" style="-fx-font-size: 26px; -fx-font-weight: 800; -fx-text-fill: #1E3A8A;" />
+            <Label text="Manage and resolve user issues" style="-fx-font-size: 13px; -fx-text-fill: #64748B; -fx-padding: -10 0 5 0;" />
+
+            <VBox spacing="10">
+                <TextField fx:id="searchField" promptText="🔍 Search Users..." onAction="#handleSearch"
+                           style="-fx-background-color: #FFFFFF; -fx-border-color: #BAE6FD; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 10; -fx-font-size: 13px; -fx-text-fill: black;" />
+
+                <HBox spacing="10">
+                    <ComboBox fx:id="statusFilter" promptText="Status" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                              style="-fx-background-color: #FFFFFF; -fx-border-color: #BAE6FD; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 5; -fx-text-base-color: black;" />
+                    <ComboBox fx:id="dateSort" promptText="Sort Date" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                              style="-fx-background-color: #FFFFFF; -fx-border-color: #BAE6FD; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 5; -fx-text-base-color: black;" />
+                </HBox>
+
+                <ComboBox fx:id="typeFilter" promptText="Filter by Category" maxWidth="Infinity"
+                          style="-fx-background-color: #FFFFFF; -fx-border-color: #BAE6FD; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 5; -fx-text-base-color: black;" />
+            </VBox>
+
+            <ListView fx:id="complaintListView" VBox.vgrow="ALWAYS"
+                      style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-color: #BAE6FD; -fx-border-radius: 8; -fx-control-inner-background: #FFFFFF; -fx-padding: 5; -fx-text-inner-color: black; -fx-font-size: 14px;" />
+        </VBox>
+
+        <AnchorPane style="-fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 2);">
+
+            <TabPane tabClosingPolicy="UNAVAILABLE" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0"
+                     AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0"
+                     style="-fx-background-color: transparent;">
+
+                <Tab text="📝 Details &amp; Chat" style="-fx-font-weight: bold; -fx-text-base-color: #1E3A8A;">
+                    <AnchorPane>
+
+                        <VBox alignment="CENTER" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+                            <Label fx:id="placeholderLabel" text="Select a complaint from the list to view details"
+                                   style="-fx-font-size: 16px; -fx-text-fill: #9CA3AF; -fx-font-style: italic;" />
+                        </VBox>
+
+                        <VBox fx:id="detailsContainer" visible="false" spacing="20"
+                              AnchorPane.topAnchor="25" AnchorPane.leftAnchor="30"
+                              AnchorPane.rightAnchor="30" AnchorPane.bottomAnchor="25">
+
+                            <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-border-width: 0 0 1 0; -fx-border-color: #E5E7EB; -fx-padding: 0 0 15 0;">
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label fx:id="subjectLabel" text="Subject Loading..." style="-fx-font-size: 24px; -fx-font-weight: 800; -fx-text-fill: #1E3A8A;" />
+                                    <Label fx:id="senderLabel" text="From: User" style="-fx-font-size: 14px; -fx-text-fill: #6B7280; -fx-font-weight: 600;" />
+                                </VBox>
+
+                                <Label fx:id="statusLabel" text="PENDING"
+                                       style="-fx-background-color: linear-gradient(to right, #EC4899, #DB2777); -fx-padding: 6 16; -fx-background-radius: 20; -fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 12px; -fx-letter-spacing: 1px;" />
+
+                                <Button text="✅ Resolve" onAction="#handleResolve"
+                                        style="-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand;" />
+                            </HBox>
+
+                            <VBox spacing="10" style="-fx-background-color: #FDF2F8; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #FBCFE8; -fx-border-radius: 10;">
+                                <HBox spacing="12" alignment="CENTER_LEFT">
+                                    <Label text="✨ AI Recap &amp; Tools" style="-fx-font-weight: 800; -fx-text-fill: #DB2777; -fx-font-size: 14px;" />
+                                    <ProgressIndicator fx:id="aiProgress" prefHeight="16" prefWidth="16" visible="false" />
+
+                                    <Region HBox.hgrow="ALWAYS" />
+
+                                    <ComboBox fx:id="langSelector" prefWidth="110" promptText="Language"
+                                              style="-fx-background-radius: 6; -fx-font-size: 11px; -fx-background-color: white; -fx-border-color: #FBCFE8; -fx-border-radius: 6; -fx-text-base-color: black;" />
+
+                                    <Button text="🌐 Translate" onAction="#handleTranslateAction"
+                                            style="-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-font-size: 11px; -fx-background-radius: 6; -fx-font-weight: bold; -fx-cursor: hand;" />
+
+                                    <Button text="💡 Use Suggestion" onAction="#handleUseAISuggestion"
+                                            style="-fx-background-color: #DB2777; -fx-text-fill: white; -fx-font-size: 11px; -fx-background-radius: 6; -fx-font-weight: bold; -fx-cursor: hand;" />
+
+                                    <Button text="🔄" onAction="#handleRetryRecap"
+                                            style="-fx-background-color: transparent; -fx-text-fill: #6B7280; -fx-cursor: hand; -fx-font-size: 14px;" />
+                                </HBox>
+                                <Label fx:id="recapLabel" text="Select a complaint..." wrapText="true"
+                                       style="-fx-text-fill: #4B5563; -fx-font-size: 13px; -fx-line-spacing: 4px;" />
+                            </VBox>
+
+                            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                                        style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-border-color: #E5E7EB; -fx-border-radius: 10;">
+                                <VBox fx:id="chatBox" spacing="12" style="-fx-padding: 15; -fx-background-color: #F9FAFB;" />
+                            </ScrollPane>
+
+                            <VBox spacing="10" style="-fx-background-color: #F3F4F6; -fx-padding: 15; -fx-background-radius: 10;">
+                                <TextArea fx:id="replyField" promptText="Type your response here..."
+                                          prefHeight="80" wrapText="true"
+                                          style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #D1D5DB; -fx-border-radius: 8; -fx-font-size: 14px; -fx-padding: 5; -fx-text-fill: black;" />
+
+                                <HBox spacing="10" alignment="CENTER_RIGHT">
+                                    <Region HBox.hgrow="ALWAYS" />
+
+                                    <Button text="📨 Send Reply" onAction="#handleSendReply"
+                                            style="-fx-background-color: #2563EB; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6; -fx-padding: 8 24; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(37,99,235,0.3), 5, 0, 0, 2);" />
+                                </HBox>
+                            </VBox>
+
+                        </VBox>
+                    </AnchorPane>
+                </Tab>
+
+                <Tab text="📊 Analytics &amp; Statistics" style="-fx-font-weight: bold; -fx-text-base-color: #1E3A8A;">
+                    <VBox alignment="CENTER" spacing="25" style="-fx-padding: 40; -fx-background-color: #FFFFFF;">
+                        <Label text="Complaints Distribution"
+                               style="-fx-font-size: 24px; -fx-font-weight: 800; -fx-text-fill: #1E3A8A;" />
+                        <PieChart fx:id="statsPieChart" VBox.vgrow="ALWAYS"
+                                  style="-fx-padding: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 15, 0, 0, 5);" />
+                    </VBox>
+                </Tab>
+
+            </TabPane>
+        </AnchorPane>
+    </SplitPane>
+</AnchorPane>

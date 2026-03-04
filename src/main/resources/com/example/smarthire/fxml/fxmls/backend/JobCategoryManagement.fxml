@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" style="-fx-padding: 20;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.smarthire.controllers.job.JobCategoryManagementController">
+
+    <Label text="Job Category Management" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <TextField fx:id="categoryNameField" promptText="New Category Name" prefWidth="250"/>
+        <Button text="Add Category" onAction="#handleAddCategory"
+                style="-fx-background-color: #2f4188; -fx-text-fill: white;"/>
+    </HBox>
+
+    <TableView fx:id="categoryTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colName" text="Category Name" prefWidth="300"/>
+        </columns>
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
+    </TableView>
+</VBox>

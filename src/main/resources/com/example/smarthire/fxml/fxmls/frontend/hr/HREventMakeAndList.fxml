@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="750.0" prefWidth="1000.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.smarthire.controllers.event.EventController">
+    <children>
+        <TabPane fx:id="mainTabPane" side="TOP" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <tabs>
+                <Tab fx:id="myEventsTab" text="  DASHBOARD">
+                    <content>
+                        <VBox spacing="25.0" style="-fx-background-color: #f8f9fc;">
+                            <padding>
+                                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+                            </padding>
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                    <children>
+                                        <VBox>
+                                            <children>
+                                                <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #4e73df;" text="Event Management" />
+                                                <Label style="-fx-text-fill: #858796; -fx-font-size: 14px;" text="Manage your professional recruitment events and workshops" />
+                                            </children>
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Button mnemonicParsing="false" onAction="#switchToCreateTab" prefHeight="45.0" prefWidth="180.0" styleClass="button-success" text="+ NEW EVENT" />
+                                    </children>
+                                </HBox>
+                                <StackPane styleClass="card" VBox.vgrow="ALWAYS">
+                                    <children>
+                                        <TableView fx:id="eventTable" prefHeight="200.0" prefWidth="200.0">
+                                            <columns>
+                                                <TableColumn fx:id="colName" prefWidth="160.0" text="EVENT NAME" />
+                                                <TableColumn fx:id="colDate" prefWidth="140.0" text="DATE" />
+                                                <TableColumn fx:id="colLocation" prefWidth="130.0" text="LOCATION" />
+                                                <TableColumn fx:id="colMax" prefWidth="80.0" text="CAP." />
+                                                <TableColumn fx:id="colDesc" prefWidth="220.0" text="DESCRIPTION" />
+                                                <TableColumn fx:id="colActions" prefWidth="180.0" text="ACTIONS" />
+                                            </columns>
+                                        </TableView>
+                                    </children>
+                                    <padding>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                    </padding>
+                                </StackPane>
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
+                <Tab fx:id="createEventTab" text="  EVENT EDITOR">
+                    <content>
+                        <ScrollPane fitToWidth="true" style="-fx-background-color: #f8f9fc;">
+                            <content>
+                                <VBox alignment="TOP_CENTER" prefHeight="650.0" spacing="20.0" style="-fx-background-color: #f8f9fc;">
+                                    <children>
+                                        <VBox maxWidth="750.0" spacing="25.0" styleClass="card">
+                                            <padding>
+                                                <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+                                            </padding>
+                                            <children>
+                                                <Label fx:id="formTitle" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #4e73df;" text="Host a New Event" />
+                                                <Separator prefWidth="200.0" />
+                                                <GridPane hgap="25.0" vgap="20.0">
+                                                    <columnConstraints>
+                                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                    </columnConstraints>
+                                                    <rowConstraints>
+                                                        <RowConstraints minHeight="10.0" prefHeight="70.0" vgrow="SOMETIMES" />
+                                                        <RowConstraints minHeight="10.0" prefHeight="70.0" vgrow="SOMETIMES" />
+                                                    </rowConstraints>
+                                                    <children>
+                                                        <VBox spacing="5.0">
+                                                            <children>
+                                                                <Label style="-fx-font-weight: bold;" text="Event Title" />
+                                                                <TextField fx:id="nameField" promptText="e.g. AI Tech Summit" />
+                                                                <Label fx:id="nameError" styleClass="error-label" />
+                                                            </children>
+                                                        </VBox>
+                                                        <VBox spacing="5.0" GridPane.columnIndex="1">
+                                                            <children>
+                                                                <Label style="-fx-font-weight: bold;" text="Location (Tunisia)" />
+                                                                <ComboBox fx:id="locationField" maxWidth="1.7976931348623157E308" promptText="Select City" />
+                                                                <Label fx:id="locationError" styleClass="error-label" />
+                                                            </children>
+                                                        </VBox>
+                                                        <VBox spacing="5.0" GridPane.rowIndex="1">
+                                                            <children>
+                                                                <Label style="-fx-font-weight: bold;" text="Event Date" />
+                                                                <DatePicker fx:id="datePicker" maxWidth="1.7976931348623157E308" />
+                                                                <Label fx:id="dateError" styleClass="error-label" />
+                                                            </children>
+                                                        </VBox>
+                                                        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                            <children>
+                                                                <Label style="-fx-font-weight: bold;" text="Max Participants" />
+                                                                <TextField fx:id="maxParticipantsField" promptText="50" />
+                                                                <Label fx:id="maxError" styleClass="error-label" />
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </GridPane>
+                                                <VBox spacing="5.0">
+                                                    <children>
+                                                        <Label style="-fx-font-weight: bold;" text="Event Description" />
+                                                        <TextArea fx:id="descriptionArea" prefHeight="100.0" promptText="Details about your event..." wrapText="true" />
+                                                        <Label fx:id="descError" styleClass="error-label" />
+                                                    </children>
+                                                </VBox>
+                                                <HBox alignment="CENTER_RIGHT" spacing="15.0">
+                                                    <children>
+                                                        <Button mnemonicParsing="false" onAction="#resetForm" prefHeight="45.0" prefWidth="120.0" style="-fx-background-color: #eaecf4; -fx-text-fill: #5a5c69; -fx-font-weight: bold;" text="CANCEL" />
+                                                        <Button fx:id="submitButton" mnemonicParsing="false" onAction="#handlePublishEvent" prefHeight="50.0" prefWidth="250.0" styleClass="button-primary" text="PUBLISH EVENT" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                    <padding>
+                                        <Insets top="20.0" />
+                                    </padding>
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </children>
+</AnchorPane>

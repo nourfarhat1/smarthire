@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="600.0" prefWidth="850.0" style="-fx-background-color: #f4f4f4;"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.smarthire.controllers.application.CandidateTrainingController">
+
+    <!-- Title -->
+    <Label text="Available Trainings" layoutX="30.0" layoutY="20.0"
+           style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2f4188;" />
+
+    <!-- Search Field -->
+    <TextField fx:id="searchField" layoutX="30.0" layoutY="60.0" prefWidth="300.0"
+               promptText="Search by title or category..." />
+
+    <!-- Scrollable container for cards -->
+    <ScrollPane layoutX="30.0" layoutY="100.0" prefWidth="790.0" prefHeight="480.0">
+        <VBox fx:id="cardContainer" spacing="15" style="-fx-padding: 10;" />
+    </ScrollPane>
+
+</AnchorPane>
