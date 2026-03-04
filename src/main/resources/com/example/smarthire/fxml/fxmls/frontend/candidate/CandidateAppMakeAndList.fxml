@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" style="-fx-padding: 20;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.smarthire.controllers.application.MyApplicationsController">
+
+    <Label text="My Applications" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <HBox spacing="10">
+        <Button text="+ Spontaneous Application" onAction="#handleSpontaneous" style="-fx-background-color: #2f4188; -fx-text-fill: white;"/>
+        <Button text="Edit Selected" onAction="#handleEdit"/>
+        <Button text="Delete Selected" onAction="#handleDelete" style="-fx-background-color: #d9534f; -fx-text-fill: white;"/>
+    </HBox>
+
+    <TableView fx:id="appTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colJob" text="Job / Type" prefWidth="250"/>
+            <TableColumn fx:id="colDate" text="Date Submitted" prefWidth="150"/>
+            <TableColumn fx:id="colStatus" text="Status" prefWidth="120"/>
+        </columns>
+    </TableView>
+</VBox>

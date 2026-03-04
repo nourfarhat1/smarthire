@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="20" alignment="TOP_CENTER" style="-fx-padding: 40; -fx-background-color: #f9f9f9;"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.smarthire.controllers.user.UserProfileController">
+
+    <Label text="Edit Your Profile" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2f4188;" />
+
+    <GridPane vgap="15" hgap="10" alignment="CENTER">
+        <Label text="First Name:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+        <TextField fx:id="firstNameField" GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Last Name:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+        <TextField fx:id="lastNameField" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+        <Label text="Email:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+        <TextField fx:id="emailField" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+        <Label text="Phone:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+        <TextField fx:id="phoneField" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+    </GridPane>
+
+    <Button text="Save Changes" onAction="#handleUpdateProfile"
+            style="-fx-background-color: #2f4188; -fx-text-fill: white; -fx-padding: 10 30; -fx-font-weight: bold;" />
+</VBox>
