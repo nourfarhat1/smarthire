@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="750.0" prefWidth="850.0" style="-fx-background-color: #f4f7f6;"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.smarthire.controllers.auth.RegisterController">
+
+    <VBox alignment="CENTER" spacing="12.0" layoutX="250.0" layoutY="20.0" prefWidth="350.0"
+          style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 15;
+                 -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 15, 0, 0, 0);">
+
+        <Label text="Create Account"
+               style="-fx-font-size: 26px; -fx-text-fill: #2f4188; -fx-font-weight: bold;" />
+
+        <TextField fx:id="fnameField" promptText="First Name" style="-fx-padding: 10; -fx-background-radius: 5;" />
+        <TextField fx:id="lnameField" promptText="Last Name" style="-fx-padding: 10; -fx-background-radius: 5;" />
+        <TextField fx:id="phoneField" promptText="Phone Number" style="-fx-padding: 10; -fx-background-radius: 5;" />
+        <TextField fx:id="emailField" promptText="Email Address" style="-fx-padding: 10; -fx-background-radius: 5;" />
+        <PasswordField fx:id="passField" promptText="Password" style="-fx-padding: 10; -fx-background-radius: 5;" />
+
+        <VBox spacing="5">
+            <Label text="I am a:" style="-fx-text-fill: #666; -fx-font-size: 12px;" />
+            <ComboBox fx:id="roleCombo" promptText="Select Role" maxWidth="Infinity"
+                      style="-fx-padding: 5; -fx-background-radius: 5;" />
+        </VBox>
+
+        <VBox fx:id="cvSection" spacing="10" visible="false" managed="false">
+            <Separator />
+            <Label text="CV Analysis (Required for Candidates)"
+                   style="-fx-text-fill: #2f4188; -fx-font-weight: bold; -fx-font-size: 13px;" />
+
+            <Button fx:id="uploadCvBtn" text="📄  Upload CV (PDF)"
+                    onAction="#handleUploadCV" maxWidth="Infinity"
+                    style="-fx-background-color: #4686c2; -fx-text-fill: white;
+                           -fx-font-weight: bold; -fx-padding: 10;
+                           -fx-background-radius: 5; -fx-cursor: hand;" />
+
+            <Label fx:id="cvStatusLabel" text="No CV uploaded yet"
+                   style="-fx-font-size: 11px; -fx-text-fill: #777;" wrapText="true" alignment="CENTER"/>
+        </VBox>
+
+        <Separator />
+        <Label text="Face Recognition (Optional)"
+               style="-fx-text-fill: #2f4188; -fx-font-weight: bold; -fx-font-size: 13px;" />
+
+        <Button fx:id="captureFaceBtn" text="📸  Capture Face"
+                onAction="#handleCaptureFace"
+                maxWidth="Infinity"
+                style="-fx-background-color: #2f4188; -fx-text-fill: white;
+                       -fx-font-weight: bold; -fx-padding: 10;
+                       -fx-background-radius: 5; -fx-cursor: hand;" />
+
+        <Label fx:id="faceStatusLabel" text=""
+               maxWidth="Infinity" wrapText="true"
+               style="-fx-font-size: 12px;" />
+
+        <Separator />
+
+        <Button text="Sign Up" onAction="#handleRegister"
+                maxWidth="Infinity"
+                style="-fx-background-color: #e91e63; -fx-text-fill: white;
+                       -fx-font-weight: bold; -fx-padding: 12;
+                       -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 14px;" />
+
+        <Hyperlink text="Already have an account? Login"
+                   onAction="#goToLogin" textFill="#4686c2" style="-fx-font-size: 12px;" />
+
+    </VBox>
+</AnchorPane>

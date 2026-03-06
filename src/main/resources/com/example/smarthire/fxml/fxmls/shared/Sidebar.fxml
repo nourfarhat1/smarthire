@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
+
+<VBox prefHeight="700.0" prefWidth="250.0" spacing="10.0" style="-fx-background-color: #2f4188; -fx-padding: 20;"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.smarthire.controllers.user.SidebarController">
+
+    <Label text="SmartHire" textFill="WHITE" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+
+    <VBox fx:id="candidateMenu" spacing="10.0" visible="false" managed="false">
+        <Label text="CANDIDATE" textFill="#87a042" style="-fx-font-size: 12px; -fx-font-weight: bold;" />
+        <Button text="Dashboard" onAction="#goToCandidateDashboard" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="Job Market" onAction="#goToJobMarket" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="My Applications" onAction="#goToMyApplications" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="Events" onAction="#goToCandidateEvents" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="Take Quiz" onAction="#goToCandidateQuiz" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="Support" onAction="#goToReclamation" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="Training" onAction="#goToCandidateTrainingDisplay" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+    </VBox>
+
+    <VBox fx:id="hrMenu" spacing="10.0" visible="false" managed="false">
+        <Label text="HR MANAGER" textFill="#e91e63" style="-fx-font-size: 12px; -fx-font-weight: bold;" />
+        <Button text="Dashboard" onAction="#goToHRDashboard" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="Manage Offers" onAction="#goToManageOffers" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="Interviews" onAction="#goToInterviews" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="Manage Events" onAction="#goToHREvents" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="Quizzes" onAction="#goToHRQuizzes" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+
+        <Button text="Job Request" onAction="#goToJOBRequest" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+    </VBox>
+
+    <VBox fx:id="adminMenu" spacing="10.0" visible="false" managed="false">
+        <Label text="ADMINISTRATOR" textFill="#4686c2" style="-fx-font-size: 12px; -fx-font-weight: bold;" />
+        <Button text="Statistics" onAction="#goToAdminStats" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="Admin Events" onAction="#goToEventManagement" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="complaint types" onAction="#goToAdminReclamationTypes" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="manage complaints" onAction="#goToAdminReclamation" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="Job categories" onAction="#goToJobCategories" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="Manage Job Offers" onAction="#goToAdminOfferManage" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="Manage Applications" onAction="#goToAdminAppManage" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="Manage Users" onAction="#goToUserManage" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+        <Button text="Manage Trainings" onAction="#goToAdminTrainings" maxWidth="Infinity" style="-fx-alignment: CENTER_LEFT; -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" />
+    </VBox>
+
+    <Region VBox.vgrow="ALWAYS" />
+    <Button text="Logout" onAction="#handleLogout" maxWidth="Infinity" style="-fx-background-color: #d9534f; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" />
+</VBox>
