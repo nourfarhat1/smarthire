@@ -43,7 +43,6 @@ public class SpontaneousAppFormController {
         String what = java.net.URLEncoder.encode(jobTitle, "UTF-8");
         String where = java.net.URLEncoder.encode(location, "UTF-8");
 
-        String url = "https://api.adzuna.com/v1/api/jobs/gb/search/1" +
                 "?app_id=492f1619" +
                 "&what=" + what +
                 "&where=" + where +
