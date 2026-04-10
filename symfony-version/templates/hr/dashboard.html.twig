@@ -1,0 +1,199 @@
+{% extends 'hr/layout.html.twig' %}
+
+{% block title %}HR Dashboard - SmartHire{% endblock %}
+
+{% block page_title %}HR Dashboard{% endblock %}
+
+{% block hr_page_title %}HR Dashboard{% endblock %}
+
+{% block hr_content %}
+<!-- HR Dashboard Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stats-card hr-dashboard text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.active_offers ?? 0 }}</h4>
+                        <p class="card-text">Active Offers</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-briefcase fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card hr-dashboard text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.total_applications ?? 0 }}</h4>
+                        <p class="card-text">Applications</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-file-text fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card hr-dashboard text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.pending_applications ?? 0 }}</h4>
+                        <p class="card-text">Pending Applications</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-clock-history fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card hr-dashboard text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.my_events ?? 0 }}</h4>
+                        <p class="card-text">My Events</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-calendar-event fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header hr-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ path('app_hr_job_offers_new') }}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                            <i class="bi bi-plus-circle fs-1 mb-2"></i>
+                            <span>Create New Offer</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ path('app_hr_interviews') }}" class="btn btn-outline-success w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                            <i class="bi bi-calendar-plus fs-1 mb-2"></i>
+                            <span>Manage Interviews</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ path('app_hr_events') }}" class="btn btn-outline-info w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                            <i class="bi bi-calendar-plus fs-1 mb-2"></i>
+                            <span>Manage Events</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ path('app_hr_quizzes') }}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                            <i class="bi bi-question-circle fs-1 mb-2"></i>
+                            <span>Manage Quizzes</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <a href="{{ path('app_hr_job_requests') }}" class="btn btn-outline-secondary w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                            <i class="bi bi-file-text fs-1 mb-2"></i>
+                            <span>Job Requests</span>
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{{ path('app_hr_complaints_new') }}" class="btn btn-outline-danger w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                            <i class="bi bi-exclamation-triangle fs-1 mb-2"></i>
+                            <span>Submit Complaint</span>
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{{ path('app_hr_job_offers_new') }}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                            <i class="bi bi-plus-circle fs-1 mb-2"></i>
+                            <span>Create Job Offer</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header hr-info text-white">
+                <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Applications</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_applications|length > 0 %}
+                    <div class="list-group list-group-flush">
+                        {% for application in recent_applications %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ application.candidate.firstName }} {{ application.candidate.lastName }}</h6>
+                                    <small class="text-muted">{{ application.jobOffer.title }}</small>
+                                </div>
+                                <div>
+                                    <span class="badge bg-primary">{{ application.status }}</span>
+                                    <small class="text-muted d-block">{{ application.submissionDate|date('M d, Y') }}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No recent applications</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header hr-warning text-dark">
+                <h5 class="mb-0"><i class="bi bi-calendar me-2"></i>Job Requests</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <i class="bi bi-file-text fs-1 text-muted mb-3"></i>
+                    <h6>Spontaneous Applications</h6>
+                    <p class="text-muted">Manage job requests from candidates</p>
+                    <a href="{{ path('app_hr_job_requests') }}" class="btn btn-primary">
+                        <i class="bi bi-arrow-right me-2"></i>View Job Requests
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hr-dashboard {
+    background: linear-gradient(135deg, #e91e63 0%, #f06292 100%);
+    box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+}
+
+.hr-primary {
+    background: linear-gradient(135deg, #e91e63 0%, #f06292 100%);
+}
+
+.hr-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.hr-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+</style>
+{% endblock %}

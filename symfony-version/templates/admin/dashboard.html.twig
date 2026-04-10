@@ -1,0 +1,200 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block admin_page_title %}Dashboard{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <!-- Statistics Cards -->
+    <div class="col-md-3 col-sm-6 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.total_users }}</h4>
+                        <p class="card-text">Total Users</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-people fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6 mb-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.total_jobs }}</h4>
+                        <p class="card-text">Job Offers</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-briefcase fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6 mb-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.total_applications }}</h4>
+                        <p class="card-text">Applications</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-file-text fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6 mb-4">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.total_complaints }}</h4>
+                        <p class="card-text">Complaints</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-exclamation-triangle fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- User Statistics -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">User Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h6 class="text-primary">{{ user_stats.candidates }}</h6>
+                        <small>Candidates</small>
+                    </div>
+                    <div class="col-4">
+                        <h6 class="text-success">{{ user_stats.hr_users }}</h6>
+                        <small>HR Users</small>
+                    </div>
+                    <div class="col-4">
+                        <h6 class="text-warning">{{ user_stats.admin_users }}</h6>
+                        <small>Admins</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Application Statistics -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Application Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h6 class="text-warning">{{ application_stats.pending }}</h6>
+                        <small>Pending</small>
+                    </div>
+                    <div class="col-4">
+                        <h6 class="text-success">{{ application_stats.approved }}</h6>
+                        <small>Approved</small>
+                    </div>
+                    <div class="col-4">
+                        <h6 class="text-danger">{{ application_stats.rejected }}</h6>
+                        <small>Rejected</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Recent Activity -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Recent Applications</h5>
+            </div>
+            <div class="card-body">
+                {% for application in recent_applications %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <strong>{{ application.jobTitle|default('Spontaneous') }}</strong>
+                        <br>
+                        <small class="text-muted">{{ application.submissionDate|date('M d, Y') }}</small>
+                    </div>
+                    <span class="badge bg-{{ application.status == 'PENDING' ? 'warning' : application.status == 'APPROVED' ? 'success' : 'danger' }}">
+                        {{ application.status }}
+                    </span>
+                </div>
+                {% else %}
+                <p class="text-muted">No recent applications</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Recent Complaints</h5>
+            </div>
+            <div class="card-body">
+                {% for complaint in recent_complaints %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <strong>{{ complaint.subject }}</strong>
+                        <br>
+                        <small class="text-muted">{{ complaint.submissionDate|date('M d, Y') }}</small>
+                    </div>
+                    <span class="badge bg-{{ complaint.status == 'OPEN' ? 'danger' : 'success' }}">
+                        {{ complaint.status }}
+                    </span>
+                </div>
+                {% else %}
+                <p class="text-muted">No recent complaints</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Recent Users</h5>
+            </div>
+            <div class="card-body">
+                {% for user in recent_users %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <strong>{{ user.fullName }}</strong>
+                        <br>
+                        <small class="text-muted">{{ user.createdAt|date('M d, Y') }}</small>
+                    </div>
+                    <span class="badge bg-{{ user.isBanned ? 'danger' : 'success' }}">
+                        {{ user.isBanned ? 'Banned' : 'Active' }}
+                    </span>
+                </div>
+                {% else %}
+                <p class="text-muted">No recent users</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

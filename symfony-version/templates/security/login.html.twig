@@ -1,0 +1,634 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Login - SmartHire{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* Role-specific color schemes */
+.role-hr {
+    --role-primary: #e91e63;
+    --role-gradient: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+    --role-light: #fce4ec;
+}
+
+.role-candidate {
+    --role-primary: #87a042;
+    --role-gradient: linear-gradient(135deg, #87a042 0%, #6b8a35 100%);
+    --role-light: #f1f8e9;
+}
+
+.role-admin {
+    --role-primary: #2196f3;
+    --role-gradient: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    --role-light: #e3f2fd;
+}
+
+.role-default {
+    --role-primary: #6c757d;
+    --role-gradient: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    --role-light: #f8f9fa;
+}
+
+/* Animated background */
+.login-bg {
+    background: var(--role-gradient);
+    position: relative;
+    overflow: hidden;
+}
+
+.login-bg::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    animation: float 20s linear infinite;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(50px, 50px) rotate(360deg); }
+}
+
+/* Role cards */
+.role-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+}
+
+.role-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    background: rgba(255,255,255,0.15);
+}
+
+.role-card.active {
+    border-color: var(--role-primary);
+    background: rgba(255,255,255,0.2);
+}
+
+.role-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.role-card:hover .role-icon {
+    transform: scale(1.1);
+}
+
+/* Form enhancements */
+.form-control:focus {
+    border-color: var(--role-primary);
+    box-shadow: 0 0 0 0.2rem rgba(233, 30, 99, 0.25);
+}
+
+.btn-role {
+    background: var(--role-gradient);
+    border: none;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-role:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* Feature icons */
+.feature-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+    transform: scale(1.1) rotate(5deg);
+    background: rgba(255,255,255,0.3);
+}
+
+/* Password strength indicator */
+.password-strength {
+    height: 4px;
+    border-radius: 2px;
+    margin-top: 5px;
+    transition: all 0.3s ease;
+}
+
+.strength-weak { background: #dc3545; width: 33%; }
+.strength-medium { background: #ffc107; width: 66%; }
+.strength-strong { background: #28a745; width: 100%; }
+
+/* Quick access buttons */
+.quick-access {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.quick-btn {
+    padding: 8px 16px;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.quick-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+    color: white;
+}
+
+/* Loading state */
+.loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Session info */
+.session-info {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Tooltips */
+[data-tooltip] {
+    position: relative;
+    cursor: help;
+}
+
+[data-tooltip]:hover::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="row min-vh-100">
+    <!-- Left Side - Role Selection & Features -->
+    <div class="col-lg-6 d-none d-lg-block">
+        <div class="h-100 d-flex align-items-center justify-content-center login-bg" id="loginBg">
+            <div class="text-center text-white p-5">
+                <h1 class="display-4 fw-bold mb-4">SmartHire</h1>
+                <p class="lead mb-5">Your intelligent recruitment platform</p>
+                
+                <!-- Session Information -->
+                <div class="session-info mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-shield-check me-2"></i>
+                            <span>Secure Login</span>
+                        </div>
+                        <div>
+                            <i class="bi bi-clock me-2"></i>
+                            <span id="currentTime"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Role Selection -->
+                <div class="mb-5">
+                    <h4 class="mb-3">Choose Your Role</h4>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="role-card p-3 rounded text-center" onclick="selectRole('candidate')" data-tooltip="For job seekers">
+                                <div class="role-icon mx-auto" style="background: #87a042;">
+                                    <i class="bi bi-person-briefcase"></i>
+                                </div>
+                                <h6 class="mb-1">Candidate</h6>
+                                <small>Find your dream job</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="role-card p-3 rounded text-center" onclick="selectRole('hr')" data-tooltip="For HR managers">
+                                <div class="role-icon mx-auto" style="background: #e91e63;">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <h6 class="mb-1">HR</h6>
+                                <small>Manage recruitment</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="role-card p-3 rounded text-center" onclick="selectRole('admin')" data-tooltip="For system administrators">
+                                <div class="role-icon mx-auto" style="background: #2196f3;">
+                                    <i class="bi bi-gear"></i>
+                                </div>
+                                <h6 class="mb-1">Admin</h6>
+                                <small>System administration</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Access -->
+                <div class="quick-access justify-content-center">
+                    <a href="{{ path('app_register') }}" class="quick-btn">
+                        <i class="bi bi-person-plus me-1"></i> Register
+                    </a>
+                    <a href="{{ path('app_forgot_password') }}" class="quick-btn">
+                        <i class="bi bi-key me-1"></i> Reset Password
+                    </a>
+                    <a href="#" class="quick-btn" onclick="showHelp()">
+                        <i class="bi bi-question-circle me-1"></i> Help
+                    </a>
+                </div>
+
+                <!-- Platform Features -->
+                <div class="row text-start mt-5">
+                    <div class="col-md-6 mb-3">
+                        <div class="feature-card">
+                            <div class="feature-icon mx-auto">
+                                <i class="bi bi-briefcase-fill fs-4"></i>
+                            </div>
+                            <h6 class="mb-0">Smart Matching</h6>
+                            <small class="opacity-75">AI-powered job recommendations</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="feature-card">
+                            <div class="feature-icon mx-auto">
+                                <i class="bi bi-robot-fill fs-4"></i>
+                            </div>
+                            <h6 class="mb-0">AI Analysis</h6>
+                            <small class="opacity-75">Intelligent candidate evaluation</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="feature-card">
+                            <div class="feature-icon mx-auto">
+                                <i class="bi bi-calendar-event-fill fs-4"></i>
+                            </div>
+                            <h6 class="mb-0">Event Management</h6>
+                            <small class="opacity-75">Virtual and physical events</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="feature-card">
+                            <div class="feature-icon mx-auto">
+                                <i class="bi bi-chat-dots-fill fs-4"></i>
+                            </div>
+                            <h6 class="mb-0">Real-time Chat</h6>
+                            <small class="opacity-75">Instant communication</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Side - Login Form -->
+    <div class="col-lg-6">
+        <div class="h-100 d-flex align-items-center justify-content-center p-4">
+            <div class="w-100" style="max-width: 400px;">
+                <div class="text-center mb-4">
+                    <div class="mb-3">
+                        <div class="role-icon mx-auto" id="selectedRoleIcon" style="background: #6c757d;">
+                            <i class="bi bi-person-circle"></i>
+                        </div>
+                    </div>
+                    <h2 class="fw-bold">Welcome Back</h2>
+                    <p class="text-muted" id="roleText">Sign in to your account</p>
+                </div>
+
+                {% if error %}
+                    <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        {{ error.messageKey|trans(error.messageData, 'security') }}
+                    </div>
+                {% endif %}
+
+                <form method="post" action="{{ path('app_login') }}" id="loginForm">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">
+                            <i class="bi bi-envelope me-1"></i>Email Address
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-envelope"></i>
+                            </span>
+                            <input type="email" value="{{ last_username }}" name="email" id="email" 
+                                   class="form-control" autocomplete="email" required autofocus
+                                   placeholder="Enter your email address">
+                        </div>
+                        <div class="form-text" id="emailHelp">
+                            We'll never share your email with anyone else.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            <i class="bi bi-lock me-1"></i>Password
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-lock"></i>
+                            </span>
+                            <input type="password" name="password" id="password" 
+                                   class="form-control" autocomplete="current-password" required
+                                   placeholder="Enter your password">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+                                <i class="bi bi-eye" id="passwordToggle"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength" id="passwordStrength"></div>
+                        <div class="form-text">
+                            <a href="{{ path('app_forgot_password') }}" class="text-decoration-none">
+                                Forgot your password?
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember_me" name="_remember_me">
+                        <label class="form-check-label" for="remember_me">
+                            <i class="bi bi-check-circle me-1"></i>Remember me for 30 days
+                        </label>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-role btn-lg" id="loginBtn">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>
+                            <span id="btnText">Sign In</span>
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <p class="mb-0">New to SmartHire?</p>
+                        <a href="{{ path('app_register') }}" class="btn btn-outline-role">
+                            <i class="bi bi-person-plus me-2"></i>Create Account
+                        </a>
+                    </div>
+                </form>
+
+                <!-- Additional Information -->
+                <div class="mt-4 text-center">
+                    <small class="text-muted">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Your connection is secure and encrypted
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-question-circle me-2"></i>Login Help
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Trouble signing in?</h6>
+                <ul>
+                    <li>Make sure you're using the correct email address</li>
+                    <li>Check that Caps Lock is off</li>
+                    <li>Try resetting your password</li>
+                    <li>Contact support if you continue to have issues</li>
+                </ul>
+                
+                <h6 class="mt-4">Quick Links</h6>
+                <div class="d-grid gap-2">
+                    <a href="{{ path('app_forgot_password') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-key me-2"></i>Reset Password
+                    </a>
+                    <a href="{{ path('app_register') }}" class="btn btn-outline-success">
+                        <i class="bi bi-person-plus me-2"></i>Create Account
+                    </a>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentRole = 'default';
+
+function selectRole(role) {
+    currentRole = role;
+    const bg = document.getElementById('loginBg');
+    const icon = document.getElementById('selectedRoleIcon');
+    const text = document.getElementById('roleText');
+    const btn = document.getElementById('loginBtn');
+    
+    // Remove all role classes
+    bg.classList.remove('role-hr', 'role-candidate', 'role-admin', 'role-default');
+    
+    // Add selected role class
+    bg.classList.add(`role-${role}`);
+    
+    // Update icon
+    const icons = {
+        'candidate': 'bi-person-briefcase',
+        'hr': 'bi-people',
+        'admin': 'bi-gear',
+        'default': 'bi-person-circle'
+    };
+    
+    const colors = {
+        'candidate': '#87a042',
+        'hr': '#e91e63',
+        'admin': '#2196f3',
+        'default': '#6c757d'
+    };
+    
+    const texts = {
+        'candidate': 'Sign in to find your dream job',
+        'hr': 'Sign in to manage recruitment',
+        'admin': 'Sign in to administer the system',
+        'default': 'Sign in to your account'
+    };
+    
+    icon.style.background = colors[role];
+    icon.innerHTML = `<i class="bi ${icons[role]}"></i>`;
+    text.textContent = texts[role];
+    
+    // Update role cards
+    document.querySelectorAll('.role-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    event.currentTarget.classList.add('active');
+    
+    // Store preference
+    localStorage.setItem('preferredRole', role);
+}
+
+function togglePassword() {
+    const passwordInput = document.getElementById('password');
+    const toggleIcon = document.getElementById('passwordToggle');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.className = 'bi bi-eye-slash';
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.className = 'bi bi-eye';
+    }
+}
+
+function checkPasswordStrength(password) {
+    const strengthBar = document.getElementById('passwordStrength');
+    let strength = 0;
+    
+    if (password.length >= 8) strength++;
+    if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+    if (password.match(/[0-9]/)) strength++;
+    if (password.match(/[^a-zA-Z0-9]/)) strength++;
+    
+    strengthBar.className = 'password-strength';
+    if (strength <= 1) strengthBar.classList.add('strength-weak');
+    else if (strength === 2) strengthBar.classList.add('strength-medium');
+    else strengthBar.classList.add('strength-strong');
+}
+
+function showHelp() {
+    const modal = new bootstrap.Modal(document.getElementById('helpModal'));
+    modal.show();
+}
+
+function updateTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+    });
+    document.getElementById('currentTime').textContent = timeString;
+}
+
+// Form submission handling
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    const btn = document.getElementById('loginBtn');
+    const btnText = document.getElementById('btnText');
+    
+    // Show loading state
+    btn.classList.add('loading');
+    btnText.textContent = 'Signing in...';
+    
+    // Simulate processing (remove this in production)
+    setTimeout(() => {
+        btn.classList.remove('loading');
+        btnText.textContent = 'Sign In';
+    }, 2000);
+});
+
+// Password strength checker
+document.getElementById('password').addEventListener('input', function() {
+    checkPasswordStrength(this.value);
+});
+
+// Email validation
+document.getElementById('email').addEventListener('blur', function() {
+    const email = this.value;
+    const emailHelp = document.getElementById('emailHelp');
+    
+    if (email && !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        emailHelp.textContent = 'Please enter a valid email address';
+        emailHelp.className = 'form-text text-danger';
+    } else {
+        emailHelp.textContent = "We'll never share your email with anyone else.";
+        emailHelp.className = 'form-text';
+    }
+});
+
+// Auto-select candidate role by default
+document.addEventListener('DOMContentLoaded', function() {
+    // Load preferred role from localStorage
+    const savedRole = localStorage.getItem('preferredRole') || 'candidate';
+    selectRole(savedRole);
+    
+    // Update time
+    updateTime();
+    setInterval(updateTime, 1000);
+    
+    // Focus on email field
+    document.getElementById('email').focus();
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl/Cmd + Enter to submit form
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        document.getElementById('loginForm').submit();
+    }
+    
+    // Escape to close help modal
+    if (e.key === 'Escape') {
+        const helpModal = bootstrap.Modal.getInstance(document.getElementById('helpModal'));
+        if (helpModal) helpModal.hide();
+    }
+});
+</script>
+{% endblock %}

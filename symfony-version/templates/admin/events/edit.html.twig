@@ -1,0 +1,134 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Event{% endblock %}
+
+{% block page_title %}Edit Event{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-white">
+                <h4 class="m-0">
+                    <i class="fas fa-edit"></i> Edit Event
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="name" class="form-label">Event Name *</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="name" 
+                                       name="name" 
+                                       value="{{ event.name }}" 
+                                       required
+                                       placeholder="Enter event name">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="location" class="form-label">Location *</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="location" 
+                                       name="location" 
+                                       value="{{ event.location }}" 
+                                       required
+                                       placeholder="Enter event location">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="event_date" class="form-label">Event Date & Time *</label>
+                                <input type="datetime-local" 
+                                       class="form-control" 
+                                       id="event_date" 
+                                       name="event_date" 
+                                       value="{{ event.eventDate ? event.eventDate|date('Y-m-d\\TH:i') : '' }}" 
+                                       required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="max_participants" class="form-label">Maximum Participants *</label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="max_participants" 
+                                       name="max_participants" 
+                                       value="{{ event.maxParticipants }}" 
+                                       min="{{ event.participants.count }}" 
+                                       required
+                                       placeholder="Enter maximum participants">
+                                <small class="form-text text-muted">
+                                    Cannot be less than current registrations ({{ event.participants.count }})
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="description" class="form-label">Description *</label>
+                        <textarea class="form-control" 
+                                  id="description" 
+                                  name="description" 
+                                  rows="6" 
+                                  required
+                                  placeholder="Enter event description">{{ event.description }}</textarea>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-exclamation-triangle"></i> Admin Editing Guidelines
+                        </h6>
+                        <ul class="mb-0">
+                            <li>Current participants: {{ event.participants.count }}</li>
+                            <li>Cannot reduce capacity below current registrations</li>
+                            <li>Participants will be notified of major changes</li>
+                            <li>As admin, you can modify any event regardless of organizer</li>
+                            <li>Consider impact on registered participants before making changes</li>
+                        </ul>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-warning me-2">
+                            <i class="fas fa-save"></i> Update Event
+                        </button>
+                        <a href="{{ path('app_admin_events') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancel
+                        </a>
+                        <a href="{{ path('app_admin_events_delete', {'id': event.id}) }}" 
+                           class="btn btn-danger"
+                           onclick="return confirm('Are you sure you want to delete this event? This action cannot be undone.');">
+                            <i class="fas fa-trash"></i> Delete Event
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+.form-group label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.form-control:focus {
+    border-color: #ffc107;
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%);
+}
+</style>
+{% endblock %}

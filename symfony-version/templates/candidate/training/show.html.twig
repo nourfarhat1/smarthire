@@ -1,0 +1,287 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}{{ training.title }} - SmartHire{% endblock %}
+
+{% block candidate_page_title %}{{ training.title }}{% endblock %}
+
+{% block candidate_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header candidate-primary text-white">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5 class="mb-1">{{ training.title }}</h5>
+                        <small class="text-white-50">{{ training.category }}</small>
+                    </div>
+                    <div>
+                        {% if userRating %}
+                            <span class="badge bg-light text-dark">Rated</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Training Overview -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <strong>Category:</strong><br>
+                            <span class="badge bg-info">{{ training.category }}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Created:</strong><br>
+                            {{ training.createdAt|date('F j, Y') }}
+                        </div>
+                        <div class="mb-3">
+                            <strong>Rating:</strong><br>
+                            <div class="d-flex align-items-center">
+                                <div class="me-2">
+                                    {% set totalVotes = training.likes + training.dislikes %}
+                                    {% if totalVotes > 0 %}
+                                        {% set rating = (training.likes / totalVotes) * 5 %}
+                                        {% for i in 1..5 %}
+                                            {% if i <= rating %}
+                                                <i class="bi bi-star-fill text-warning"></i>
+                                            {% else %}
+                                                <i class="bi bi-star text-muted"></i>
+                                            {% endfor %}
+                                            <span class="ms-1">{{ rating|number_format(1) }}</span>
+                                        {% else %}
+                                            <i class="bi bi-star text-muted"></i>
+                                            <i class="bi bi-star text-muted"></i>
+                                            <i class="bi bi-star text-muted"></i>
+                                            <i class="bi bi-star text-muted"></i>
+                                            <i class="bi bi-star text-muted"></i>
+                                            <span class="ms-1">No rating</span>
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">({{ totalVotes }} votes)</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <strong>Engagement:</strong><br>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-success me-2">
+                                    <i class="bi bi-hand-thumbs-up me-1"></i>{{ training.likes }} Likes
+                                </span>
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-hand-thumbs-down me-1"></i>{{ training.dislikes }} Dislikes
+                                </span>
+                            </div>
+                        </div>
+                        {% if training.videoUrl %}
+                        <div class="mb-3">
+                            <strong>Video Content:</strong><br>
+                            <span class="badge bg-success">
+                                <i class="bi bi-play-circle me-1"></i>Video Available
+                            </span>
+                        </div>
+                        {% endif %}
+                        <div class="mb-3">
+                            <strong>Admin:</strong><br>
+                            {% if training.admin %}
+                                {{ training.admin.firstName }} {{ training.admin.lastName }}
+                            {% else %}
+                                System Admin
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Training Description -->
+                <div class="mb-4">
+                    <h6><i class="bi bi-info-circle me-2"></i>Description</h6>
+                    <div class="p-3 bg-light rounded">
+                        {{ training.description|nl2br }}
+                    </div>
+                </div>
+
+                <!-- Video Content -->
+                {% if training.videoUrl %}
+                <div class="mb-4">
+                    <h6><i class="bi bi-play-circle me-2"></i>Video Content</h6>
+                    <div class="ratio ratio-16x9">
+                        <iframe src="{{ training.videoUrl }}" title="{{ training.title }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Actions -->
+                <div class="mb-4">
+                    <h6><i class="bi bi-hand-thumbs-up me-2"></i>Rate This Training</h6>
+                    <div class="d-flex gap-2">
+                        <form method="post" action="{{ path('app_candidate_training_like', {'id': training.id}) }}" class="d-inline">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-hand-thumbs-up me-2"></i>Like ({{ training.likes }})
+                            </button>
+                        </form>
+                        <form method="post" action="{{ path('app_candidate_training_dislike', {'id': training.id}) }}" class="d-inline">
+                            <button type="submit" class="btn btn-outline-secondary">
+                                <i class="bi bi-hand-thumbs-down me-2"></i>Dislike ({{ training.dislikes }})
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Recommendations -->
+                {% if recommendations|length > 0 %}
+                <div class="mb-4">
+                    <h6><i class="bi bi-magic me-2"></i>Recommended For You</h6>
+                    <div class="row">
+                        {% for recommendation in recommendations %}
+                            {% set recTraining = recommendation.training %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ recTraining.title }}</h6>
+                                        <p class="card-text small">{{ recTraining.description|slice(0, 80) }}...</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">{{ recTraining.category }}</small>
+                                            <span class="badge bg-info">{{ recommendation.match_score }}% Match</span>
+                                        </div>
+                                        <a href="{{ path('app_candidate_training_show', {'id': recTraining.id}) }}" class="btn btn-sm btn-outline-success mt-2">
+                                            <i class="bi bi-eye me-1"></i>View
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header candidate-info text-white">
+                <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Learning Tips</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success">
+                    <h6><i class="bi bi-check-circle me-2"></i>Best Practices</h6>
+                    <ul class="mb-0">
+                        <li>Watch videos in a quiet environment</li>
+                        <li>Take notes during the training</li>
+                        <li>Practice what you learn immediately</li>
+                        <li>Share your progress with peers</li>
+                    </ul>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <h6><i class="bi bi-exclamation-triangle me-2"></i>Remember</h6>
+                    <ul class="mb-0">
+                        <li>Consistency is key to learning</li>
+                        <li>Don't skip practice exercises</li>
+                        <li>Ask questions when confused</li>
+                        <li>Apply skills to real projects</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header candidate-warning text-dark">
+                <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Related Categories</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="{{ path('app_candidate_training', {'category': training.category}) }}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-tag me-2"></i>{{ training.category }}
+                        <span class="badge bg-secondary float-end">View All</span>
+                    </a>
+                    <a href="{{ path('app_candidate_training') }}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-grid me-2"></i>All Trainings
+                        <span class="badge bg-secondary float-end">Browse</span>
+                    </a>
+                    <a href="{{ path('app_candidate_training_ai_recommendations') }}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-magic me-2"></i>AI Recommendations
+                        <span class="badge bg-success float-end">Personalized</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header candidate-success text-white">
+                <h6 class="mb-0"><i class="bi bi-trophy me-2"></i>Track Your Progress</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <h4 class="text-success">0%</h4>
+                    <p class="text-muted">Course Progress</p>
+                </div>
+                <div class="progress mb-3" style="height: 10px;">
+                    <div class="progress-bar bg-success" style="width: 0%"></div>
+                </div>
+                <p class="text-muted small">
+                    Start this training to track your progress and earn certificates.
+                </p>
+                <div class="text-center">
+                    <button class="btn btn-sm btn-success">
+                        <i class="bi bi-play-circle me-1"></i>Start Training
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header candidate-primary text-white">
+                <h6 class="mb-0"><i class="bi bi-share me-2"></i>Share This Training</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-linkedin me-1"></i>Share on LinkedIn
+                    </button>
+                    <button class="btn btn-sm btn-outline-info">
+                        <i class="bi bi-twitter me-1"></i>Share on Twitter
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-envelope me-1"></i>Email to Friend
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.candidate-primary {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+}
+
+.candidate-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.candidate-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.candidate-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.btn-outline-success {
+    border-color: #87a042;
+    color: #87a042;
+}
+
+.btn-outline-success:hover {
+    background-color: #87a042;
+    border-color: #87a042;
+}
+</style>
+{% endblock %}

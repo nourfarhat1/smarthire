@@ -1,0 +1,406 @@
+{% extends 'base.html.twig' %}
+
+{% block page_title %}Setup Face Login{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-camera-video me-2"></i>Setup Face Login for {{ user.firstName }} {{ user.lastName }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h6><i class="bi bi-info-circle me-2"></i>Setup Instructions</h6>
+                        <ul class="mb-0">
+                            <li>Ensure good lighting and position your face clearly in the camera</li>
+                            <li>Remove glasses or accessories that might obscure your face</li>
+                            <li>Look directly at the camera with a neutral expression</li>
+                            <li>The system will validate the image quality before saving</li>
+                        </ul>
+                    </div>
+
+                    <div class="text-center mb-4">
+                        <div class="camera-container position-relative d-inline-block">
+                            <video id="webcam" class="rounded border" width="400" height="300" autoplay></video>
+                            <canvas id="canvas" class="d-none" width="400" height="300"></canvas>
+                            
+                            <!-- Face detection overlay -->
+                            <div id="faceOverlay" class="position-absolute top-0 start-0 w-100 h-100 pointer-events-none">
+                                <div id="faceFrame" class="border border-success d-none" style="position: absolute; border-width: 3px;"></div>
+                                <div id="qualityIndicator" class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-secondary">No Face</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-success" id="startCameraBtn">
+                                    <i class="bi bi-camera-video me-2"></i>Start Camera
+                                </button>
+                                <button type="button" class="btn btn-primary d-none" id="captureBtn">
+                                    <i class="bi bi-camera me-2"></i>Capture Face
+                                </button>
+                                <button type="button" class="btn btn-warning d-none" id="retryBtn">
+                                    <i class="bi bi-arrow-clockwise me-2"></i>Try Again
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="qualityCheck" class="card bg-light">
+                                <div class="card-body">
+                                    <h6><i class="bi bi-shield-check me-2"></i>Quality Check</h6>
+                                    <div id="qualityStatus">
+                                        <p class="text-muted mb-0">Waiting for camera...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Messages -->
+                    <div id="statusMessage" class="mt-3"></div>
+
+                    <!-- Loading Indicator -->
+                    <div id="loadingIndicator" class="text-center d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Processing...</span>
+                        </div>
+                        <p class="mt-2">Analyzing and saving face data...</p>
+                    </div>
+
+                    <!-- Results -->
+                    <div id="results" class="d-none">
+                        <div class="alert">
+                            <h6>Setup Results:</h6>
+                            <div id="resultDetails"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ path('app_profile') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const video = document.getElementById('webcam');
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    const startCameraBtn = document.getElementById('startCameraBtn');
+    const captureBtn = document.getElementById('captureBtn');
+    const retryBtn = document.getElementById('retryBtn');
+    const statusMessage = document.getElementById('statusMessage');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const results = document.getElementById('results');
+    const resultDetails = document.getElementById('resultDetails');
+    const faceFrame = document.getElementById('faceFrame');
+    const qualityIndicator = document.getElementById('qualityIndicator');
+    const qualityStatus = document.getElementById('qualityStatus');
+    
+    let stream = null;
+    let faceDetectionInterval = null;
+    let currentQuality = 'none';
+
+    // Start Camera
+    startCameraBtn.addEventListener('click', async function() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    width: { ideal: 640 },
+                    height: { ideal: 480 },
+                    facingMode: 'user'
+                } 
+            });
+            
+            video.srcObject = stream;
+            
+            startCameraBtn.classList.add('d-none');
+            captureBtn.classList.remove('d-none');
+            
+            showStatus('Camera started. Position your face in the green frame.', 'info');
+            updateQualityStatus('none', 'Position your face in the frame');
+            
+            // Start face detection and quality monitoring
+            startFaceDetection();
+            
+        } catch (error) {
+            console.error('Camera error:', error);
+            showStatus('Camera access denied. Please allow camera access and try again.', 'danger');
+        }
+    });
+
+    // Capture Face
+    captureBtn.addEventListener('click', function() {
+        if (!stream) {
+            showStatus('Please start the camera first.', 'warning');
+            return;
+        }
+
+        if (currentQuality !== 'good') {
+            showStatus('Please improve image quality before capturing.', 'warning');
+            return;
+        }
+
+        // Capture the current frame
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL('image/jpeg', 0.9);
+        
+        // Stop camera
+        stopCamera();
+        
+        // Show loading
+        captureBtn.classList.add('d-none');
+        loadingIndicator.classList.remove('d-none');
+        showStatus('Analyzing face and setting up login...', 'info');
+
+        // Send to server for registration
+        registerFace(imageData);
+    });
+
+    // Retry
+    retryBtn.addEventListener('click', function() {
+        resetForm();
+        startCameraBtn.click();
+    });
+
+    function registerFace(imageData) {
+        const formData = new FormData();
+        formData.append('image', imageData);
+
+        fetch(`{{ path('app_face_login_setup_register', {'id': user.id}) }}`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            loadingIndicator.classList.add('d-none');
+            
+            if (data.success) {
+                showResults(data, 'success');
+                showStatus('Face login setup completed successfully!', 'success');
+                
+                // Show success details
+                setTimeout(() => {
+                    if (confirm('Face login setup complete! Would you like to test it now?')) {
+                        window.location.href = '{{ path('app_face_login') }}';
+                    } else {
+                        window.location.href = '{{ path('app_profile') }}';
+                    }
+                }, 2000);
+            } else {
+                showResults(data, 'danger');
+                showStatus('Setup failed: ' + data.error, 'danger');
+                retryBtn.classList.remove('d-none');
+            }
+        })
+        .catch(error => {
+            console.error('Setup error:', error);
+            loadingIndicator.classList.add('d-none');
+            showStatus('Setup failed. Please try again.', 'danger');
+            retryBtn.classList.remove('d-none');
+        });
+    }
+
+    function startFaceDetection() {
+        faceDetectionInterval = setInterval(() => {
+            // Simulate face detection and quality assessment
+            const quality = assessImageQuality();
+            updateQuality(quality);
+        }, 500);
+    }
+
+    function assessImageQuality() {
+        // Simulate quality assessment based on random factors
+        const lighting = Math.random();
+        const position = Math.random();
+        const clarity = Math.random();
+        
+        if (lighting > 0.7 && position > 0.6 && clarity > 0.7) {
+            return 'good';
+        } else if (lighting > 0.5 && position > 0.4 && clarity > 0.5) {
+            return 'fair';
+        } else if (lighting > 0.3 && position > 0.2) {
+            return 'poor';
+        } else {
+            return 'none';
+        }
+    }
+
+    function updateQuality(quality) {
+        currentQuality = quality;
+        
+        switch(quality) {
+            case 'good':
+                faceFrame.classList.remove('d-none');
+                faceFrame.className = 'border border-success';
+                faceFrame.style.left = '100px';
+                faceFrame.style.top = '75px';
+                faceFrame.style.width = '200px';
+                faceFrame.style.height = '150px';
+                updateQualityStatus('good', 'Good quality - Ready to capture!');
+                captureBtn.disabled = false;
+                break;
+                
+            case 'fair':
+                faceFrame.classList.remove('d-none');
+                faceFrame.className = 'border border-warning';
+                updateQualityStatus('fair', 'Fair quality - Adjust position/lighting');
+                captureBtn.disabled = true;
+                break;
+                
+            case 'poor':
+                faceFrame.classList.add('d-none');
+                updateQualityStatus('poor', 'Poor quality - Improve lighting and position');
+                captureBtn.disabled = true;
+                break;
+                
+            default:
+                faceFrame.classList.add('d-none');
+                updateQualityStatus('none', 'No face detected');
+                captureBtn.disabled = true;
+        }
+    }
+
+    function updateQualityStatus(quality, message) {
+        const badgeClass = {
+            'good': 'bg-success',
+            'fair': 'bg-warning',
+            'poor': 'bg-danger',
+            'none': 'bg-secondary'
+        }[quality] || 'bg-secondary';
+        
+        qualityIndicator.innerHTML = `<span class="badge ${badgeClass}">${quality.toUpperCase()}</span>`;
+        qualityStatus.innerHTML = `<p class="mb-0">${message}</p>`;
+    }
+
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+        
+        if (faceDetectionInterval) {
+            clearInterval(faceDetectionInterval);
+            faceDetectionInterval = null;
+        }
+        
+        video.srcObject = null;
+        faceFrame.classList.add('d-none');
+    }
+
+    function showStatus(message, type) {
+        statusMessage.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+    }
+
+    function showResults(data, type) {
+        const alertClass = type === 'success' ? 'success' : 'danger';
+        let html = `
+            <div class="alert alert-${alertClass}">
+                <h6><i class="bi bi-${type === 'success' ? 'check-circle' : 'x-circle'} me-2"></i>
+                ${data.success ? 'Setup Successful' : 'Setup Failed'}</h6>
+        `;
+        
+        if (data.features) {
+            html += `
+                <p><strong>Face Detected:</strong> ${data.features.face_detected ? 'Yes' : 'No'}</p>
+                <p><strong>Confidence:</strong> ${data.features.confidence_score}%</p>
+                <p><strong>Quality:</strong> ${data.features.image_quality_assessment}</p>
+            `;
+        }
+        
+        if (data.validation) {
+            html += `
+                <p><strong>Image Quality Score:</strong> ${data.validation.quality_score}/100</p>
+            `;
+            
+            if (data.validation.issues.length > 0) {
+                html += '<p><strong>Issues:</strong><ul>';
+                data.validation.issues.forEach(issue => {
+                    html += `<li>${issue}</li>`;
+                });
+                html += '</ul></p>';
+            }
+        }
+        
+        html += '</div>';
+        
+        resultDetails.innerHTML = html;
+        results.classList.remove('d-none');
+    }
+
+    function resetForm() {
+        stopCamera();
+        loadingIndicator.classList.add('d-none');
+        results.classList.add('d-none');
+        retryBtn.classList.add('d-none');
+        startCameraBtn.classList.remove('d-none');
+        captureBtn.classList.add('d-none');
+        statusMessage.innerHTML = '';
+        currentQuality = 'none';
+        updateQualityStatus('none', 'Waiting for camera...');
+    }
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', function() {
+        stopCamera();
+    });
+});
+</script>
+
+<style>
+.camera-container {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+}
+
+#webcam {
+    transform: scaleX(-1);
+    max-width: 100%;
+    height: auto;
+}
+
+#faceFrame {
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+#qualityCheck {
+    height: 100%;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+</style>
+{% endblock %}

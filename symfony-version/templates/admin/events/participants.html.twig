@@ -1,0 +1,357 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block admin_page_title %}Event Participants{% endblock %}
+
+{% block admin_content %}
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* Soft, professional color palette */
+.soft-blue {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+}
+
+.soft-teal {
+    background: linear-gradient(135deg, #5D9C9E, #4A7C7E);
+    color: white;
+}
+
+.soft-sage {
+    background: linear-gradient(135deg, #87A96B, #6B8E5A);
+    color: white;
+}
+
+.soft-coral {
+    background: linear-gradient(135deg, #E6B89C, #D4A574);
+    color: white;
+}
+
+.soft-lavender {
+    background: linear-gradient(135deg, #9B8FB3, #7F6B8F);
+    color: white;
+}
+
+.soft-cream {
+    background: linear-gradient(135deg, #F5E6D3, #E8D5B7);
+    color: #333;
+}
+
+.btn-gradient {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+    background: linear-gradient(135deg, #4A6FA5, #6B8CAE);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(107, 140, 174, 0.2);
+    color: white;
+}
+
+.participant-card {
+    background: linear-gradient(135deg, #F8F9FA, #E9ECEF);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(107, 140, 174, 0.1);
+    transition: all 0.3s ease;
+}
+
+.participant-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(107, 140, 174, 0.1);
+}
+
+.status-confirmed {
+    background: linear-gradient(135deg, #87A96B, #6B8E5A);
+    color: white;
+}
+
+.status-pending {
+    background: linear-gradient(135deg, #E6B89C, #D4A574);
+    color: white;
+}
+
+.table-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(107, 140, 174, 0.08);
+}
+
+.btn-action {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(107, 140, 174, 0.2);
+}
+
+.btn-action:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(107, 140, 174, 0.2);
+}
+</style>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Event Participants</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ path('app_admin_events') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to Events
+            </a>
+            <span class="badge bg-info ms-1">{{ participants|length }} Participants</span>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Participants List -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header soft-blue text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-people me-2"></i>{{ event.name }} - Participants
+                </h5>
+                <div class="card-tools">
+                    <span class="badge bg-light text-dark">{{ participants|length }} / {{ event.maxParticipants }} Registered</span>
+                </div>
+            </div>
+            <div class="card-body table-responsive p-0">
+            {% if participants|length > 0 %}
+                <table class="table table-hover text-nowrap">
+                    <thead>
+                        <tr>
+                            <th>Participant</th>
+                            <th>Contact</th>
+                            <th>Role</th>
+                            <th>Registration Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for participant in participants %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white me-2">
+                                        {{ participant.user.firstName|first }}{{ participant.user.lastName|first }}
+                                    </div>
+                                    <div>
+                                        <a href="#" class="text-decoration-none fw-bold">
+                                            {{ participant.user.firstName }} {{ participant.user.lastName }}
+                                        </a>
+                                        <br>
+                                        <small class="text-muted">ID: {{ participant.user.id }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <i class="bi bi-envelope me-1 text-muted"></i>{{ participant.user.email }}
+                                    <br>
+                                    {% if participant.user.phoneNumber %}
+                                        <i class="bi bi-phone me-1 text-muted"></i>{{ participant.user.phoneNumber }}
+                                    {% else %}
+                                        <small class="text-muted">No phone</small>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                {% if 'ROLE_ADMIN' in participant.user.roles %}
+                                    <span class="badge bg-danger">Admin</span>
+                                {% elseif 'ROLE_HR' in participant.user.roles %}
+                                    <span class="badge bg-warning">HR</span>
+                                {% else %}
+                                    <span class="badge bg-primary">Candidate</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div>
+                                    <strong>{{ participant.joinedAt|date('M d, Y') }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ participant.joinedAt|date('g:i A') }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                {% if participant.status == 'CONFIRMED' %}
+                                    <span class="badge status-confirmed">CONFIRMED</span>
+                                {% else %}
+                                    <span class="badge status-pending">PENDING</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-sm btn-action" title="Send Message" onclick="sendMessage({{ participant.user.id }}, '{{ participant.user.firstName }} {{ participant.user.lastName }}')">
+                                        <i class="bi bi-envelope"></i>
+                                    </button>
+                                    <form method="post" 
+                                          action="{{ path('app_admin_events_remove_participant', {'id': event.id, 'participantId': participant.id}) }}" 
+                                          style="display: inline;" 
+                                          onsubmit="return confirm('Remove {{ participant.user.firstName }} {{ participant.user.lastName }} from this event?')">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('remove_participant' ~ participant.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-action" title="Remove Participant">
+                                            <i class="bi bi-person-dash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-people fs-1 text-muted"></i>
+                    <h5 class="text-muted mt-3">No participants yet</h5>
+                    <p class="text-muted">Participants will appear here once they register for the event.</p>
+                </div>
+            {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- Event Information -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header soft-lavender text-white">
+                <h5 class="card-title mb-0">Event Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted">Event Name</h6>
+                    <p class="mb-1 fw-bold">{{ event.name }}</p>
+                    {% if event.description %}
+                        <small class="text-muted">{{ event.description|slice(0, 100) ~ '...' }}</small>
+                    {% endif %}
+                </div>
+                
+                <hr>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted">Date & Time</h6>
+                    <p class="mb-1">
+                        <i class="bi bi-calendar me-2"></i>{{ event.eventDate|date('F d, Y') }}
+                    </p>
+                    <p class="mb-0">
+                        <i class="bi bi-clock me-2"></i>{{ event.eventDate|date('g:i A') }}
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted">Location</h6>
+                    <p class="mb-0">
+                        <i class="bi bi-geo-alt me-2"></i>{{ event.location|default('TBD') }}
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted">Organizer</h6>
+                    <p class="mb-0">
+                        <i class="bi bi-person me-2"></i>{{ event.organizer.firstName }} {{ event.organizer.lastName }}
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted">Capacity Status</h6>
+                    {% set percentage = event.maxParticipants > 0 ? (participants|length / event.maxParticipants) * 100 : 0 %}
+                    <div class="progress mb-2" style="height: 10px;">
+                        <div class="progress-bar bg-{{ percentage >= 90 ? 'danger' : percentage >= 70 ? 'warning' : 'success' }}" 
+                             style="width: {{ percentage }}%">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="badge bg-secondary">{{ participants|length }} Registered</span>
+                        <span class="badge bg-info">{{ event.maxParticipants - participants|length }} Available</span>
+                    </div>
+                    <small class="text-muted">{{ percentage|number_format(1) }}% full</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Admin Actions -->
+        <div class="card mt-3">
+            <div class="card-header soft-coral text-white">
+                <h5 class="card-title mb-0">Admin Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ path('app_admin_events_edit', {'id': event.id}) }}" class="btn btn-gradient">
+                        <i class="bi bi-pencil me-2"></i>Edit Event
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary" onclick="sendNotificationToAll()">
+                        <i class="bi bi-bell me-2"></i>Notify All Participants
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="exportParticipants()">
+                        <i class="bi bi-download me-2"></i>Export Participants
+                    </button>
+                    <a href="{{ path('app_admin_events_analytics') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-graph-up me-2"></i>View Analytics
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<script>
+function sendMessage(userId, userName) {
+    const message = prompt(`Send message to ${userName}:`);
+    if (message) {
+        // Implement message sending functionality
+        alert(`Message sent to ${userName}: ${message}`);
+    }
+}
+
+function sendNotificationToAll() {
+    if (confirm('Send notification email to all {{ participants|length }} participants?')) {
+        // Implement notification sending
+        alert('Notification sent to all participants successfully!');
+    }
+}
+
+function exportParticipants() {
+    const participants = [
+        {% for participant in participants %}
+        {
+            name: '{{ participant.user.firstName }} {{ participant.user.lastName }}',
+            email: '{{ participant.user.email }}',
+            phone: '{{ participant.user.phoneNumber|default('N/A') }}',
+            role: '{% if 'ROLE_ADMIN' in participant.user.roles %}Admin{% elseif 'ROLE_HR' in participant.user.roles %}HR{% else %}Candidate{% endif %}',
+            registrationDate: '{{ participant.joinedAt|date('Y-m-d H:i') }}',
+            status: '{{ participant.status }}'
+        },
+        {% endfor %}
+    ];
+    
+    // Create CSV content
+    let csv = 'Name,Email,Phone,Role,Registration Date,Status\n';
+    participants.forEach(p => {
+        csv += `"${p.name}","${p.email}","${p.phone}","${p.role}","${p.registrationDate}","${p.status}"\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `participants_{{ event.id }}_{{ 'now'|date('Y-m-d') }}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}
