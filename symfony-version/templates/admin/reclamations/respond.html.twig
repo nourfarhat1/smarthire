@@ -1,0 +1,128 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block admin_page_title %}Respond to Complaint{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Respond to Complaint</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ path('app_admin_reclamations_show', {'id': complaint.id}) }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to Complaint
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Original Complaint -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Original Complaint</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>From:</strong> {{ complaint.user.fullName }} ({{ complaint.user.email }})</p>
+                        <p><strong>Date:</strong> {{ complaint.submissionDate|date('M d, Y H:i') }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Subject:</strong> {{ complaint.subject }}</p>
+                        <p><strong>Type:</strong> 
+                            {% if complaint.type %}
+                                <span class="badge bg-info">{{ complaint.type.name }}</span>
+                            {% else %}
+                                <span class="text-muted">No type</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Description:</h6>
+                    <div class="p-3 bg-light rounded">
+                        {{ complaint.description|nl2br }}
+                    </div>
+                </div>
+                
+                {% if complaint.aiSummary %}
+                <div class="mb-3">
+                    <h6>AI Summary:</h6>
+                    <div class="p-3 bg-info bg-opacity-10 rounded">
+                        {{ complaint.aiSummary|nl2br }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Response Form -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Your Response</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ path('app_admin_reclamations_respond', {'id': complaint.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('respond' ~ complaint.id) }}">
+                    
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Response Message</label>
+                        <textarea id="message" name="message" class="form-control" rows="6" 
+                                  placeholder="Enter your response to the complaint..." required>{{ app.request.query.get('message') }}</textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('app_admin_reclamations_show', {'id': complaint.id}) }}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-2"></i>Send Response
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ path('app_admin_reclamations_show', {'id': complaint.id}) }}" class="btn btn-outline-info">
+                        <i class="bi bi-eye me-2"></i>View Full Details
+                    </a>
+                    {% if complaint.status != 'RESOLVED' %}
+                        <form method="post" action="{{ path('app_admin_reclamations_resolve', {'id': complaint.id}) }}" 
+                              onsubmit="return confirm('Mark this complaint as resolved?')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('resolve' ~ complaint.id) }}">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="bi bi-check me-2"></i>Mark as Resolved
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Response Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <ul class="small">
+                    <li>Be professional and courteous</li>
+                    <li>Address all points raised in the complaint</li>
+                    <li>Provide clear next steps or solutions</li>
+                    <li>Set realistic expectations</li>
+                    <li>Keep the response concise but thorough</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

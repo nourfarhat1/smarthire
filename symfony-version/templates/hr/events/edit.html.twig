@@ -1,0 +1,232 @@
+{% extends 'hr/layout.html.twig' %}
+
+{% block title %}Edit Event - SmartHire{% endblock %}
+
+{% block hr_page_title %}Edit Event{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);">
+                <h5 class="mb-0"><i class="bi bi-pencil me-2"></i>Edit Event</h5>
+            </div>
+            <div class="card-body">
+                {% for flash in app.flashes('error') %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ flash }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% for flash in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ flash }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Note:</strong> You can edit event details at any time. Participants will be notified of significant changes.
+                </div>
+
+                <form method="post">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Event Name <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="name" 
+                                       name="name" 
+                                       value="{{ event.name }}" 
+                                       required
+                                       placeholder="Enter event name">
+                                <div class="form-text">Choose a descriptive name for your event.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="location" class="form-label">Location <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="location" 
+                                       name="location" 
+                                       value="{{ event.location }}" 
+                                       required
+                                       placeholder="Event location">
+                                <div class="form-text">Physical address or "Online" for virtual events.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="eventDate" class="form-label">Event Date <span class="text-danger">*</span></label>
+                                <input type="datetime-local" 
+                                       class="form-control" 
+                                       id="eventDate" 
+                                       name="eventDate" 
+                                       value="{{ event.eventDate ? event.eventDate|date('Y-m-d\\TH:i') : '' }}" 
+                                       required>
+                                <div class="form-text">Date and time when the event will take place.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="maxParticipants" class="form-label">Max Participants <span class="text-danger">*</span></label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="maxParticipants" 
+                                       name="maxParticipants" 
+                                       value="{{ event.maxParticipants }}" 
+                                       min="1" 
+                                       required
+                                       placeholder="Maximum participants">
+                                <div class="form-text">Maximum number of attendees allowed.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                        <textarea class="form-control" 
+                                  id="description" 
+                                  name="description" 
+                                  rows="6" 
+                                  required
+                                  placeholder="Provide detailed information about your event...">{{ event.description }}</textarea>
+                        <div class="form-text">Describe the event purpose, agenda, and what participants should expect.</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Event Date:</strong><br>
+                            <small class="text-muted">{{ event.eventDate|date('M d, Y H:i') }}</small>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Current Participants:</strong><br>
+                            <small class="text-muted">{{ event.participants.count }} / {{ event.maxParticipants }}</small>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Important:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Participants will be notified of date/time changes</li>
+                            <li>Reducing capacity may affect existing registrations</li>
+                            <li>Location changes should be communicated clearly</li>
+                            <li>Consider rescheduling instead of major changes</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <a href="{{ path('app_hr_events_show', {'id': event.id}) }}" class="btn btn-secondary me-2">
+                                <i class="bi bi-arrow-left me-2"></i>Back to Event
+                            </a>
+                            <a href="{{ path('app_hr_events') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-list me-2"></i>All Events
+                            </a>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-danger me-2" 
+                                    data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="bi bi-trash me-2"></i>Delete
+                            </button>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save me-2"></i>Update Event
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+                <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>Edit Guidelines</h6>
+            </div>
+            <div class="card-body">
+                <h6>What You Can Edit</h6>
+                <ul class="small">
+                    <li>Event name and description</li>
+                    <li>Date and time</li>
+                    <li>Location details</li>
+                    <li>Maximum participants</li>
+                </ul>
+
+                <hr>
+
+                <h6>Editing Rules</h6>
+                <ul class="small">
+                    <li>All fields are required</li>
+                    <li>Date must be in the future</li>
+                    <li>Capacity cannot be less than current participants</li>
+                    <li>Participants receive automatic notifications</li>
+                </ul>
+
+                <hr>
+
+                <h6>After Editing</h6>
+                <ul class="small">
+                    <li>Event is updated immediately</li>
+                    <li>Participants get email notifications</li>
+                    <li>Calendar invites are updated</li>
+                    <li>Change history is tracked</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);">
+                <h6 class="mb-0"><i class="bi bi-shield-exclamation me-2"></i>Participant Impact</h6>
+            </div>
+            <div class="card-body">
+                <p class="small mb-0">
+                    {{ event.participants.count }} participants are registered for this event. 
+                    Consider the impact of changes on existing attendees before making updates.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Event</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this event?</p>
+                <p class="text-danger">
+                    <strong>This action cannot be undone.</strong><br>
+                    All participants will be notified and the event will be permanently removed.
+                </p>
+                {% if event.participants.count > 0 %}
+                    <div class="alert alert-warning">
+                        <strong>Warning:</strong> {{ event.participants.count }} participants are registered for this event.
+                    </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ path('app_hr_events_delete', {'id': event.id}) }}" class="d-inline">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-2"></i>Delete Event
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

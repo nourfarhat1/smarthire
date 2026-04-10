@@ -1,0 +1,148 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Admin - Quiz Management{% endblock %}
+
+{% block page_title %}Quiz Management{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Quiz Management</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <a href="{{ path('app_admin_quizzes_questions') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-question-circle me-2"></i> Manage Questions
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            {% for flash_message in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ flash_message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            {% for flash_message in app.flashes('error') %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ flash_message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            <!-- Quizzes Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-ul me-2"></i>
+                        All Quizzes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if quizzes is empty %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox display-4 text-muted"></i>
+                            <h5 class="text-muted">No quizzes found</h5>
+                            <p class="text-muted">HR users can create quizzes to get started.</p>
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Title</th>
+                                        <th>Description</th>
+                                        <th>Duration</th>
+                                        <th>Passing Score</th>
+                                        <th>Questions</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for quiz in quizzes %}
+                                        <tr>
+                                            <td>{{ quiz.id }}</td>
+                                            <td>
+                                                <strong>{{ quiz.title }}</strong>
+                                            </td>
+                                            <td>
+                                                <span class="text-truncate" style="max-width: 200px; display: inline-block;">
+                                                    {{ quiz.description|default('No description') }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">
+                                                    <i class="bi bi-clock me-1"></i>
+                                                    {{ quiz.durationMinutes }} min
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-warning">
+                                                    <i class="bi bi-trophy me-1"></i>
+                                                    {{ quiz.passingScore }}%
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">
+                                                    <i class="bi bi-question-diamond me-1"></i>
+                                                    {{ quiz.questions|length }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{{ path('app_admin_quizzes_questions', {'quizId': quiz.id}) }}" class="btn btn-outline-primary btn-sm">
+                                                        <i class="bi bi-list-task me-1"></i> Questions
+                                                    </a>
+                                                    <form method="POST" action="{{ path('app_admin_quizzes_delete', {'id': quiz.id}) }}" onsubmit="return confirm('Are you sure you want to delete this quiz?')">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ quiz.id) }}">
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                            <i class="bi bi-trash me-1"></i> Delete
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.text-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+</style>
+{% endblock %}

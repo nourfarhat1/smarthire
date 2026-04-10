@@ -1,0 +1,307 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}Take Quiz - {{ quiz.title }}{% endblock %}
+
+{% block page_title %}Take Quiz - {{ quiz.title }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Candidate Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+            {{ include('candidate/sidebar.html.twig') }}
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">{% block candidate_page_title %}Take Quiz: {{ quiz.title }}{% endblock %}</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    {% block candidate_actions %}{% endblock %}
+                </div>
+            </div>
+
+            <!-- Quiz Info -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-question-circle me-2"></i>
+                                Quiz Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Duration:</strong> {{ quiz.durationMinutes }} minutes
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Passing Score:</strong> {{ quiz.passingScore }}%
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <strong>Description:</strong> {{ quiz.description|default('No description available') }}
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-4">
+                                    <strong>Total Questions:</strong> {{ questions|length }}
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Time Limit:</strong> {{ quiz.durationMinutes }} minutes
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Points Possible:</strong> {{ questions|reduce((acc, q) => acc + q.pointsValue, 0) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Form -->
+            <div class="row">
+                <div class="col-12">
+                    <form id="quizForm" method="POST" action="{{ path('app_candidate_quiz_submit', {'quizResultId': quizResult.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('quiz_submit' ~ quizResult.id) }}">
+                        
+                        <!-- Progress Bar -->
+                        <div class="mb-4">
+                            <div class="progress" style="height: 25px;">
+                                <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;">
+                                    <span id="progressText">Question 1 of {{ questions|length }}</span>
+                                </div>
+                            </div>
+                            <small class="text-muted">Time remaining: <span id="timeRemaining">{{ quiz.durationMinutes }}:00</span></small>
+                        </div>
+
+                        <!-- Questions -->
+                        <div id="questionsContainer">
+                            {% for question in questions %}
+                                <div class="card mb-4 question-card" data-question-id="{{ question.id }}" style="display: {% if loop.first %}block{% else %}none{% endif %};">
+                                    <div class="card-header">
+                                        <h6 class="mb-2">
+                                            <span class="badge bg-primary">Question {{ loop.index }}</span>
+                                            {% if question.difficultyLevel %}
+                                                <span class="badge bg-warning ms-2">{{ question.difficultyLevel|title }}</span>
+                                            {% endif %}
+                                            {% if question.pointsValue > 1 %}
+                                                <span class="badge bg-info ms-2">{{ question.pointsValue }} points</span>
+                                            {% endif %}
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="mb-3">{{ question.questionText }}</p>
+                                        
+                                        {% if question.explanation %}
+                                            <div class="alert alert-info mb-3">
+                                                <i class="bi bi-info-circle me-2"></i>
+                                                <strong>Hint:</strong> {{ question.explanation }}
+                                            </div>
+                                        {% endif %}
+
+                                        {% if question.mediaUrl %}
+                                            <div class="mb-3">
+                                                <img src="{{ asset('uploads/quiz/' ~ question.mediaUrl) }}" class="img-fluid" alt="Question media" style="max-height: 200px;">
+                                            </div>
+                                        {% endif %}
+
+                                        <!-- Multiple Choice Options -->
+                                        <div class="row">
+                                            {% set options = [question.optionA, question.optionB, question.optionC] %}
+                                            {% for key, option in options %}
+                                                {% if option %}
+                                                    <div class="col-md-12 mb-2">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio" 
+                                                                   name="answers[{{ question.id }}]" 
+                                                                   value="{{ key }}" 
+                                                                   id="answer_{{ question.id }}_{{ key }}"
+                                                                   {% if loop.first %}autofocus{% endif %}>
+                                                            <label class="form-check-label" for="answer_{{ question.id }}_{{ key }}">
+                                                                <span class="option-letter">{{ key }}.</span>
+                                                                {{ option }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" id="prevBtn" class="btn btn-secondary" onclick="previousQuestion()" disabled>
+                                <i class="bi bi-arrow-left me-2"></i> Previous
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle me-2"></i> Submit Quiz
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Quiz JavaScript -->
+<script>
+let currentQuestionIndex = 0;
+let questions = {{ questions|length }};
+let answers = {};
+let quizResultId = {{ quizResult.id }};
+
+// Timer functionality
+let timeLimit = {{ quiz.durationMinutes }} * 60; // Convert to seconds
+let startTime = Date.now();
+let timerInterval;
+
+function startTimer() {
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const remaining = Math.max(0, timeLimit - elapsed);
+    
+    const minutes = Math.floor(remaining / 60);
+    const seconds = remaining % 60;
+    
+    document.getElementById('timeRemaining').textContent = 
+        minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+    
+    // Update progress bar
+    const progress = ((timeLimit - remaining) / timeLimit) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+    
+    // Auto-submit when time expires
+    if (remaining <= 0) {
+        clearInterval(timerInterval);
+        document.getElementById('quizForm').submit();
+    }
+}
+
+function showQuestion(index) {
+    // Hide all questions
+    document.querySelectorAll('.question-card').forEach(card => {
+        card.style.display = 'none';
+    });
+    
+    // Show current question
+    const currentCard = document.querySelector(`[data-question-id="${questions[index].id}"]`);
+    if (currentCard) {
+        currentCard.style.display = 'block';
+        currentQuestionIndex = index;
+        
+        // Update progress
+        document.getElementById('progressText').textContent = `Question ${index + 1} of ${questions}`;
+        const progress = ((index + 1) / questions) * 100;
+        document.getElementById('progressBar').style.width = progress + '%';
+        
+        // Update navigation buttons
+        document.getElementById('prevBtn').disabled = index === 0;
+        document.getElementById('nextBtn').disabled = index === questions - 1;
+        
+        // Auto-save progress
+        saveProgress();
+    }
+}
+
+function previousQuestion() {
+    if (currentQuestionIndex > 0) {
+        showQuestion(currentQuestionIndex - 1);
+    }
+}
+
+function nextQuestion() {
+    if (currentQuestionIndex < questions - 1) {
+        // Save current answer before moving
+        saveCurrentAnswer();
+        showQuestion(currentQuestionIndex + 1);
+    }
+}
+
+function saveCurrentAnswer() {
+    const selectedOption = document.querySelector(`input[name="answers[${questions[currentQuestionIndex].id]"]:checked`);
+    if (selectedOption) {
+        answers[questions[currentQuestionIndex].id] = selectedOption.value;
+    }
+}
+
+function saveProgress() {
+    // Save progress to server
+    fetch(`{{ path('app_candidate_quiz_save_progress', {'quizResultId': quizResultId}) }}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            currentQuestionIndex: currentQuestionIndex,
+            answers: answers
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Progress saved');
+        }
+    })
+    .catch(error => console.error('Error saving progress:', error));
+}
+
+// Auto-save every 30 seconds
+setInterval(saveProgress, 30000);
+
+// Anti-cheat: Monitor visibility and focus
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        // User switched tabs or minimized window
+        alert('Please stay on this page during the quiz. Tab switching is not allowed.');
+    }
+});
+
+// Anti-cheat: Prevent right-click
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    alert('Right-click is disabled during the quiz.');
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    startTimer();
+    showQuestion(0);
+});
+</script>
+
+<style>
+.question-card {
+    transition: all 0.3s ease;
+}
+
+.option-letter {
+    font-weight: bold;
+    color: #007bff;
+    margin-right: 8px;
+}
+
+.progress-bar-animated {
+    transition: width 0.3s ease;
+}
+
+.alert {
+    border-left: 4px solid #17a2b8;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+</style>
+{% endblock %}
