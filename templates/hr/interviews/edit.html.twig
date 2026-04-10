@@ -1,0 +1,184 @@
+{% extends 'hr/layout.html.twig' %}
+
+{% block title %}Edit Interview - SmartHire{% endblock %}
+
+{% block hr_page_title %}Edit Interview{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);">
+                <h5 class="mb-0"><i class="bi bi-pencil me-2"></i>Edit Interview</h5>
+            </div>
+            <div class="card-body">
+                {% for flash in app.flashes('error') %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ flash }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% for flash in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ flash }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Candidate Information:</strong>
+                    <div class="mt-2">
+                        <p class="mb-1"><strong>Name:</strong> {{ jobRequest.candidate.fullName }}</p>
+                        <p class="mb-1"><strong>Email:</strong> {{ jobRequest.candidate.email }}</p>
+                        {% if jobRequest.candidate.phoneNumber %}
+                            <p class="mb-1"><strong>Phone:</strong> {{ jobRequest.candidate.phoneNumber }}</p>
+                        {% endif %}
+                        <p class="mb-0"><strong>Applied for:</strong> {{ jobRequest.jobOffer.title }}</p>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ path('app_hr_interviews_edit', {'id': interview.id}) }}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="dateTime" class="form-label">Interview Date & Time <span class="text-danger">*</span></label>
+                                <input type="datetime-local" class="form-control" id="dateTime" name="dateTime" 
+                                       value="{{ interview.dateTime|date('Y-m-d\\TH:i') }}" required>
+                                <div class="form-text">Update the interview date and time if needed.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="location" class="form-label">Interview Location <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="location" name="location" 
+                                       value="{{ interview.location }}" required>
+                                <div class="form-text">Update the location or video call link.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Interview Status <span class="text-danger">*</span></label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="SCHEDULED" {% if interview.status == 'SCHEDULED' %}selected{% endif %}>Scheduled</option>
+                                    <option value="COMPLETED" {% if interview.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                                    <option value="CANCELLED" {% if interview.status == 'CANCELLED' %}selected{% endif %}>Cancelled</option>
+                                </select>
+                                <div class="form-text">Update the current status of this interview.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="originalDate" class="form-label">Original Schedule</label>
+                                <input type="text" class="form-control" id="originalDate" name="originalDate" 
+                                       value="{{ interview.dateTime|date('M d, Y H:i') }}" readonly>
+                                <div class="form-text">Originally scheduled time.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Interview Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="4"
+                                  placeholder="Add interview notes, feedback, or evaluation...">{{ interview.notes }}</textarea>
+                        <div class="form-text">Update interview notes or add evaluation feedback.</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Current Application Status:</strong><br>
+                            <small class="text-muted">{{ jobRequest.status }}</small>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Interview Duration:</strong><br>
+                            <small class="text-muted">Typically 30-60 minutes</small>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Status Change Impact:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li><strong>Completed:</strong> Application status will be updated to "Interview Completed"</li>
+                            <li><strong>Cancelled:</strong> Application status will be updated to "Interview Cancelled"</li>
+                            <li><strong>Scheduled:</strong> Application status remains "Interview Scheduled"</li>
+                            <li>Candidate will be notified of status changes</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <a href="{{ path('app_hr_interviews') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to Interviews
+                            </a>
+                        </div>
+                        <div>
+                            <form method="POST" action="{{ path('app_hr_interviews_delete', {'id': interview.id}) }}" class="d-inline" 
+                                  onsubmit="return confirm('Are you sure you want to cancel this interview?')">
+                                <button type="submit" class="btn btn-danger me-2">
+                                    <i class="bi bi-x me-2"></i>Cancel Interview
+                                </button>
+                            </form>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save me-2"></i>Update Interview
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+                <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>Edit Guidelines</h6>
+            </div>
+            <div class="card-body">
+                <h6>What You Can Edit</h6>
+                <ul class="small">
+                    <li>Interview date and time</li>
+                    <li>Interview location or video link</li>
+                    <li>Interview status</li>
+                    <li>Interview notes and feedback</li>
+                </ul>
+
+                <hr>
+
+                <h6>Status Management</h6>
+                <ul class="small">
+                    <li><strong>Scheduled:</strong> Interview is planned</li>
+                    <li><strong>Completed:</strong> Interview was conducted</li>
+                    <li><strong>Cancelled:</strong> Interview was cancelled</li>
+                </ul>
+
+                <hr>
+
+                <h6>Best Practices</h6>
+                <ul class="small mb-0">
+                    <li>Notify candidates of any changes</li>
+                    <li>Document interview outcomes</li>
+                    <li>Update status promptly after interview</li>
+                    <li>Keep notes for future reference</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);">
+                <h6 class="mb-0"><i class="bi bi-people me-2"></i>Candidate Impact</h6>
+            </div>
+            <div class="card-body">
+                <p class="small mb-0">
+                    Any changes to interview details will affect the candidate's application status. 
+                    Consider notifying the candidate of any schedule changes or status updates.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

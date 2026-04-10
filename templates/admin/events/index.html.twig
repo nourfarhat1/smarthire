@@ -1,0 +1,373 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block admin_page_title %}Event Management{% endblock %}
+
+{% block admin_content %}
+<style>
+.stats-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.stats-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 12px rgba(0,0,0,0.12);
+}
+
+.stats-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Soft, professional color palette */
+.soft-blue {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+}
+
+.soft-teal {
+    background: linear-gradient(135deg, #5D9C9E, #4A7C7E);
+    color: white;
+}
+
+.soft-sage {
+    background: linear-gradient(135deg, #87A96B, #6B8E5A);
+    color: white;
+}
+
+.soft-coral {
+    background: linear-gradient(135deg, #E6B89C, #D4A574);
+    color: white;
+}
+
+.soft-lavender {
+    background: linear-gradient(135deg, #9B8FB3, #7F6B8F);
+    color: white;
+}
+
+.soft-cream {
+    background: linear-gradient(135deg, #F5E6D3, #E8D5B7);
+    color: #333;
+}
+
+.filter-section {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+}
+
+.table-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(107, 140, 174, 0.08);
+}
+
+.btn-action {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(107, 140, 174, 0.2);
+}
+
+.btn-action:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(107, 140, 174, 0.2);
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.status-upcoming {
+    background: linear-gradient(135deg, #87A96B, #6B8E5A);
+    color: white;
+}
+
+.status-today {
+    background: linear-gradient(135deg, #E6B89C, #D4A574);
+    color: white;
+}
+
+.status-past {
+    background: linear-gradient(135deg, #9B8FB3, #7F6B8F);
+    color: white;
+}
+
+/* Calm table headers */
+.table-container .card-header {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+    border: none;
+}
+
+/* Form controls with soft colors */
+.form-control:focus {
+    border-color: #6B8CAE;
+    box-shadow: 0 0 0 0.15rem rgba(107, 140, 174, 0.15);
+}
+
+.form-select:focus {
+    border-color: #6B8CAE;
+    box-shadow: 0 0 0 0.15rem rgba(107, 140, 174, 0.15);
+}
+</style>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Event Management</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <span class="badge bg-secondary">All Events</span>
+            <span class="badge bg-info ms-1">{{ events|length }} Total</span>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="filter-section">
+    <h4 class="mb-3"><i class="bi bi-funnel me-2"></i>Filter Events</h4>
+    <form method="GET" class="row g-3">
+        <div class="col-md-4">
+            <input type="text" name="search" class="form-control" placeholder="Search by name, location, or description..." value="{{ search }}">
+        </div>
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">All Status</option>
+                <option value="upcoming" {{ selectedStatus == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
+                <option value="today" {{ selectedStatus == 'today' ? 'selected' : '' }}>Today</option>
+                <option value="past" {{ selectedStatus == 'past' ? 'selected' : '' }}>Past</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input type="month" name="month" class="form-control" value="{{ selectedMonth }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-outline-secondary">
+                <i class="bi bi-search me-2"></i>Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stats-card soft-blue text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.total }}</h4>
+                        <p class="card-text">Total Events</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-calendar-event fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card soft-sage text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.upcoming }}</h4>
+                        <p class="card-text">Upcoming</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-calendar-check fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card soft-coral text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.today }}</h4>
+                        <p class="card-text">Today</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-calendar-today fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card soft-teal text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.total_participants }}</h4>
+                        <p class="card-text">Total Participants</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-people fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Section -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card stats-card soft-lavender text-white">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-pie-chart me-2"></i>Event Distribution</h5>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h4>{{ stats.upcoming }}</h4>
+                        <small>Upcoming</small>
+                    </div>
+                    <div class="col-4">
+                        <h4>{{ stats.today }}</h4>
+                        <small>Today</small>
+                    </div>
+                    <div class="col-4">
+                        <h4>{{ stats.past }}</h4>
+                        <small>Past</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card stats-card soft-cream text-white">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-bar-chart me-2"></i>Quick Actions</h5>
+                <div class="d-grid gap-2">
+                    <a href="{{ path('app_admin_events_analytics') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-graph-up me-2"></i>View Analytics
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Events Table -->
+<div class="table-container">
+    <div class="card-header" style="background: linear-gradient(135deg, #6B8CAE, #4A6FA5); color: white; border: none;">
+        <h5 class="card-title mb-0">All Events</h5>
+        <div class="card-tools">
+            <div class="input-group input-group-sm" style="width: 200px;">
+                <input type="text" name="table_search" class="form-control float-right" placeholder="Search events...">
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-outline-secondary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body table-responsive p-0">
+        <table class="table table-hover text-nowrap">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Event Name</th>
+                    <th>Date & Time</th>
+                    <th>Location</th>
+                    <th>Participants</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in events %}
+                <tr>
+                    <td>{{ event.id }}</td>
+                    <td>
+                        <div>
+                            <a href="#" class="text-decoration-none fw-bold">
+                                {{ event.name }}
+                            </a>
+                            {% if event.description %}
+                            <br>
+                            <small class="text-muted">{{ event.description|slice(0, 80) ~ '...' }}</small>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            <strong>{{ event.eventDate|date('M d, Y') }}</strong>
+                            <br>
+                            <small class="text-muted">{{ event.eventDate|date('g:i A') }}</small>
+                        </div>
+                    </td>
+                    <td>
+                        {% if event.location %}
+                            <span class="badge bg-info">{{ event.location }}</span>
+                        {% else %}
+                            <span class="text-muted">No location</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="progress" style="height: 6px; width: 40px; margin-right: 8px;">
+                                {% set percentage = event.maxParticipants > 0 ? (event.participants|length / event.maxParticipants) * 100 : 0 %}
+                                <div class="progress-bar bg-{{ percentage > 80 ? 'danger' : percentage > 60 ? 'warning' : 'success' }}" 
+                                     style="width: {{ percentage }}%"></div>
+                            </div>
+                            <span class="badge bg-secondary">{{ event.participants|length }}/{{ event.maxParticipants }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        {% set eventDate = event.eventDate|date('Y-m-d') %}
+                        {% set today = 'now'|date('Y-m-d') %}
+                        {% if eventDate == today %}
+                            <span class="badge status-today">TODAY</span>
+                        {% elseif eventDate > today %}
+                            <span class="badge status-upcoming">UPCOMING</span>
+                        {% else %}
+                            <span class="badge status-past">PAST</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="{{ path('app_admin_events_participants', {'id': event.id}) }}" 
+                               class="btn btn-sm btn-action" title="View Participants">
+                                <i class="bi bi-people"></i>
+                            </a>
+                            <form method="post" 
+                                  action="{{ path('app_admin_events_delete', {'id': event.id}) }}" 
+                                  style="display: inline;" 
+                                  onsubmit="return confirm('Delete this event? This action cannot be undone.')">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
+                                <button type="submit" class="btn btn-sm btn-action" title="Delete Event">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted">
+                        <div class="py-4">
+                            <i class="bi bi-calendar-x fs-1 text-muted"></i>
+                            <p class="mt-2">No events found</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
