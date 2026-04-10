@@ -1,0 +1,282 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}Spontaneous Application - SmartHire{% endblock %}
+
+{% block candidate_page_title %}Spontaneous Application{% endblock %}
+
+{% block candidate_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header candidate-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-file-plus me-2"></i>Submit Spontaneous Application</h5>
+            </div>
+            <div class="card-body">
+                <!-- Introduction -->
+                <div class="alert alert-info">
+                    <h6><i class="bi bi-info-circle me-2"></i>About Spontaneous Applications</h6>
+                    <p class="mb-0">
+                        Spontaneous applications allow you to introduce yourself to companies even when no specific positions are available. 
+                        This is a great way to get noticed by recruiters and be considered for future opportunities.
+                    </p>
+                </div>
+
+                <!-- Application Form -->
+                <form method="post">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="subject" class="form-label">Subject *</label>
+                                <input type="text" class="form-control" id="subject" name="subject" required placeholder="e.g., Experienced Software Developer seeking opportunities">
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    A clear, compelling subject line helps recruiters understand your intent quickly.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Preferred Category *</label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="">Select a category</option>
+                                    <option value="IT/Software">IT/Software</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="Sales">Sales</option>
+                                    <option value="Human Resources">Human Resources</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="Operations">Operations</option>
+                                    <option value="Customer Service">Customer Service</option>
+                                    <option value="Design">Design</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="experience" class="form-label">Years of Experience</label>
+                                <select class="form-select" id="experience" name="experience">
+                                    <option value="0-1">0-1 years</option>
+                                    <option value="1-3">1-3 years</option>
+                                    <option value="3-5">3-5 years</option>
+                                    <option value="5-10">5-10 years</option>
+                                    <option value="10+">10+ years</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Professional Summary *</label>
+                                <textarea class="form-control" id="description" name="description" rows="10" required placeholder="Tell us about yourself, your skills, experience, and what type of opportunities you're looking for..."></textarea>
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Provide a comprehensive overview of your professional background and career objectives.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="skills" class="form-label">Key Skills</label>
+                                <input type="text" class="form-control" id="skills" name="skills" placeholder="e.g., JavaScript, Python, Project Management, Communication">
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    List your most important skills separated by commas.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="location" class="form-label">Preferred Location</label>
+                                <input type="text" class="form-control" id="location" name="location" placeholder="e.g., Tunis, Remote, Any">
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Specify your preferred work location or "Remote" if you're open to remote work.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="resume" class="form-label">Resume/CV</label>
+                                <input type="file" class="form-control" id="resume" name="resume" accept=".pdf,.doc,.docx">
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Upload your resume in PDF, DOC, or DOCX format (Max 5MB).
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="portfolio" class="form-label">Portfolio/LinkedIn (Optional)</label>
+                                <input type="url" class="form-control" id="portfolio" name="portfolio" placeholder="https://linkedin.com/in/yourprofile">
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Include links to your portfolio, LinkedIn, or professional profiles.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                                    <label class="form-check-label" for="terms">
+                                        I confirm that all information provided is accurate and I consent to being contacted by recruiters.
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('app_candidate_applications') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Applications
+                        </a>
+                        <div>
+                            <button type="reset" class="btn btn-outline-secondary me-2">
+                                <i class="bi bi-x-circle me-2"></i>Clear
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-send me-2"></i>Submit Application
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header candidate-info text-white">
+                <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Application Tips</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success">
+                    <h6><i class="bi bi-check-circle me-2"></i>What to Include</h6>
+                    <ul class="mb-0">
+                        <li>Your professional background and experience</li>
+                        <li>Specific skills and achievements</li>
+                        <li>Career objectives and goals</li>
+                        <li>Preferred work environment and culture</li>
+                        <li>Availability and start date</li>
+                    </ul>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <h6><i class="bi bi-exclamation-triangle me-2"></i>Best Practices</h6>
+                    <ul class="mb-0">
+                        <li>Be specific about your expertise areas</li>
+                        <li>Highlight unique selling points</li>
+                        <li>Keep it professional and concise</li>
+                        <li>Customize for each company if possible</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header candidate-warning text-dark">
+                <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Success Rate</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <h4 class="text-success">35%</h4>
+                    <p class="text-muted">Higher response rate than traditional applications</p>
+                </div>
+                <div class="progress mb-3" style="height: 10px;">
+                    <div class="progress-bar bg-success" style="width: 35%"></div>
+                </div>
+                <p class="text-muted small">
+                    Spontaneous applications show initiative and often receive special consideration from recruiters.
+                </p>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header candidate-success text-white">
+                <h6 class="mb-0"><i class="bi bi-mortarboard me-2"></i>Recommended Training</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">
+                    Enhance your profile with these recommended trainings:
+                </p>
+                <div class="list-group list-group-flush">
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Resume Writing Masterclass</h6>
+                                <small class="text-muted">Create compelling resumes</small>
+                            </div>
+                            <span class="badge bg-success">Popular</span>
+                        </div>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Personal Branding</h6>
+                                <small class="text-muted">Stand out from the crowd</small>
+                            </div>
+                            <span class="badge bg-info">New</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ path('app_candidate_training') }}" class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-mortarboard me-1"></i>Browse All Trainings
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.candidate-primary {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+}
+
+.candidate-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.candidate-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.candidate-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.btn-outline-success {
+    border-color: #87a042;
+    color: #87a042;
+}
+
+.btn-outline-success:hover {
+    background-color: #87a042;
+    border-color: #87a042;
+}
+</style>
+{% endblock %}

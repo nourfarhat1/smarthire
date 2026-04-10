@@ -1,0 +1,328 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}User Management - SmartHire{% endblock %}
+
+{% block page_title %}User Management{% endblock %}
+
+{% block page_actions %}
+<a href="{{ path('app_admin_users_new') }}" class="btn btn-primary">
+    <i class="bi bi-person-plus me-2"></i>New User
+</a>
+{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- User Statistics -->
+        <div class="col-md-12 mb-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card stats-card text-white" style="background: linear-gradient(135deg, #4686c2 0%, #3670b3 100%);">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">{{ totalUsers }}</h4>
+                                    <p class="card-text">Total Users</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-people fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card text-white" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">{{ activeUsers }}</h4>
+                                    <p class="card-text">Active Users</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-person-check fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card text-white" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">{{ bannedUsers }}</h4>
+                                    <p class="card-text">Banned Users</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-person-x fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card text-white" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">{{ verifiedUsers }}</h4>
+                                    <p class="card-text">Verified Users</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-person-badge fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-search me-2"></i>Search and Filter Users
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="search" class="form-label">Search Users</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                    <input type="text" class="form-control" id="search" name="search" 
+                                           value="{{ search }}" placeholder="Search by name, email...">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="role" class="form-label">Role</label>
+                                <select class="form-select" id="role" name="role">
+                                    <option value="">All Roles</option>
+                                    <option value="1" {{ role == '1' ? 'selected' : '' }}>Admin</option>
+                                    <option value="2" {{ role == '2' ? 'selected' : '' }}>HR</option>
+                                    <option value="3" {{ role == '3' ? 'selected' : '' }}>Candidate</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="">All Status</option>
+                                    <option value="banned" {{ status == 'banned' ? 'selected' : '' }}>Banned</option>
+                                    <option value="unbanned" {{ status == 'unbanned' ? 'selected' : '' }}>Unbanned</option>
+                                    <option value="verified" {{ status == 'verified' ? 'selected' : '' }}>Verified</option>
+                                    <option value="unverified" {{ status == 'unverified' ? 'selected' : '' }}>Unverified</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="form-label">&nbsp;</label>
+                                <div class="btn-group w-100">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-search me-2"></i>Search
+                                    </button>
+                                    <a href="{{ path('app_admin_users') }}" class="btn btn-outline-secondary">
+                                        <i class="bi bi-arrow-clockwise me-2"></i>Clear
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="bi bi-people me-2"></i>Users ({{ users|length }})
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if users|length > 0 %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Phone</th>
+                        <th>Verified</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>
+                            <div>
+                                <strong>{{ user.fullName }}</strong>
+                                {% if user.isBanned %}
+                                <span class="badge bg-danger ms-2">Banned</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td><span class="badge bg-{{ user.roleName == 'ADMIN' ? 'danger' : user.roleName == 'HR' ? 'warning' : 'primary' }}">{{ user.roleName }}</span></td>
+                        <td>{{ user.phoneNumber|default('Not provided') }}</td>
+                        <td>
+                            {% if user.isVerified %}
+                            <i class="bi bi-check-circle text-success"></i>
+                            {% else %}
+                            <i class="bi bi-x-circle text-danger"></i>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.isBanned %}
+                            <span class="badge bg-danger">Banned</span>
+                            {% else %}
+                            <span class="badge bg-success">Active</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.createdAt|date('M d, Y') }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ path('app_admin_users_show', {'id': user.id}) }}" class="btn btn-sm btn-outline-info" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                {% if user.isVerified %}
+                                <form method="post" action="{{ path('app_admin_users_unverify', {'id': user.id}) }}" onsubmit="return confirm('Are you sure you want to unverify this user?');" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('unverify' ~ user.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Unverify User" onclick="console.log('Unverify button clicked for user ID:', {{ user.id }})">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </form>
+                                {% else %}
+                                <form method="post" action="{{ path('app_admin_users_verify', {'id': user.id}) }}" onsubmit="return confirm('Are you sure you want to verify this user?');" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('verify' ~ user.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Verify User" onclick="console.log('Verify button clicked for user ID:', {{ user.id }})">
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                                {% if not user.isBanned %}
+                                <form method="post" action="{{ path('app_admin_users_ban', {'id': user.id}) }}" onsubmit="return confirm('Are you sure you want to ban this user?');" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('ban' ~ user.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Ban User" onclick="console.log('Ban button clicked for user ID:', {{ user.id }})">
+                                        <i class="bi bi-shield-x"></i>
+                                    </button>
+                                </form>
+                                {% else %}
+                                <form method="post" action="{{ path('app_admin_users_unban', {'id': user.id}) }}" onsubmit="return confirm('Are you sure you want to unban this user?');" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('unban' ~ user.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Unban User" onclick="console.log('Unban button clicked for user ID:', {{ user.id }})">
+                                        <i class="bi bi-shield-check"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                                <form method="post" action="{{ path('app_admin_users_delete', {'id': user.id}) }}" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone!');" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete User">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="bi bi-people fs-1 text-muted"></i>
+            <p class="text-muted">No users found.</p>
+            <a href="{{ path('app_admin_users_new') }}" class="btn btn-primary">
+                Create your first user
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.stats-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    border: none;
+    border-radius: 10px 10px 0 0;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.form-control {
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(132, 0, 255, 0.25);
+}
+
+.btn-group .btn {
+    border-radius: 6px;
+    margin: 0 2px;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.badge {
+    font-size: 0.75em;
+}
+</style>
+{% endblock %}

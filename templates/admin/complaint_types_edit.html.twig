@@ -1,0 +1,184 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Edit Complaint Type - SmartHire Admin{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Edit Complaint Type</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ path('app_admin_complaint_types') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Types
+            </a>
+        </div>
+    </div>
+</div>
+
+{% for flash in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ flash }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+{% endfor %}
+
+{% for flash in app.flashes('error') %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ flash }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+{% endfor %}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Edit Complaint Type</h5>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'id': 'complaint-type-form', 'novalidate': 'novalidate'}}) }}
+                
+                <div class="mb-3">
+                    {{ form_label(form.name, 'Type Name', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'e.g. Harassment, Discrimination, Safety Issue'}}) }}
+                    {{ form_errors(form.name) }}
+                    <div class="form-text">Update the name for this complaint type.</div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.urgencyLevel, 'Urgency Level', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.urgencyLevel, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.urgencyLevel) }}
+                    <div class="form-text">Update the urgency level for this complaint type.</div>
+                </div>
+
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong>
+                    <p class="mb-0 mt-2">
+                        Changing the complaint type may affect existing complaints that use this type. 
+                        Make sure to update any related documentation if necessary.
+                    </p>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <a href="{{ path('app_admin_complaint_types') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Cancel
+                        </a>
+                    </div>
+                    <div>
+                        <form method="POST" action="{{ path('app_admin_complaint_types_delete', {'id': complaint_type.id}) }}" class="d-inline" 
+                              onsubmit="return confirm('Are you sure you want to delete this complaint type? This action cannot be undone.')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ complaint_type.id) }}">
+                            <button type="submit" class="btn btn-danger me-2">
+                                <i class="bi bi-trash me-2"></i>Delete Type
+                            </button>
+                        </form>
+                        <button type="submit" form="complaint-type-form" class="btn btn-warning">
+                            <i class="bi bi-save me-2"></i>Update Type
+                        </button>
+                    </div>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Type Information</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-2"><strong>Type ID:</strong> {{ complaint_type.id }}</p>
+                <p class="mb-2"><strong>Current Name:</strong> {{ complaint_type.name }}</p>
+                <p class="mb-2"><strong>Current Urgency Level:</strong> 
+                    <span class="badge 
+                        {% if complaint_type.urgencyLevel == 'Critical' %}bg-danger
+                        {% elseif complaint_type.urgencyLevel == 'High' %}bg-warning
+                        {% elseif complaint_type.urgencyLevel == 'Medium' %}bg-info
+                        {% else %}bg-secondary{% endif %}">
+                        {{ complaint_type.urgencyLevel }}
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">Edit Guidelines</h6>
+            </div>
+            <div class="card-body">
+                <h6>What You Can Edit</h6>
+                <ul class="small">
+                    <li>Type name (must be unique)</li>
+                    <li>Urgency level</li>
+                </ul>
+
+                <hr>
+
+                <h6>Impact of Changes</h6>
+                <ul class="small mb-0">
+                    <li>Name changes affect existing complaints</li>
+                    <li>Urgency level affects complaint prioritization</li>
+                    <li>Changes are immediately visible</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">Danger Zone</h6>
+            </div>
+            <div class="card-body">
+                <p class="small mb-3">
+                    Deleting this complaint type will permanently remove it from the system. 
+                    Existing complaints using this type may be affected.
+                </p>
+                <form method="POST" action="{{ path('app_admin_complaint_types_delete', {'id': complaint_type.id}) }}" 
+                      onsubmit="return confirm('Are you sure you want to delete this complaint type? This action cannot be undone.')">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ complaint_type.id) }}">
+                    <button type="submit" class="btn btn-danger w-100">
+                        <i class="bi bi-trash me-2"></i>Delete Complaint Type
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Complaint type edit page loaded');
+    
+    const form = document.getElementById('complaint-type-form');
+    const submitBtn = document.querySelector('button[form="complaint-type-form"]');
+    
+    console.log('Form found:', form);
+    console.log('Submit button found:', submitBtn);
+    
+    if (form && submitBtn) {
+        submitBtn.addEventListener('click', function(e) {
+            console.log('Update button clicked');
+            console.log('Form data before submit:', new FormData(form));
+            
+            // Add click debugging
+            this.style.backgroundColor = 'red';
+            this.textContent = 'CLICKED!';
+            
+            setTimeout(() => {
+                this.style.backgroundColor = '';
+                this.innerHTML = '<i class="bi bi-save me-2"></i>Update Type';
+            }, 1000);
+        });
+        
+        form.addEventListener('submit', function(e) {
+            console.log('Form submitting...');
+            console.log('Form action:', this.action);
+            console.log('Form method:', this.method);
+        });
+    }
+});
+</script>
+{% endblock %}

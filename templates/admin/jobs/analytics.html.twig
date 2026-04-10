@@ -1,0 +1,218 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Application Analytics - SmartHire{% endblock %}
+
+{% block admin_page_title %}Application Analytics{% endblock %}
+
+{% block admin_actions %}
+<a href="{{ path('app_admin_applications') }}" class="btn btn-secondary">
+    <i class="bi bi-arrow-left me-2"></i>Back to Applications
+</a>
+{% endblock %}
+
+{% block admin_content %}
+<!-- Overview Statistics -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="card-title">{{ totalApplications }}</h4>
+                        <p class="card-text mb-0">Total Applications Received</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-graph-up-arrow fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Trends -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Monthly Application Trends</h5>
+    </div>
+    <div class="card-body">
+        {% if monthlyStats|length > 0 %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Total Applications</th>
+                        <th>Accepted</th>
+                        <th>Rejected</th>
+                        <th>Acceptance Rate</th>
+                        <th>Trend</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for month, data in monthlyStats|sort|reverse %}
+                    <tr>
+                        <td>{{ month|date('F Y') }}</td>
+                        <td><span class="badge bg-primary">{{ data.total }}</span></td>
+                        <td><span class="badge bg-success">{{ data.accepted }}</span></td>
+                        <td><span class="badge bg-danger">{{ data.rejected }}</span></td>
+                        <td>
+                            {% set rate = data.total > 0 ? (data.accepted / data.total * 100)|round(1) : 0 %}
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: {{ rate }}%">
+                                    {{ rate }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if data.accepted > data.rejected %}
+                                <i class="bi bi-arrow-up-circle text-success"></i> Positive
+                            {% else %}
+                                <i class="bi bi-arrow-down-circle text-danger"></i> Negative
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="bi bi-graph-up fs-1 text-muted"></i>
+            <p class="text-muted">No monthly data available.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Job Performance -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Job Offer Performance</h5>
+    </div>
+    <div class="card-body">
+        {% if jobStats|length > 0 %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Total Applications</th>
+                        <th>Accepted</th>
+                        <th>Acceptance Rate</th>
+                        <th>Performance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for jobId, data in jobStats|sort((a, b) => b.total <=> a.total) %}
+                    <tr>
+                        <td>
+                            <a href="#" class="text-decoration-none fw-bold">{{ data.title }}</a>
+                        </td>
+                        <td><span class="badge bg-primary">{{ data.total }}</span></td>
+                        <td><span class="badge bg-success">{{ data.accepted }}</span></td>
+                        <td>
+                            {% set rate = data.total > 0 ? (data.accepted / data.total * 100)|round(1) : 0 %}
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar bg-info" role="progressbar" style="width: {{ rate }}%">
+                                    {{ rate }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if rate >= 50 %}
+                                <span class="badge bg-success">Excellent</span>
+                            {% elseif rate >= 30 %}
+                                <span class="badge bg-warning">Good</span>
+                            {% else %}
+                                <span class="badge bg-danger">Poor</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="bi bi-briefcase fs-1 text-muted"></i>
+            <p class="text-muted">No job performance data available.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Key Insights -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>Key Insights
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    {% if monthlyStats|length > 0 %}
+                        {% set latestMonth = monthlyStats|keys|last %}
+                        {% set latestData = monthlyStats[latestMonth] %}
+                        <li class="mb-2">
+                            <i class="bi bi-calendar-check text-info me-2"></i>
+                            Latest month ({{ latestMonth|date('F Y') }}): {{ latestData.total }} applications
+                        </li>
+                    {% endif %}
+                    
+                    {% set bestJob = jobStats|reduce((carry, item) => 
+                        carry is null or item.total > carry.total ? item : carry
+                    ) %}
+                    {% if bestJob %}
+                    <li class="mb-2">
+                        <i class="bi bi-trophy text-warning me-2"></i>
+                        Most popular job: {{ bestJob.title }} ({{ bestJob.total }} applications)
+                    </li>
+                    {% endif %}
+                    
+                    {% set totalAccepted = jobStats|reduce((carry, item) => carry + item.accepted, 0) %}
+                    {% if totalApplications > 0 %}
+                        {% set overallRate = (totalAccepted / totalApplications * 100)|round(1) %}
+                    <li class="mb-2">
+                        <i class="bi bi-graph-up text-success me-2"></i>
+                        Overall acceptance rate: {{ overallRate }}%
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-clipboard-check me-2"></i>Recommendations
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="bi bi-arrow-right-circle text-success me-2"></i>
+                        Monitor jobs with low acceptance rates
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-arrow-right-circle text-success me-2"></i>
+                        Analyze application patterns monthly
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-arrow-right-circle text-success me-2"></i>
+                        Review job descriptions for underperforming positions
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-arrow-right-circle text-success me-2"></i>
+                        Consider optimizing application process
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

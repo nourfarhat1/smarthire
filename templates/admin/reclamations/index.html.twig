@@ -1,0 +1,442 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block admin_page_title %}Complaint Management{% endblock %}
+
+{% block admin_content %}
+<style>
+.stats-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.stats-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 12px rgba(0,0,0,0.12);
+}
+
+.stats-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Soft, professional color palette */
+.soft-blue {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+}
+
+.soft-teal {
+    background: linear-gradient(135deg, #5D9C9E, #4A7C7E);
+    color: white;
+}
+
+.soft-sage {
+    background: linear-gradient(135deg, #87A96B, #6B8E5A);
+    color: white;
+}
+
+.soft-coral {
+    background: linear-gradient(135deg, #E6B89C, #D4A574);
+    color: white;
+}
+
+.soft-lavender {
+    background: linear-gradient(135deg, #9B8FB3, #7F6B8F);
+    color: white;
+}
+
+.soft-cream {
+    background: linear-gradient(135deg, #F5E6D3, #E8D5B7);
+    color: #333;
+}
+
+.filter-section {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+}
+
+.table-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(107, 140, 174, 0.08);
+}
+
+.btn-action {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(107, 140, 174, 0.2);
+}
+
+.btn-action:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(107, 140, 174, 0.2);
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.priority-high {
+    background: linear-gradient(135deg, #E6B89C, #D4A574);
+    color: white;
+}
+
+.priority-medium {
+    background: linear-gradient(135deg, #F5E6D3, #E8D5B7);
+    color: #333;
+}
+
+.priority-low {
+    background: linear-gradient(135deg, #5D9C9E, #4A7C7E);
+    color: white;
+}
+
+/* Soft status colors */
+.status-open {
+    background: linear-gradient(135deg, #E6B89C, #D4A574);
+    color: white;
+}
+
+.status-pending {
+    background: linear-gradient(135deg, #F5E6D3, #E8D5B7);
+    color: #333;
+}
+
+.status-resolved {
+    background: linear-gradient(135deg, #87A96B, #6B8E5A);
+    color: white;
+}
+
+/* Calm table headers */
+.table-container .card-header {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+    border: none;
+}
+
+/* Form controls with soft colors */
+.form-control:focus {
+    border-color: #6B8CAE;
+    box-shadow: 0 0 0 0.15rem rgba(107, 140, 174, 0.15);
+}
+
+.form-select:focus {
+    border-color: #6B8CAE;
+    box-shadow: 0 0 0 0.15rem rgba(107, 140, 174, 0.15);
+}
+</style>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Complaint Management</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <span class="badge bg-secondary">All Users</span>
+            <span class="badge bg-info ms-1">{{ complaints|length }} Total</span>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="filter-section">
+    <h4 class="mb-3"><i class="bi bi-funnel me-2"></i>Filter Complaints</h4>
+    <form method="GET" class="row g-3">
+        <div class="col-md-4">
+            <input type="text" name="search" class="form-control" placeholder="Search by subject, description, or user..." value="{{ search }}">
+        </div>
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">All Status</option>
+                <option value="PENDING" {{ selectedStatus == 'PENDING' ? 'selected' : '' }}>Pending</option>
+                <option value="OPEN" {{ selectedStatus == 'OPEN' ? 'selected' : '' }}>Open</option>
+                <option value="RESOLVED" {{ selectedStatus == 'RESOLVED' ? 'selected' : '' }}>Resolved</option>
+                <option value="CLOSED" {{ selectedStatus == 'CLOSED' ? 'selected' : '' }}>Closed</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="type" class="form-select">
+                <option value="">All Types</option>
+                {% for type in complaintTypes %}
+                    <option value="{{ type.id }}" {{ selectedType == type.id ? 'selected' : '' }}>{{ type.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-outline-secondary">
+                <i class="bi bi-search me-2"></i>Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stats-card soft-blue text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.total }}</h4>
+                        <p class="card-text">Total Complaints</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-exclamation-triangle fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card soft-coral text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.open }}</h4>
+                        <p class="card-text">Open</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-clock fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card soft-sage text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.resolved }}</h4>
+                        <p class="card-text">Resolved</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-check-circle fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card soft-teal text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.pending }}</h4>
+                        <p class="card-text">Pending</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-hourglass-split fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Section -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card stats-card soft-lavender text-white">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-pie-chart me-2"></i>Priority Distribution</h5>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h4>{{ stats.by_priority.high }}</h4>
+                        <small>High Priority</small>
+                    </div>
+                    <div class="col-4">
+                        <h4>{{ stats.by_priority.medium }}</h4>
+                        <small>Medium Priority</small>
+                    </div>
+                    <div class="col-4">
+                        <h4>{{ stats.by_priority.low }}</h4>
+                        <small>Low Priority</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card stats-card soft-cream text-white">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-bar-chart me-2"></i>Quick Actions</h5>
+                <div class="d-grid gap-2">
+                    <a href="{{ path('app_admin_reclamations_analytics') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-graph-up me-2"></i>View Analytics
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Complaints Table -->
+<div class="table-container">
+    <div class="card-header" style="background: linear-gradient(135deg, #6B8CAE, #4A6FA5); color: white; border: none;">
+        <h5 class="card-title mb-0">All Complaints from Candidates & HR Staff</h5>
+        <div class="card-tools">
+            <div class="input-group input-group-sm" style="width: 200px;">
+                <input type="text" name="table_search" class="form-control float-right" placeholder="Search complaints...">
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-outline-secondary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body table-responsive p-0">
+        <table class="table table-hover text-nowrap">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>User Type</th>
+                    <th>Subject</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Priority</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for complaint in complaints %}
+                <tr>
+                    <td>{{ complaint.id }}</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white me-2">
+                                {{ complaint.user.fullName|first|upper }}
+                            </div>
+                            <div>
+                                <a href="#" class="text-decoration-none fw-bold">
+                                    {{ complaint.user.fullName }}
+                                </a>
+                                <br>
+                                <small class="text-muted">{{ complaint.user.email }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if 'ROLE_ADMIN' in complaint.user.roles %}
+                            <span class="badge bg-danger">Admin</span>
+                        {% elseif 'ROLE_HR' in complaint.user.roles %}
+                            <span class="badge bg-warning">HR</span>
+                        {% else %}
+                            <span class="badge bg-primary">Candidate</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ path('app_admin_reclamations_show', {'id': complaint.id}) }}" class="text-decoration-none">
+                            {{ complaint.subject }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if complaint.type %}
+                            <span class="badge bg-info">{{ complaint.type.name }}</span>
+                        {% else %}
+                            <span class="text-muted">No type</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if complaint.status == 'OPEN' %}
+                            <span class="badge bg-danger">OPEN</span>
+                        {% elseif complaint.status == 'PENDING' %}
+                            <span class="badge bg-warning">PENDING</span>
+                        {% elseif complaint.status == 'RESOLVED' %}
+                            <span class="badge bg-success">RESOLVED</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ complaint.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ complaint.submissionDate|date('M d, Y') }}</td>
+                    <td>
+                        {% if complaint.priority == 'HIGH' %}
+                            <span class="badge priority-high">{{ complaint.priority }}</span>
+                        {% elseif complaint.priority == 'MEDIUM' %}
+                            <span class="badge priority-medium">{{ complaint.priority }}</span>
+                        {% else %}
+                            <span class="badge priority-low">{{ complaint.priority }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ path('app_admin_reclamations_show', {'id': complaint.id}) }}" 
+                           class="btn btn-sm btn-action" title="View Details">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="9" class="text-center text-muted">No complaints found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function generateAIResponse(complaintId) {
+    if (confirm('Generate AI response for this complaint?')) {
+        fetch(`/admin/reclamations/${complaintId}/ai-response`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('AI Response Generated:\n\n' + data.response + '\n\nUrgency: ' + data.urgency + '\nSentiment: ' + data.sentiment);
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while generating AI response.');
+        });
+    }
+}
+
+function translateComplaint(complaintId) {
+    if (confirm('Translate this complaint to English?')) {
+        fetch(`/admin/reclamations/${complaintId}/translate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Translation:\n\n' + data.translation + '\n\nDetected Language: ' + data.detectedLanguage);
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while translating complaint.');
+        });
+    }
+}
+
+</script>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}Edit Profile - SmartHire{% endblock %}
+
+{% block candidate_page_title %}Edit Profile{% endblock %}
+
+{% block page_actions %}
+<a href="{{ path('app_profile') }}" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-2"></i>Back to Profile
+</a>
+{% endblock %}
+
+{% block candidate_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-person-gear me-2"></i>Edit Profile Information
+                </h4>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(form.firstName, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.firstName, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.firstName) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(form.lastName, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.lastName, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.lastName) }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    {{ form_label(form.email, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.email) }}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form_label(form.phoneNumber, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.phoneNumber, {'attr': {'class': 'form-control', 'placeholder': '8 digits only'}}) }}
+                    {{ form_errors(form.phoneNumber) }}
+                    <div class="form-text">Enter your 8-digit phone number (e.g., 12345678)</div>
+                </div>
+                
+                <div class="mb-3">
+                    {{ form_label(form.profilePicture, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.profilePicture, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.profilePicture) }}
+                    <div class="form-text">Upload a profile picture (JPEG, PNG, or GIF, max 2MB)</div>
+                </div>
+                
+                <div class="mb-3">
+                    {{ form_label(form.plainPassword, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.plainPassword, {'attr': {'class': 'form-control', 'placeholder': 'Leave blank to keep current password'}}) }}
+                    {{ form_errors(form.plainPassword) }}
+                    <div class="form-text">Enter a new password if you want to change it (min 8 characters, must contain uppercase, lowercase, and number)</div>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ path('app_profile') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle me-2"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-2"></i>Save Changes
+                    </button>
+                </div>
+                
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

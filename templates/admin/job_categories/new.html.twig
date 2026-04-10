@@ -1,0 +1,120 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Add Job Category - SmartHire Admin{% endblock %}
+
+{% block admin_page_title %}Add Job Category{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Job Category</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ path('app_admin_job_categories') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Categories
+            </a>
+        </div>
+    </div>
+</div>
+
+{% for flash in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ flash }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+{% endfor %}
+
+{% for flash in app.flashes('error') %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ flash }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+{% endfor %}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Create New Job Category</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ path('app_admin_job_categories_new') }}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Category Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" 
+                               placeholder="e.g. Technology, Healthcare, Finance" required>
+                        <div class="form-text">Enter a descriptive name for the job category.</div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Category Guidelines:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Use clear, descriptive names</li>
+                            <li>Keep names concise but informative</li>
+                            <li>Consider the types of jobs in this category</li>
+                            <li>Examples: "Software Development", "Marketing", "Customer Service"</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('app_admin_job_categories') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-2"></i>Create Category
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Help</h6>
+            </div>
+            <div class="card-body">
+                <h6>What are Job Categories?</h6>
+                <p class="small">
+                    Job categories help organize different types of job positions 
+                    making it easier for candidates to find relevant opportunities.
+                </p>
+
+                <hr>
+
+                <h6>Best Practices</h6>
+                <ul class="small">
+                    <li>Use industry-standard terminology</li>
+                    <li>Avoid overly specific or generic names</li>
+                    <li>Consider your target audience</li>
+                    <li>Keep categories focused and distinct</li>
+                </ul>
+
+                <hr>
+
+                <h6>Examples</h6>
+                <ul class="small mb-0">
+                    <li>Technology & IT</li>
+                    <li>Healthcare</li>
+                    <li>Finance & Banking</li>
+                    <li>Marketing & Sales</li>
+                    <li>Human Resources</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">Important</h6>
+            </div>
+            <div class="card-body">
+                <p class="small mb-0">
+                    Once created, job categories can be used when creating job offers. 
+                    Make sure the categories cover all major job areas in your organization.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
