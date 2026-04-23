@@ -1,0 +1,231 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}Candidate Profile - SmartHire{% endblock %}
+
+{% block candidate_page_title %}My Profile{% endblock %}
+
+{% block candidate_content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header candidate-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-person me-2"></i>Profile Picture</h5>
+            </div>
+            <div class="card-body text-center">
+                {% if candidate.profilePicture %}
+                    <img src="{{ asset('uploads/profile_pictures/' ~ candidate.profilePicture) }}" alt="Profile Picture" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                {% else %}
+                    <div class="avatar-circle bg-success text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 150px; height: 150px; font-size: 3rem;">
+                        {{ candidate.firstName|first }}{{ candidate.lastName|first }}
+                    </div>
+                {% endif %}
+                
+                <h5>{{ candidate.firstName }} {{ candidate.lastName }}</h5>
+                <p class="text-muted">{{ candidate.email }}</p>
+                
+                <div class="mt-3">
+                    <span class="badge bg-success">Candidate</span>
+                    {% if candidate.isVerified %}
+                        <span class="badge bg-info">Verified</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header candidate-info text-white">
+                <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Profile Completion</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <h2 class="text-success">{{ profile_completion ?? 0 }}%</h2>
+                    <small class="text-muted">Profile Complete</small>
+                </div>
+                <div class="progress" style="height: 10px;">
+                    <div class="progress-bar bg-success" style="width: {{ profile_completion ?? 0 }}%"></div>
+                </div>
+                <small class="text-muted d-block mt-2">Complete your profile to get better job recommendations</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header candidate-warning text-dark">
+                <h5 class="mb-0"><i class="bi bi-pencil me-2"></i>Edit Profile Information</h5>
+            </div>
+            <div class="card-body">
+                {{ form_start(profileForm, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(profileForm.firstName, 'First Name', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(profileForm.firstName, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(profileForm.firstName) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(profileForm.lastName, 'Last Name', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(profileForm.lastName, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(profileForm.lastName) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(profileForm.email, 'Email Address', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(profileForm.email, {'attr': {'class': 'form-control', 'readonly': true}}) }}
+                    {{ form_errors(profileForm.email) }}
+                    <small class="form-text text-muted">Email cannot be changed. Contact support if needed.</small>
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(profileForm.phoneNumber, 'Phone Number', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(profileForm.phoneNumber, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(profileForm.phoneNumber) }}
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(profileForm.plainPassword, 'New Password', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(profileForm.plainPassword, {'attr': {'class': 'form-control', 'placeholder': 'Leave blank to keep current password'}}) }}
+                            {{ form_errors(profileForm.plainPassword) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirm New Password</label>
+                            <input type="password" id="confirm_password" class="form-control" placeholder="Confirm new password">
+                            <div class="invalid-feedback">
+                                Passwords do not match.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check me-2"></i>Save Changes
+                    </button>
+                    <a href="{{ path('app_candidate_settings') }}" class="btn btn-outline-info">
+                        <i class="bi bi-gear me-2"></i>Account Settings
+                    </a>
+                </div>
+
+                {{ form_end(profileForm) }}
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header candidate-success text-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Account Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Member Since:</strong><br>{{ candidate.createdAt|date('F j, Y') }}</p>
+                        <p><strong>Account Status:</strong><br>
+                            {% if candidate.isBanned %}
+                                <span class="badge bg-danger">Suspended</span>
+                            {% elseif candidate.isVerified %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-warning">Pending Verification</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Face Login:</strong><br>
+                            {% if candidate.faceLoginEnabled %}
+                                <span class="badge bg-info">Enabled</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Disabled</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Applications Submitted:</strong><br>{{ total_applications ?? 0 }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.candidate-primary {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+}
+
+.candidate-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.candidate-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.candidate-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.avatar-circle {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+    box-shadow: 0 4px 15px rgba(135, 160, 66, 0.3);
+}
+
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.form-control:focus {
+    border-color: #87a042;
+    box-shadow: 0 0 0 0.2rem rgba(135, 160, 66, 0.25);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+    border: none;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #7a9038 0%, #95b35c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(135, 160, 66, 0.3);
+}
+</style>
+
+<script>
+// Bootstrap form validation
+(function () {
+    'use strict'
+    
+    var forms = document.querySelectorAll('.needs-validation')
+    
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            
+            // Check password confirmation only if new password is provided
+            var newPassword = document.querySelector('#profile_form_plainPassword').value
+            var confirmPassword = document.querySelector('#confirm_password').value
+            
+            if (newPassword && newPassword !== confirmPassword) {
+                document.querySelector('#confirm_password').classList.add('is-invalid')
+                event.preventDefault()
+                event.stopPropagation()
+            } else {
+                document.querySelector('#confirm_password').classList.remove('is-invalid')
+            }
+            
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
+{% endblock %}

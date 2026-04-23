@@ -1,0 +1,177 @@
+{% extends 'hr/layout.html.twig' %}
+
+{% block title %}My Profile - SmartHire{% endblock %}
+
+{% block hr_page_title %}My Profile{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <!-- Profile Overview -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body text-center">
+                {% if user.profilePicture %}
+                <img src="{{ asset('uploads/profiles/' ~ user.profilePicture) }}" 
+                     alt="Profile Picture" 
+                     class="rounded-circle mb-3" 
+                     style="width: 150px; height: 150px; object-fit: cover;">
+                {% else %}
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mb-3" 
+                     style="width: 150px; height: 150px; margin: 0 auto;">
+                    <h1 class="mb-0">{{ user.firstName|first }}{{ user.lastName|first }}</h1>
+                </div>
+                {% endif %}
+                
+                <h4>{{ user.fullName }}</h4>
+                <p class="text-muted">{{ user.roleName }}</p>
+                <p class="text-muted">{{ user.email }}</p>
+                {% if user.phoneNumber %}
+                <p class="text-muted">{{ user.phoneNumber }}</p>
+                {% endif %}
+                
+                <div class="mt-3">
+                    <a href="{{ path('app_profile_edit') }}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-pencil me-1"></i>Edit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- HR Statistics -->
+    <div class="col-lg-8">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-primary">{{ stats.total_job_offers }}</h3>
+                        <p class="mb-0">Job Offers</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-success">{{ stats.active_job_offers }}</h3>
+                        <p class="mb-0">Active Offers</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-warning">{{ stats.total_interviews }}</h3>
+                        <p class="mb-0">Interviews</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-info">{{ stats.total_events }}</h3>
+                        <p class="mb-0">Events</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Recent Events</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if events|length > 0 %}
+                            {% for event in events|slice(0, 3) %}
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="me-3">
+                                    <i class="bi bi-calendar-event text-primary fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">{{ event.name }}</h6>
+                                    <small class="text-muted">{{ event.eventDate|date('M d, Y') }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">No events yet</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Recent Interviews</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if interviews|length > 0 %}
+                            {% for interview in interviews|slice(0, 3) %}
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="me-3">
+                                    <i class="bi bi-person-check text-warning fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">
+                                        {% if interview.jobRequest and interview.jobRequest.candidate %}
+                                            {{ interview.jobRequest.candidate.fullName }}
+                                        {% else %}
+                                            Interview
+                                        {% endif %}
+                                    </h6>
+                                    <small class="text-muted">
+                                        {% if interview.dateTime %}
+                                            {{ interview.dateTime|date('M d, Y') }}
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">No interviews scheduled</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Quick Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <a href="{{ path('app_hr_job_offers_new') }}" class="btn btn-primary w-100 mb-2">
+                                    <i class="bi bi-plus-circle me-2"></i>New Job Offer
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="{{ path('app_hr_interviews') }}" class="btn btn-warning w-100 mb-2">
+                                    <i class="bi bi-calendar-check me-2"></i>Manage Interviews
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="{{ path('app_hr_events') }}" class="btn btn-info w-100 mb-2">
+                                    <i class="bi bi-calendar-event me-2"></i>Manage Events
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="{{ path('app_hr_quizzes') }}" class="btn btn-success w-100 mb-2">
+                                    <i class="bi bi-question-circle me-2"></i>Manage Quizzes
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

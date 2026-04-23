@@ -1,0 +1,266 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}Apply for Job - SmartHire{% endblock %}
+
+{% block candidate_page_title %}Apply for Job{% endblock %}
+
+{% block candidate_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header candidate-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-send me-2"></i>Apply for {{ jobOffer.title }}</h5>
+            </div>
+            <div class="card-body">
+                <!-- Job Information -->
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title">{{ jobOffer.title }}</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Company:</strong><br>
+                                {{ jobOffer.company }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Location:</strong><br>
+                                {{ jobOffer.location }}
+                                {% if jobOffer.isRemote %}
+                                    <span class="badge bg-success ms-1">Remote</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <strong>Employment Type:</strong><br>
+                                <span class="badge bg-info">{{ jobOffer.employmentType }}</span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Category:</strong><br>
+                                <span class="badge bg-secondary">{{ jobOffer.category }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Application Form -->
+                <form method="post">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="coverLetter" class="form-label">Cover Letter *</label>
+                                <textarea class="form-control" id="coverLetter" name="coverLetter" rows="8" required placeholder="Tell us why you're interested in this position and why you'd be a great fit..."></textarea>
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Write a compelling cover letter highlighting your relevant skills and experience.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="expectedSalary" class="form-label">Expected Salary (Optional)</label>
+                                <input type="number" class="form-control" id="expectedSalary" name="expectedSalary" placeholder="e.g., 50000" min="0">
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    You can leave this empty if you prefer to discuss salary later.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="availability" class="form-label">Availability</label>
+                                <select class="form-select" id="availability" name="availability">
+                                    <option value="immediately">Immediately</option>
+                                    <option value="2-weeks">2 weeks notice</option>
+                                    <option value="1-month">1 month notice</option>
+                                    <option value="2-months">2 months notice</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="resume" class="form-label">Resume/CV</label>
+                                <input type="file" class="form-control" id="resume" name="resume" accept=".pdf,.doc,.docx">
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Upload your resume in PDF, DOC, or DOCX format (Max 5MB).
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                                    <label class="form-check-label" for="terms">
+                                        I confirm that all information provided is accurate and complete.
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('app_candidate_job_marketplace') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Jobs
+                        </a>
+                        <div>
+                            <button type="reset" class="btn btn-outline-secondary me-2">
+                                <i class="bi bi-x-circle me-2"></i>Clear
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-send me-2"></i>Submit Application
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header candidate-info text-white">
+                <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Application Tips</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h6><i class="bi bi-check-circle me-2"></i>Best Practices</h6>
+                    <ul class="mb-0">
+                        <li>Customize your cover letter for each position</li>
+                        <li>Highlight relevant skills from the job description</li>
+                        <li>Keep your cover letter concise (200-400 words)</li>
+                        <li>Proofread carefully before submitting</li>
+                    </ul>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <h6><i class="bi bi-exclamation-triangle me-2"></i>Important Notes</h6>
+                    <ul class="mb-0">
+                        <li>Applications can only be edited while in "Pending" status</li>
+                        <li>You can withdraw your application at any time</li>
+                        <li>Response time varies by company</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header candidate-warning text-dark">
+                <h6 class="mb-0"><i class="bi bi-person me-2"></i>Recruiter Information</h6>
+            </div>
+            <div class="card-body">
+                {% if jobOffer.recruiter %}
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar-circle bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            {{ jobOffer.recruiter.firstName|first }}{{ jobOffer.recruiter.lastName|first }}
+                        </div>
+                        <div>
+                            <h6 class="mb-0">{{ jobOffer.recruiter.firstName }} {{ jobOffer.recruiter.lastName }}</h6>
+                            <small class="text-muted">Hiring Manager</small>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">
+                            <i class="bi bi-envelope me-1"></i>
+                            {{ jobOffer.recruiter.email }}
+                        </small>
+                    </div>
+                    {% if jobOffer.recruiter.phone %}
+                    <div class="mb-2">
+                        <small class="text-muted">
+                            <i class="bi bi-phone me-1"></i>
+                            {{ jobOffer.recruiter.phone }}
+                        </small>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <p class="text-muted">No recruiter information available.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header candidate-success text-white">
+                <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Related Training</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">
+                    Based on this job position, we recommend the following trainings to improve your chances:
+                </p>
+                <div class="list-group list-group-flush">
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Advanced Interview Skills</h6>
+                                <small class="text-muted">Improve your interview performance</small>
+                            </div>
+                            <span class="badge bg-success">Recommended</span>
+                        </div>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ jobOffer.category }} Fundamentals</h6>
+                                <small class="text-muted">Essential skills for this role</small>
+                            </div>
+                            <span class="badge bg-info">Popular</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ path('app_candidate_training_recommendations') }}" class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-mortarboard me-1"></i>View All Recommendations
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.candidate-primary {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+}
+
+.candidate-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.candidate-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.candidate-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.avatar-circle {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+    box-shadow: 0 2px 8px rgba(135, 160, 66, 0.3);
+}
+
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.btn-outline-success {
+    border-color: #87a042;
+    color: #87a042;
+}
+
+.btn-outline-success:hover {
+    background-color: #87a042;
+    border-color: #87a042;
+}
+</style>
+{% endblock %}

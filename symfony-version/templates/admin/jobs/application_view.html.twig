@@ -1,0 +1,172 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Application Details - SmartHire{% endblock %}
+
+{% block admin_page_title %}Application Details{% endblock %}
+
+{% block admin_actions %}
+<a href="{{ path('app_admin_applications') }}" class="btn btn-secondary">
+    <i class="bi bi-arrow-left me-2"></i>Back to Applications
+</a>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <!-- Application Status Card -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Application Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    {% if application.status == 'PENDING' %}
+                        <span class="badge bg-warning fs-6 p-2">Pending Review</span>
+                    {% elseif application.status == 'ACCEPTED' %}
+                        <span class="badge bg-success fs-6 p-2">Accepted</span>
+                    {% elseif application.status == 'REJECTED' %}
+                        <span class="badge bg-danger fs-6 p-2">Rejected</span>
+                    {% endif %}
+                </div>
+                
+                {% if application.status == 'PENDING' %}
+                <div class="d-grid gap-2">
+                    <form method="post" action="{{ path('app_admin_application_status', {'id': application.id}) }}">
+                        <input type="hidden" name="status" value="ACCEPTED">
+                        <input type="hidden" name="_token" value="{{ csrf_token('status' ~ application.id) }}">
+                        <button type="submit" class="btn btn-success" onclick="return confirm('Accept this application?')">
+                            <i class="bi bi-check-circle me-2"></i>Accept Application
+                        </button>
+                    </form>
+                    <form method="post" action="{{ path('app_admin_application_status', {'id': application.id}) }}">
+                        <input type="hidden" name="status" value="REJECTED">
+                        <input type="hidden" name="_token" value="{{ csrf_token('status' ~ application.id) }}">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Reject this application?')">
+                            <i class="bi bi-x-circle me-2"></i>Reject Application
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Candidate Information -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Candidate Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar-circle bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 20px;">
+                                {{ application.candidate.firstName|first }}{{ application.candidate.lastName|first }}
+                            </div>
+                            <div>
+                                <h5 class="mb-1">{{ application.candidate.firstName }} {{ application.candidate.lastName }}</h5>
+                                <p class="text-muted mb-0">{{ application.candidate.email }}</p>
+                                <p class="text-muted">{{ application.candidate.phone|default('N/A') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Additional Information</h6>
+                        <p><strong>Location:</strong> {{ application.candidate.location|default('N/A') }}</p>
+                        <p><strong>Experience:</strong> {{ application.candidate.experience|default('N/A') }}</p>
+                        <p><strong>Skills:</strong> {{ application.candidate.skills|default('N/A') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Job Information -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Job Information</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Position Details</h6>
+                {% if application.jobOffer %}
+                    <p><strong>Title:</strong> {{ application.jobOffer.title }}</p>
+                    <p><strong>Location:</strong> {{ application.jobOffer.location }}</p>
+                    <p><strong>Job Type:</strong> <span class="badge bg-info">{{ application.jobOffer.jobType }}</span></p>
+                    <p><strong>Salary Range:</strong> {{ application.jobOffer.salaryRange|default('Not specified') }}</p>
+                {% else %}
+                    <p><strong>Title:</strong> {{ application.jobTitle|default('N/A') }}</p>
+                    <p><strong>Location:</strong> {{ application.location|default('N/A') }}</p>
+                    <p><strong>Category:</strong> {{ application.categorie|default('N/A') }}</p>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <h6>Application Timeline</h6>
+                <p><strong>Applied Date:</strong> {{ application.submissionDate|date('M d, Y H:i') }}</p>
+                <p><strong>Status:</strong> <span class="badge bg-{{ application.status == 'ACCEPTED' ? 'success' : application.status == 'REJECTED' ? 'danger' : 'warning' }}">{{ application.status }}</span></p>
+            </div>
+        </div>
+        
+        {% if application.jobOffer and application.jobOffer.description %}
+        <div class="mt-3">
+            <h6>Job Description</h6>
+            <div class="border rounded p-3 bg-light">
+                {{ application.jobOffer.description|raw }}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Application Documents -->
+{% if application.resume or application.coverLetter %}
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Application Documents</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% if application.resume %}
+            <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 border rounded">
+                    <i class="bi bi-file-earmark-text fs-3 text-primary me-3"></i>
+                    <div>
+                        <h6 class="mb-1">Resume</h6>
+                        <a href="#" class="btn btn-sm btn-outline-primary">Download Resume</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% if application.coverLetter %}
+            <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 border rounded">
+                    <i class="bi bi-file-earmark-text fs-3 text-info me-3"></i>
+                    <div>
+                        <h6 class="mb-1">Cover Letter</h6>
+                        <a href="#" class="btn btn-sm btn-outline-info">Download Cover Letter</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Application Notes -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Application Notes</h5>
+    </div>
+    <div class="card-body">
+        {% if application.notes %}
+            <p>{{ application.notes }}</p>
+        {% else %}
+            <p class="text-muted">No notes added to this application.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

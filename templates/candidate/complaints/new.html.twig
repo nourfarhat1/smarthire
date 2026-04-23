@@ -1,0 +1,149 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}Submit New Complaint - SmartHire{% endblock %}
+
+{% block candidate_page_title %}Submit New Complaint{% endblock %}
+
+{% block candidate_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header candidate-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Submit New Complaint</h5>
+            </div>
+            <div class="card-body">
+                {% for flash in app.flashes('error') %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ flash }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% for flash in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ flash }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% if profanityWords is defined %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <strong>Profanity Detected:</strong> Your complaint contains inappropriate language: 
+                        <em>{{ profanityWords|join(', ') }}</em>. Please remove these words and try again.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endif %}
+
+                <form method="POST" action="{{ path('app_candidate_complaints_new') }}">
+                    <div class="mb-3">
+                        <label for="type" class="form-label">Complaint Type <span class="text-danger">*</span></label>
+                        <select class="form-select" id="type" name="type" required>
+                            <option value="">Select a type...</option>
+                            {% for complaintType in types %}
+                                <option value="{{ complaintType.id }}">{{ complaintType.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Choose category that best describes your complaint.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Subject <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="subject" name="subject" 
+                               value="{{ filteredSubject|default('') }}" 
+                               placeholder="Briefly describe your issue" required>
+                        <div class="form-text">Maximum 100 characters</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="description" name="description" rows="6" 
+                                  placeholder="Provide detailed information about your complaint..." required>{{ filteredDescription|default('') }}</textarea>
+                        <div class="form-text">Minimum 20 characters. Be as specific as possible.</div>
+                    </div>
+
+                    <div class="card bg-light mb-3">
+                        <div class="card-body">
+                            <h6><i class="bi bi-info-circle me-2"></i>Before You Submit</h6>
+                            <ul class="mb-0">
+                                <li>Please be respectful and professional in your communication</li>
+                                <li>Provide as much detail as possible to help us resolve your issue</li>
+                                <li>Include relevant dates, times, and specific examples</li>
+                                <li>Avoid using inappropriate language or personal attacks</li>
+                                <li>Response time is typically 24-48 hours</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('app_candidate_complaints') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to My Complaints
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-send me-2"></i>Submit Complaint
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.candidate-primary {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+}
+
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #87a042;
+    box-shadow: 0 0 0 0.2rem rgba(135, 160, 66, 0.25);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+    border: none;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #7a9038 0%, #95b35c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(135, 160, 66, 0.3);
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+</style>
+
+<script>
+// Character counter for subject
+document.getElementById('subject').addEventListener('input', function() {
+    const maxLength = 100;
+    const currentLength = this.value.length;
+    
+    if (currentLength > maxLength) {
+        this.value = this.value.substring(0, maxLength);
+    }
+});
+
+// Character counter for description
+document.getElementById('description').addEventListener('input', function() {
+    const minLength = 20;
+    const currentLength = this.value.length;
+    
+    // Update help text
+    const helpText = this.nextElementSibling;
+    if (currentLength < minLength) {
+        helpText.textContent = `Minimum ${minLength} characters (${minLength - currentLength} more needed)`;
+        helpText.classList.add('text-danger');
+    } else {
+        helpText.textContent = `Minimum ${minLength} characters. Be as specific as possible.`;
+        helpText.classList.remove('text-danger');
+    }
+});
+</script>
+{% endblock %}

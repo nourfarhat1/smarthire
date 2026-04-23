@@ -1,0 +1,306 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}Job Marketplace - SmartHire{% endblock %}
+
+{% block candidate_page_title %}Job Marketplace{% endblock %}
+
+{% block candidate_content %}
+<!-- Filters -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header candidate-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-briefcase me-2"></i>Browse Job Opportunities</h5>
+                    <a href="{{ path('app_candidate_applications') }}" class="btn btn-light btn-sm">
+                        <i class="bi bi-arrow-left me-1"></i>My Applications
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="search" class="form-label">Search Jobs</label>
+                        <input type="text" class="form-control" id="search" name="search" value="{{ search }}" placeholder="Search by title or keywords...">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" name="category">
+                            <option value="">All Categories</option>
+                            <option value="IT" {{ selectedCategory == 'IT' ? 'selected' : '' }}>IT/Software</option>
+                            <option value="Marketing" {{ selectedCategory == 'Marketing' ? 'selected' : '' }}>Marketing</option>
+                            <option value="Sales" {{ selectedCategory == 'Sales' ? 'selected' : '' }}>Sales</option>
+                            <option value="HR" {{ selectedCategory == 'HR' ? 'selected' : '' }}>Human Resources</option>
+                            <option value="Finance" {{ selectedCategory == 'Finance' ? 'selected' : '' }}>Finance</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" name="location" value="{{ selectedLocation }}" placeholder="City or Country">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="type" class="form-label">Job Type</label>
+                        <select class="form-select" id="type" name="type">
+                            <option value="">All Types</option>
+                            <option value="full-time" {{ selectedType == 'full-time' ? 'selected' : '' }}>Full Time</option>
+                            <option value="part-time" {{ selectedType == 'part-time' ? 'selected' : '' }}>Part Time</option>
+                            <option value="contract" {{ selectedType == 'contract' ? 'selected' : '' }}>Contract</option>
+                            <option value="remote" {{ selectedType == 'remote' ? 'selected' : '' }}>Remote</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-outline-success">
+                                <i class="bi bi-search me-2"></i>Search Jobs
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Job Listings -->
+<div class="row">
+    <div class="col-md-12">
+        {% if jobOffers|length > 0 %}
+            <div class="row">
+                {% for jobOffer in jobOffers %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 border-0 shadow-sm job-card">
+                            <div class="card-header candidate-info text-white">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">{{ jobOffer.title }}</h6>
+                                        <small class="text-white-50">
+                                            {% if jobOffer.recruiter %}
+                                                {{ jobOffer.recruiter.firstName }} {{ jobOffer.recruiter.lastName }}
+                                            {% else %}
+                                                {{ jobOffer.title }}
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    <div>
+                                        {% if jobOffer.id in appliedJobIds %}
+                                            <span class="badge bg-light text-dark">Applied</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <span class="badge bg-info me-1">{{ jobOffer.category }}</span>
+                                    <span class="badge bg-secondary me-1">{{ jobOffer.jobType }}</span>
+                                </div>
+                                
+                                <p class="card-text">{{ jobOffer.description|slice(0, 150) }}...</p>
+                                
+                                <div class="mb-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-geo-alt me-1"></i>{{ jobOffer.location }}
+                                    </small>
+                                </div>
+                                
+                                <div class="mb-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-cash me-1"></i>
+                                        {% if jobOffer.salaryRange %}
+                                            {{ jobOffer.salaryRange }}
+                                        {% else %}
+                                            Competitive
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar3 me-1"></i>
+                                        Posted {{ jobOffer.postedDate|date('M d, Y') }}
+                                    </small>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        {% if jobOffer.recruiter %}
+                                            <small class="text-muted">
+                                                <i class="bi bi-person me-1"></i>
+                                                {{ jobOffer.recruiter.firstName }} {{ jobOffer.recruiter.lastName }}
+                                            </small>
+                                        {% endif %}
+                                    </div>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#jobModal{{ jobOffer.id }}">
+                                            <i class="bi bi-eye me-1"></i>View
+                                        </button>
+                                        <form method="post" action="{{ path('app_candidate_save_job', {'id': jobOffer.id}) }}" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-warning">
+                                                <i class="bi bi-heart me-1"></i>Save
+                                            </button>
+                                        </form>
+                                        {% if jobOffer.id not in appliedJobIds %}
+                                            <a href="{{ path('app_candidate_apply_job', {'id': jobOffer.id}) }}" class="btn btn-sm btn-success">
+                                                <i class="bi bi-send me-1"></i>Apply
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-briefcase fs-1 text-muted mb-3"></i>
+                    <h5>No Job Opportunities Found</h5>
+                    <p class="text-muted">
+                        {% if search or selectedCategory or selectedLocation or selectedType %}
+                            No jobs match your search criteria. Try adjusting your filters.
+                        {% else %}
+                            No job opportunities are currently available. Check back later for new postings!
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Job Details Modals -->
+{% for jobOffer in jobOffers %}
+<div class="modal fade" id="jobModal{{ jobOffer.id }}" tabindex="-1" aria-labelledby="jobModalLabel{{ jobOffer.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header candidate-primary text-white">
+                <h5 class="modal-title" id="jobModalLabel{{ jobOffer.id }}">{{ jobOffer.title }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Company:</strong><br>
+                        {% if jobOffer.recruiter %}
+                            {{ jobOffer.recruiter.firstName }} {{ jobOffer.recruiter.lastName }}
+                        {% else %}
+                            {{ jobOffer.title }}
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Location:</strong><br>
+                        {{ jobOffer.location }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Employment Type:</strong><br>
+                        <span class="badge bg-info">{{ jobOffer.jobType }}</span>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Category:</strong><br>
+                        <span class="badge bg-secondary">{{ jobOffer.category }}</span>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Salary Range:</strong><br>
+                        {% if jobOffer.salaryRange %}
+                            {{ jobOffer.salaryRange }}
+                        {% else %}
+                            Competitive
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Posted Date:</strong><br>
+                        {{ jobOffer.postedDate|date('F j, Y') }}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Job Description:</strong>
+                    <div class="mt-2 p-3 bg-light rounded">
+                        {{ jobOffer.description|nl2br }}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Contact Information:</strong><br>
+                    {% if jobOffer.recruiter %}
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                {{ jobOffer.recruiter.firstName|first }}{{ jobOffer.recruiter.lastName|first }}
+                            </div>
+                            <div>
+                                <strong>{{ jobOffer.recruiter.firstName }} {{ jobOffer.recruiter.lastName }}</strong>
+                                <br>
+                                <small class="text-muted">{{ jobOffer.recruiter.email }}</small>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <form method="post" action="{{ path('app_candidate_save_job', {'id': jobOffer.id}) }}" class="d-inline">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-heart me-1"></i>Save Job
+                    </button>
+                </form>
+                {% if jobOffer.id not in appliedJobIds %}
+                    <a href="{{ path('app_candidate_apply_job', {'id': jobOffer.id}) }}" class="btn btn-success">
+                        <i class="bi bi-send me-1"></i>Apply Now
+                    </a>
+                {% else %}
+                    <button class="btn btn-success" disabled>
+                        <i class="bi bi-check-circle me-1"></i>Applied
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<style>
+.candidate-primary {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+}
+
+.candidate-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.job-card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.job-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.avatar-circle {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+    box-shadow: 0 2px 8px rgba(135, 160, 66, 0.3);
+}
+
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.btn-outline-success {
+    border-color: #87a042;
+    color: #87a042;
+}
+
+.btn-outline-success:hover {
+    background-color: #87a042;
+    border-color: #87a042;
+}
+</style>
+{% endblock %}

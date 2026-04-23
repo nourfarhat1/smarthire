@@ -1,0 +1,344 @@
+{% extends 'base.html.twig' %}
+
+{% block page_title %}Face Login{% endblock %}
+
+{% block body %}
+{% if app.user %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="alert alert-info">
+                    <h4><i class="bi bi-info-circle me-2"></i>Already Logged In</h4>
+                    <p>You are already logged in as {{ app.user.firstName }} {{ app.user.lastName }}.</p>
+                    <a href="{{ path('app_dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+<div class="container-fluid vh-100 d-flex align-items-center justify-content-center bg-light">
+    <div class="row w-100">
+        <div class="col-md-6 mx-auto">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-camera-video me-2"></i>Face Recognition Login
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="camera-container position-relative d-inline-block">
+                            <video id="webcam" class="rounded border" width="320" height="240" autoplay></video>
+                            <canvas id="canvas" class="d-none" width="320" height="240"></canvas>
+                            
+                            <!-- Face detection overlay -->
+                            <div id="faceOverlay" class="position-absolute top-0 start-0 w-100 h-100 pointer-events-none">
+                                <div id="faceFrame" class="border border-success d-none" style="position: absolute; border-width: 3px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="faceLoginForm">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" required 
+                                   placeholder="Enter your email address">
+                            <div class="form-text">We need your email to find your profile picture</div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-success" id="startCameraBtn">
+                                <i class="bi bi-camera-video me-2"></i>Start Camera
+                            </button>
+                            <button type="button" class="btn btn-primary d-none" id="captureBtn">
+                                <i class="bi bi-camera me-2"></i>Capture Face
+                            </button>
+                            <button type="button" class="btn btn-warning d-none" id="retryBtn">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Try Again
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Status Messages -->
+                    <div id="statusMessage" class="mt-3"></div>
+
+                    <!-- Loading Indicator -->
+                    <div id="loadingIndicator" class="text-center d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Processing...</span>
+                        </div>
+                        <p class="mt-2">Analyzing face...</p>
+                    </div>
+
+                    <!-- Results -->
+                    <div id="results" class="d-none">
+                        <div class="alert">
+                            <h6>Recognition Results:</h6>
+                            <div id="resultDetails"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{{ path('app_login') }}" class="btn btn-outline-secondary me-2">
+                        <i class="bi bi-key me-2"></i>Traditional Login
+                    </a>
+                    <a href="{{ path('app_register') }}" class="btn btn-outline-info">
+                        <i class="bi bi-person-plus me-2"></i>Register
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const video = document.getElementById('webcam');
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    const emailInput = document.getElementById('email');
+    const startCameraBtn = document.getElementById('startCameraBtn');
+    const captureBtn = document.getElementById('captureBtn');
+    const retryBtn = document.getElementById('retryBtn');
+    const statusMessage = document.getElementById('statusMessage');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const results = document.getElementById('results');
+    const resultDetails = document.getElementById('resultDetails');
+    const faceFrame = document.getElementById('faceFrame');
+    
+    let stream = null;
+    let faceDetectionInterval = null;
+
+    // Start Camera
+    startCameraBtn.addEventListener('click', async function() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    width: { ideal: 640 },
+                    height: { ideal: 480 },
+                    facingMode: 'user'
+                } 
+            });
+            
+            video.srcObject = stream;
+            
+            startCameraBtn.classList.add('d-none');
+            captureBtn.classList.remove('d-none');
+            
+            showStatus('Camera started. Position your face in the frame.', 'info');
+            
+            // Start face detection simulation
+            startFaceDetection();
+            
+        } catch (error) {
+            console.error('Camera error:', error);
+            showStatus('Camera access denied. Please allow camera access and try again.', 'danger');
+        }
+    });
+
+    // Capture Face
+    captureBtn.addEventListener('click', function() {
+        if (!stream) {
+            showStatus('Please start the camera first.', 'warning');
+            return;
+        }
+
+        if (!emailInput.value.trim()) {
+            showStatus('Please enter your email address.', 'warning');
+            emailInput.focus();
+            return;
+        }
+
+        // Capture the current frame
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL('image/jpeg');
+        
+        // Stop camera
+        stopCamera();
+        
+        // Show loading
+        captureBtn.classList.add('d-none');
+        loadingIndicator.classList.remove('d-none');
+        showStatus('Analyzing face...', 'info');
+
+        // Send to server for verification
+        verifyFace(imageData);
+    });
+
+    // Retry
+    retryBtn.addEventListener('click', function() {
+        resetForm();
+        startCameraBtn.click();
+    });
+
+    function verifyFace(imageData) {
+        const formData = new FormData();
+        formData.append('email', emailInput.value);
+        formData.append('image', imageData);
+
+        fetch('{{ path('app_face_login_verify') }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            loadingIndicator.classList.add('d-none');
+            
+            if (data.success) {
+                showResults(data, 'success');
+                showStatus('Face recognition successful! Redirecting...', 'success');
+                
+                // Redirect after delay
+                setTimeout(() => {
+                    window.location.href = data.redirect_url;
+                }, 2000);
+            } else {
+                showResults(data, 'danger');
+                showStatus('Face recognition failed: ' + data.error, 'danger');
+                retryBtn.classList.remove('d-none');
+            }
+        })
+        .catch(error => {
+            console.error('Verification error:', error);
+            loadingIndicator.classList.add('d-none');
+            showStatus('Verification failed. Please try again.', 'danger');
+            retryBtn.classList.remove('d-none');
+        });
+    }
+
+    function startFaceDetection() {
+        faceDetectionInterval = setInterval(() => {
+            // Simulate face detection
+            const hasFace = Math.random() > 0.3; // 70% chance of "detecting" face
+            
+            if (hasFace) {
+                faceFrame.classList.remove('d-none');
+                // Position face frame (simulated)
+                faceFrame.style.left = '60px';
+                faceFrame.style.top = '40px';
+                faceFrame.style.width = '200px';
+                faceFrame.style.height = '160px';
+                faceFrame.className = 'border border-success';
+            } else {
+                faceFrame.classList.add('d-none');
+            }
+        }, 100);
+    }
+
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+        
+        if (faceDetectionInterval) {
+            clearInterval(faceDetectionInterval);
+            faceDetectionInterval = null;
+        }
+        
+        video.srcObject = null;
+        faceFrame.classList.add('d-none');
+    }
+
+    function showStatus(message, type) {
+        statusMessage.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+    }
+
+    function showResults(data, type) {
+        const alertClass = type === 'success' ? 'success' : 'danger';
+        let html = `
+            <div class="alert alert-${alertClass}">
+                <h6><i class="bi bi-${type === 'success' ? 'check-circle' : 'x-circle'} me-2"></i>
+                ${data.success ? 'Login Successful' : 'Login Failed'}</h6>
+        `;
+        
+        if (data.match_confidence !== undefined) {
+            html += `<p><strong>Match Confidence:</strong> ${data.match_confidence}%</p>`;
+        }
+        
+        if (data.analysis) {
+            html += `<p><strong>Analysis:</strong> ${data.analysis}</p>`;
+        }
+        
+        if (data.user) {
+            html += `
+                <p><strong>Welcome:</strong> ${data.user.firstName} ${data.user.lastName}</p>
+                <p><strong>Role:</strong> ${data.user.role}</p>
+            `;
+        }
+        
+        if (data.key_differences && data.key_differences.length > 0) {
+            html += `
+                <p><strong>Issues:</strong></p>
+                <ul>
+                    ${data.key_differences.map(diff => `<li>${diff}</li>`).join('')}
+                </ul>
+            `;
+        }
+        
+        html += '</div>';
+        
+        resultDetails.innerHTML = html;
+        results.classList.remove('d-none');
+    }
+
+    function resetForm() {
+        stopCamera();
+        loadingIndicator.classList.add('d-none');
+        results.classList.add('d-none');
+        retryBtn.classList.add('d-none');
+        startCameraBtn.classList.remove('d-none');
+        captureBtn.classList.add('d-none');
+        statusMessage.innerHTML = '';
+    }
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', function() {
+        stopCamera();
+    });
+});
+</script>
+
+<style>
+.camera-container {
+    position: relative;
+    display: inline-block;
+}
+
+#webcam {
+    transform: scaleX(-1); /* Mirror effect for natural user experience */
+}
+
+#faceFrame {
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.card {
+    max-width: 500px;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+</style>
+{% endblock %}

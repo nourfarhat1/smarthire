@@ -1,0 +1,759 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register - SmartHire{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* Role-specific color schemes */
+.role-hr {
+    --role-primary: #e91e63;
+    --role-gradient: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+    --role-light: #fce4ec;
+}
+
+.role-candidate {
+    --role-primary: #87a042;
+    --role-gradient: linear-gradient(135deg, #87a042 0%, #6b8a35 100%);
+    --role-light: #f1f8e9;
+}
+
+.role-admin {
+    --role-primary: #2196f3;
+    --role-gradient: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    --role-light: #e3f2fd;
+}
+
+.role-default {
+    --role-primary: #6c757d;
+    --role-gradient: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    --role-light: #f8f9fa;
+}
+
+/* Animated background */
+.register-bg {
+    background: var(--role-gradient);
+    position: relative;
+    overflow: hidden;
+}
+
+.register-bg::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    animation: float 20s linear infinite;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(50px, 50px) rotate(360deg); }
+}
+
+/* Role cards */
+.role-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+}
+
+.role-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    background: rgba(255,255,255,0.15);
+}
+
+.role-card.active {
+    border-color: var(--role-primary);
+    background: rgba(255,255,255,0.2);
+}
+
+.role-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.role-card:hover .role-icon {
+    transform: scale(1.1);
+}
+
+/* Form enhancements */
+.form-control:focus {
+    border-color: var(--role-primary);
+    box-shadow: 0 0 0 0.2rem rgba(135, 160, 66, 0.25);
+}
+
+.btn-role {
+    background: var(--role-gradient);
+    border: none;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-role:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* Password strength indicator */
+.password-strength {
+    height: 4px;
+    border-radius: 2px;
+    margin-top: 5px;
+    transition: all 0.3s ease;
+}
+
+.strength-weak { background: #dc3545; width: 33%; }
+.strength-medium { background: #ffc107; width: 66%; }
+.strength-strong { background: #28a745; width: 100%; }
+
+/* Feature cards */
+.feature-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+    transform: scale(1.1) rotate(5deg);
+    background: rgba(255,255,255,0.3);
+}
+
+/* Progress indicator */
+.progress-steps {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    color: rgba(255,255,255,0.6);
+    font-size: 0.875rem;
+}
+
+.step.active {
+    color: white;
+}
+
+.step-number {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.step.active .step-number {
+    background: var(--role-primary);
+    transform: scale(1.1);
+}
+
+.step-line {
+    width: 50px;
+    height: 2px;
+    background: rgba(255,255,255,0.2);
+    margin: 0 10px;
+}
+
+/* Loading state */
+.loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Tooltips */
+[data-tooltip] {
+    position: relative;
+    cursor: help;
+}
+
+[data-tooltip]:hover::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+}
+
+/* Password requirements */
+.requirements {
+    font-size: 0.75rem;
+    margin-top: 5px;
+}
+
+.requirement {
+    color: #6c757d;
+    transition: color 0.3s ease;
+}
+
+.requirement.met {
+    color: #28a745;
+}
+
+.requirement-icon {
+    margin-right: 5px;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="row min-vh-100">
+    <!-- Left Side - Role Selection & Features -->
+    <div class="col-lg-6 d-none d-lg-block">
+        <div class="h-100 d-flex align-items-center justify-content-center register-bg" id="registerBg">
+            <div class="text-center text-white p-5">
+                <h1 class="display-4 fw-bold mb-4">Join SmartHire</h1>
+                <p class="lead mb-5">Start your journey with intelligent recruitment</p>
+                
+                <!-- Progress Steps -->
+                <div class="progress-steps mb-5">
+                    <div class="step active">
+                        <div class="step-number">1</div>
+                        <span>Choose Role</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <span>Fill Details</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <span>Get Started</span>
+                    </div>
+                </div>
+                
+                <!-- Role Selection -->
+                <div class="mb-5">
+                    <h4 class="mb-3">Choose Your Role</h4>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="role-card p-3 rounded text-center" onclick="selectRole('candidate')" data-tooltip="For job seekers">
+                                <div class="role-icon mx-auto" style="background: #87a042;">
+                                    <i class="bi bi-person-briefcase"></i>
+                                </div>
+                                <h6 class="mb-1">Candidate</h6>
+                                <small>Find your dream job</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="role-card p-3 rounded text-center" onclick="selectRole('hr')" data-tooltip="For HR managers">
+                                <div class="role-icon mx-auto" style="background: #e91e63;">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <h6 class="mb-1">HR</h6>
+                                <small>Manage recruitment</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="role-card p-3 rounded text-center" onclick="selectRole('admin')" data-tooltip="For system administrators">
+                                <div class="role-icon mx-auto" style="background: #2196f3;">
+                                    <i class="bi bi-gear"></i>
+                                </div>
+                                <h6 class="mb-1">Admin</h6>
+                                <small>System administration</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Platform Features -->
+                <div class="row text-start mt-5">
+                    <div class="col-md-6 mb-3">
+                        <div class="feature-card">
+                            <div class="feature-icon mx-auto">
+                                <i class="bi bi-briefcase-fill fs-4"></i>
+                            </div>
+                            <h6 class="mb-0">Smart Matching</h6>
+                            <small class="opacity-75">AI-powered job recommendations</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="feature-card">
+                            <div class="feature-icon mx-auto">
+                                <i class="bi bi-robot-fill fs-4"></i>
+                            </div>
+                            <h6 class="mb-0">AI Analysis</h6>
+                            <small class="opacity-75">Intelligent candidate evaluation</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="feature-card">
+                            <div class="feature-icon mx-auto">
+                                <i class="bi bi-calendar-event-fill fs-4"></i>
+                            </div>
+                            <h6 class="mb-0">Event Management</h6>
+                            <small class="opacity-75">Virtual and physical events</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="feature-card">
+                            <div class="feature-icon mx-auto">
+                                <i class="bi bi-chat-dots-fill fs-4"></i>
+                            </div>
+                            <h6 class="mb-0">Real-time Chat</h6>
+                            <small class="opacity-75">Instant communication</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Side - Registration Form -->
+    <div class="col-lg-6">
+        <div class="h-100 d-flex align-items-center justify-content-center p-4">
+            <div class="w-100" style="max-width: 500px;">
+                <div class="text-center mb-4">
+                    <div class="mb-3">
+                        <div class="role-icon mx-auto" id="selectedRoleIcon" style="background: #6c757d;">
+                            <i class="bi bi-person-plus"></i>
+                        </div>
+                    </div>
+                    <h2 class="fw-bold">Create Your Account</h2>
+                    <p class="text-muted" id="roleText">Join SmartHire today</p>
+                </div>
+
+                {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'id': 'registerForm'}}) }}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="firstName" class="form-label">
+                                <i class="bi bi-person me-1"></i>First Name
+                            </label>
+                            {{ form_widget(form.firstName, {'attr': {'class': 'form-control', 'placeholder': 'Enter your first name'}}) }}
+                            {{ form_errors(form.firstName) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="lastName" class="form-label">
+                                <i class="bi bi-person me-1"></i>Last Name
+                            </label>
+                            {{ form_widget(form.lastName, {'attr': {'class': 'form-control', 'placeholder': 'Enter your last name'}}) }}
+                            {{ form_errors(form.lastName) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                <i class="bi bi-envelope me-1"></i>Email Address
+                            </label>
+                            {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'Enter your email address'}}) }}
+                            {{ form_errors(form.email) }}
+                            <div class="form-text" id="emailHelp">
+                                We'll never share your email with anyone else.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="phoneNumber" class="form-label">
+                                <i class="bi bi-telephone me-1"></i>Phone Number
+                            </label>
+                            {{ form_widget(form.phoneNumber, {'attr': {'class': 'form-control', 'placeholder': '8 digits only'}}) }}
+                            {{ form_errors(form.phoneNumber) }}
+                            <div class="form-text">Enter your 8-digit phone number (e.g., 12345678)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="password" class="form-label">
+                                <i class="bi bi-lock me-1"></i>Password
+                            </label>
+                            <div class="input-group">
+                                {{ form_widget(form.password, {'attr': {'class': 'form-control', 'placeholder': 'Create a strong password'}}) }}
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+                                    <i class="bi bi-eye" id="passwordToggle"></i>
+                                </button>
+                            </div>
+                            <div class="password-strength" id="passwordStrength"></div>
+                            <div class="requirements" id="passwordRequirements">
+                                <div class="requirement" id="req-length">
+                                    <i class="bi bi-circle requirement-icon"></i>At least 8 characters
+                                </div>
+                                <div class="requirement" id="req-uppercase">
+                                    <i class="bi bi-circle requirement-icon"></i>One uppercase letter
+                                </div>
+                                <div class="requirement" id="req-lowercase">
+                                    <i class="bi bi-circle requirement-icon"></i>One lowercase letter
+                                </div>
+                                <div class="requirement" id="req-number">
+                                    <i class="bi bi-circle requirement-icon"></i>One number
+                                </div>
+                            </div>
+                            {{ form_errors(form.password) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="roleId" class="form-label">
+                                <i class="bi bi-person-badge me-1"></i>Account Type
+                            </label>
+                            {{ form_widget(form.roleId, {'attr': {'class': 'form-select'}}) }}
+                            {{ form_errors(form.roleId) }}
+                            <div class="form-text" id="roleHelp">Choose your role to get started</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Role-specific information -->
+                <div class="alert alert-info" id="roleInfo">
+                    <h6><i class="bi bi-info-circle me-2"></i>Account Information:</h6>
+                    <div id="roleDescription">
+                        <p class="mb-0">Select a role to see specific information about that account type.</p>
+                    </div>
+                </div>
+
+                <!-- Terms and Privacy -->
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="terms" required>
+                        <label class="form-check-label" for="terms">
+                            I agree to the <a href="#" onclick="showTerms()">Terms of Service</a> and <a href="#" onclick="showPrivacy()">Privacy Policy</a>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-role btn-lg" id="registerBtn">
+                        <i class="bi bi-person-check me-2"></i>
+                        <span id="btnText">Create Account</span>
+                    </button>
+                    <a href="{{ path('app_login') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-box-arrow-in-left me-2"></i>Back to Login
+                    </a>
+                </div>
+
+                {{ form_end(form) }}
+
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        Already have an account? 
+                        <a href="{{ path('app_login') }}">Login here</a>
+                    </small>
+                </div>
+
+                <!-- Security notice -->
+                <div class="mt-4 text-center">
+                    <small class="text-muted">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Your data is secure and protected
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentRole = 'default';
+
+const roleInfo = {
+    'candidate': {
+        title: 'Candidate Account',
+        description: 'As a candidate, you can:<ul class="mb-0"><li>Browse and apply for jobs</li><li>Take AI-powered assessments</li><li>Track application status</li><li>Manage your professional profile</li></ul>',
+        color: '#87a042'
+    },
+    'hr': {
+        title: 'HR Manager Account',
+        description: 'As an HR manager, you can:<ul class="mb-0"><li>Post job opportunities</li><li>Review candidate applications</li><li>Schedule interviews</li><li>Manage recruitment process</li></ul>',
+        color: '#e91e63'
+    },
+    'admin': {
+        title: 'Administrator Account',
+        description: 'As an administrator, you can:<ul class="mb-0"><li>Manage system settings</li><li>Oversee all users</li><li>Monitor platform performance</li><li>Handle administrative tasks</li></ul>',
+        color: '#2196f3'
+    }
+};
+
+function selectRole(role) {
+    currentRole = role;
+    const bg = document.getElementById('registerBg');
+    const icon = document.getElementById('selectedRoleIcon');
+    const text = document.getElementById('roleText');
+    const btn = document.getElementById('registerBtn');
+    const roleSelect = document.getElementById('{{ form.roleId.vars.id }}');
+    const roleHelp = document.getElementById('roleHelp');
+    const roleDesc = document.getElementById('roleDescription');
+    
+    // Remove all role classes
+    bg.classList.remove('role-hr', 'role-candidate', 'role-admin', 'role-default');
+    
+    // Add selected role class
+    bg.classList.add(`role-${role}`);
+    
+    // Update icon
+    const icons = {
+        'candidate': 'bi-person-briefcase',
+        'hr': 'bi-people',
+        'admin': 'bi-gear',
+        'default': 'bi-person-plus'
+    };
+    
+    const colors = {
+        'candidate': '#87a042',
+        'hr': '#e91e63',
+        'admin': '#2196f3',
+        'default': '#6c757d'
+    };
+    
+    const texts = {
+        'candidate': 'Start your job search journey',
+        'hr': 'Begin managing recruitment',
+        'admin': 'Access system administration',
+        'default': 'Join SmartHire today'
+    };
+    
+    icon.style.background = colors[role];
+    icon.innerHTML = `<i class="bi ${icons[role]}"></i>`;
+    text.textContent = texts[role];
+    
+    // Update role description
+    if (roleInfo[role]) {
+        roleDesc.innerHTML = `<h6>${roleInfo[role].title}</h6>${roleInfo[role].description}`;
+        roleHelp.textContent = `Selected: ${roleInfo[role].title}`;
+    }
+    
+    // Update role cards
+    document.querySelectorAll('.role-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    event.currentTarget.classList.add('active');
+    
+    // Update role select dropdown
+    if (roleSelect) {
+        const roleMap = {
+            'candidate': '2', // Assuming candidate role ID is 2
+            'hr': '3',      // Assuming HR role ID is 3
+            'admin': '4'    // Assuming admin role ID is 4
+        };
+        if (roleMap[role]) {
+            roleSelect.value = roleMap[role];
+        }
+    }
+    
+    // Update progress steps
+    updateProgress(1);
+}
+
+function togglePassword() {
+    const passwordInput = document.getElementById('{{ form.password.vars.id }}');
+    const toggleIcon = document.getElementById('passwordToggle');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.className = 'bi bi-eye-slash';
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.className = 'bi bi-eye';
+    }
+}
+
+function checkPasswordStrength(password) {
+    const strengthBar = document.getElementById('passwordStrength');
+    const reqLength = document.getElementById('req-length');
+    const reqUppercase = document.getElementById('req-uppercase');
+    const reqLowercase = document.getElementById('req-lowercase');
+    const reqNumber = document.getElementById('req-number');
+    
+    let strength = 0;
+    
+    // Check requirements
+    if (password.length >= 8) {
+        strength++;
+        reqLength.classList.add('met');
+        reqLength.querySelector('.requirement-icon').className = 'bi bi-check-circle requirement-icon';
+    } else {
+        reqLength.classList.remove('met');
+        reqLength.querySelector('.requirement-icon').className = 'bi bi-circle requirement-icon';
+    }
+    
+    if (password.match(/[A-Z]/)) {
+        strength++;
+        reqUppercase.classList.add('met');
+        reqUppercase.querySelector('.requirement-icon').className = 'bi bi-check-circle requirement-icon';
+    } else {
+        reqUppercase.classList.remove('met');
+        reqUppercase.querySelector('.requirement-icon').className = 'bi bi-circle requirement-icon';
+    }
+    
+    if (password.match(/[a-z]/)) {
+        strength++;
+        reqLowercase.classList.add('met');
+        reqLowercase.querySelector('.requirement-icon').className = 'bi bi-check-circle requirement-icon';
+    } else {
+        reqLowercase.classList.remove('met');
+        reqLowercase.querySelector('.requirement-icon').className = 'bi bi-circle requirement-icon';
+    }
+    
+    if (password.match(/[0-9]/)) {
+        strength++;
+        reqNumber.classList.add('met');
+        reqNumber.querySelector('.requirement-icon').className = 'bi bi-check-circle requirement-icon';
+    } else {
+        reqNumber.classList.remove('met');
+        reqNumber.querySelector('.requirement-icon').className = 'bi bi-circle requirement-icon';
+    }
+    
+    // Update strength bar
+    strengthBar.className = 'password-strength';
+    if (strength <= 1) strengthBar.classList.add('strength-weak');
+    else if (strength === 2) strengthBar.classList.add('strength-medium');
+    else if (strength >= 3) strengthBar.classList.add('strength-strong');
+}
+
+function updateProgress(step) {
+    const steps = document.querySelectorAll('.step');
+    steps.forEach((stepEl, index) => {
+        if (index < step) {
+            stepEl.classList.add('active');
+        } else {
+            stepEl.classList.remove('active');
+        }
+    });
+}
+
+function showTerms() {
+    alert('Terms of Service: This is a placeholder. In a real application, this would link to your terms of service page.');
+}
+
+function showPrivacy() {
+    alert('Privacy Policy: This is a placeholder. In a real application, this would link to your privacy policy page.');
+}
+
+// Form submission handling
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    const btn = document.getElementById('registerBtn');
+    const btnText = document.getElementById('btnText');
+    const termsCheckbox = document.getElementById('terms');
+    
+    // Check terms acceptance
+    if (!termsCheckbox.checked) {
+        e.preventDefault();
+        alert('Please accept the Terms of Service and Privacy Policy to continue.');
+        return;
+    }
+    
+    // Show loading state
+    btn.classList.add('loading');
+    btnText.textContent = 'Creating Account...';
+    
+    // Update progress
+    updateProgress(2);
+});
+
+// Password strength checker
+document.getElementById('{{ form.password.vars.id }}').addEventListener('input', function() {
+    checkPasswordStrength(this.value);
+});
+
+// Email validation
+document.getElementById('{{ form.email.vars.id }}').addEventListener('blur', function() {
+    const email = this.value;
+    const emailHelp = document.getElementById('emailHelp');
+    
+    if (email && !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        emailHelp.textContent = 'Please enter a valid email address';
+        emailHelp.className = 'form-text text-danger';
+    } else {
+        emailHelp.textContent = "We'll never share your email with anyone else.";
+        emailHelp.className = 'form-text';
+    }
+});
+
+// Role change handler
+document.getElementById('{{ form.roleId.vars.id }}').addEventListener('change', function() {
+    const roleMap = {
+        '2': 'candidate',
+        '3': 'hr',
+        '4': 'admin'
+    };
+    
+    const role = roleMap[this.value] || 'default';
+    const roleCard = document.querySelector(`[onclick="selectRole('${role}')"]`);
+    if (roleCard) {
+        roleCard.click();
+    }
+});
+
+// Auto-select candidate role by default
+document.addEventListener('DOMContentLoaded', function() {
+    selectRole('candidate');
+    
+    // Focus on first name field
+    document.getElementById('{{ form.firstName.vars.id }}').focus();
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl/Cmd + Enter to submit form
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        document.getElementById('registerForm').submit();
+    }
+});
+</script>
+{% endblock %}

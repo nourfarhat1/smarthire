@@ -1,0 +1,303 @@
+{% extends 'hr/layout.html.twig' %}
+
+{% block title %}Event Participants - SmartHire{% endblock %}
+
+{% block hr_page_title %}Event Participants{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold">
+                    <i class="fas fa-users"></i> {{ event.name }} - Participants
+                </h6>
+                <span class="badge bg-primary">{{ participants|length }} Registered</span>
+            </div>
+            <div class="card-body">
+                {% if participants|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Registration Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for participant in participants %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle bg-primary text-white rounded-circle me-2" 
+                                             style="width: 35px; height: 35px; font-size: 12px;">
+                                            {{ participant.user.firstName|first }}{{ participant.user.lastName|first }}
+                                        </div>
+                                        <div>
+                                            <strong>{{ participant.user.firstName }} {{ participant.user.lastName }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ participant.user.roleName }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ participant.user.email }}</td>
+                                <td>{{ participant.user.phoneNumber ?: 'Not provided' }}</td>
+                                <td>{{ participant.joinedAt|date('M d, Y H:i') }}</td>
+                                <td>
+                                    <span class="badge badge-{{ participant.status == 'CONFIRMED' ? 'success' : 'warning' }}">
+                                        {{ participant.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-info btn-sm" 
+                                                onclick="viewParticipant('{{ participant.user.id }}')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm" 
+                                                onclick="viewQRTicket('{{ participant.id }}', '{{ participant.user.firstName }} {{ participant.user.lastName }}')">
+                                            <i class="bi bi-qr-code"></i>
+                                        </button>
+                                        <button class="btn btn-outline-success btn-sm" 
+                                                onclick="contactParticipant('{{ participant.user.email }}')">
+                                            <i class="fas fa-envelope"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-users fa-3x text-gray-300 mb-3"></i>
+                    <h5 class="text-gray-500">No participants yet</h5>
+                    <p class="text-gray-400">
+                        Participants will appear here once they register for the event.
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Event Summary -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-info text-white">
+                <h6 class="m-0">Event Summary</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Date:</strong><br>
+                    {{ event.eventDate|date('F d, Y H:i') }}
+                </div>
+                <div class="mb-3">
+                    <strong>Location:</strong><br>
+                    {{ event.location }}
+                </div>
+                <div class="mb-3">
+                    <strong>Capacity:</strong><br>
+                    <div class="progress mb-2">
+                        {% set percentage = (participants|length / event.maxParticipants) * 100 %}
+                        <div class="progress-bar bg-{{ percentage >= 90 ? 'danger' : percentage >= 70 ? 'warning' : 'success' }}" 
+                             style="width: {{ percentage }}%">
+                            {{ participants|length }} / {{ event.maxParticipants }}
+                        </div>
+                    </div>
+                    <small class="text-muted">{{ percentage|number_format(1) }}% full</small>
+                </div>
+                <div class="mb-3">
+                    <strong>Description:</strong><br>
+                    <small>{{ event.description|slice(0, 150) }}{% if event.description|length > 150 %}...{% endif %}</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h6 class="m-0">Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ path('app_hr_events_capacity', {'id': event.id}) }}" 
+                       class="btn btn-outline-warning btn-sm">
+                        <i class="fas fa-chart-bar"></i> Manage Capacity
+                    </a>
+                    <a href="{{ path('app_hr_events_edit', {'id': event.id}) }}" 
+                       class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-edit"></i> Edit Event
+                    </a>
+                    <button class="btn btn-outline-success btn-sm" onclick="sendNotification()">
+                        <i class="fas fa-bell"></i> Send Notification
+                    </button>
+                    <button class="btn btn-outline-info btn-sm" onclick="exportParticipants()">
+                        <i class="fas fa-download"></i> Export List
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+.avatar-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    border-top: none;
+}
+
+.btn-group .btn {
+    margin: 0 2px;
+}
+
+.d-grid {
+    display: grid;
+    gap: 0.5rem;
+}
+</style>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function viewParticipant(userId) {
+    // View participant details
+    window.open(`/profile/${userId}`, '_blank');
+}
+
+function contactParticipant(email) {
+    // Open email client
+    window.location.href = `mailto:${email}`;
+}
+
+function sendNotification() {
+    if (confirm('Send notification email to all participants?')) {
+        // Implement notification sending
+        alert('Notification sent successfully!');
+    }
+}
+
+function viewQRTicket(participantId, participantName) {
+    // Generate QR code data for the participant
+    const qrData = {
+        participant_id: participantId,
+        participant_name: participantName,
+        event_id: {{ event.id }},
+        event_name: '{{ event.name|e('js') }}',
+        event_date: '{{ event.eventDate|date('Y-m-d H:i:s') }}',
+        registration_id: participantId
+    };
+    
+    // Create modal content
+    const modalHtml = `
+        <div class="modal fade" id="qrModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-qr-code me-2"></i>Event QR Code - ${participantName}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <div class="mb-3">
+                            <strong>{{ event.name }}</strong><br>
+                            <small class="text-muted">{{ event.eventDate|date('F j, Y H:i') }}</small>
+                        </div>
+                        <div class="qr-code-container d-inline-block p-3 border border-2" style="background: white;">
+                            <div id="qrcode-${participantId}"></div>
+                        </div>
+                        <p class="text-muted small mt-2">
+                            <i class="bi bi-info-circle me-1"></i>
+                            QR Code for ${participantName}
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="downloadQR('${participantId}', '${participantName}')">
+                            <i class="bi bi-download me-1"></i>Download
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if present
+    const existingModal = document.getElementById('qrModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('qrModal'));
+    modal.show();
+    
+    // Generate QR code
+    setTimeout(() => {
+        new QRCode(document.getElementById(`qrcode-${participantId}`), {
+            text: JSON.stringify(qrData),
+            width: 200,
+            height: 200,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    }, 100);
+}
+
+function downloadQR(participantId, participantName) {
+    // Get the QR code canvas and download it
+    const canvas = document.querySelector(`#qrcode-${participantId} canvas`);
+    if (canvas) {
+        const link = document.createElement('a');
+        link.download = `QR_${participantName.replace(/\s+/g, '_')}_{{ event.name|e('js') }}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+    }
+}
+
+function exportParticipants() {
+    // Export participants list
+    const participants = [
+        {% for participant in participants %}
+        {
+            name: '{{ participant.user.firstName }} {{ participant.user.lastName }}',
+            email: '{{ participant.user.email }}',
+            registrationDate: '{{ participant.joinedAt|date('Y-m-d H:i') }}',
+            status: '{{ participant.status }}'
+        },
+        {% endfor %}
+    ];
+    
+    const dataStr = JSON.stringify(participants, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `participants_{{ event.id }}.json`;
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+}
+</script>
+
+<!-- QR Code Generation Script -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+{% endblock %}
