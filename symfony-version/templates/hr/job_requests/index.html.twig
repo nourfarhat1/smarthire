@@ -1,0 +1,317 @@
+{% extends 'hr/layout.html.twig' %}
+
+{% block title %}HR Job Applications - SmartHire{% endblock %}
+
+{% block hr_page_title %}Job Applications{% endblock %}
+
+{% block hr_content %}
+<!-- Job Applications Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stats-card text-white" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ job_requests|length }}</h4>
+                        <p class="card-text">Total Applications</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-file-text fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card text-white" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ job_requests|filter(jr => jr.status == 'PENDING')|length }}</h4>
+                        <p class="card-text">Pending Review</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-clock-history fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card text-white" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ job_requests|filter(jr => jr.status == 'ACCEPTED')|length }}</h4>
+                        <p class="card-text">Accepted</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-check-circle fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card text-white" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ unique_job_offers_count }}</h4>
+                        <p class="card-text">Job Offers</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-briefcase fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters and Search -->
+<div class="card mb-4">
+    <div class="card-header text-white" style="background: linear-gradient(135deg, #495057 0%, #343a40 100%);">
+        <h5 class="mb-0"><i class="bi bi-funnel me-2"></i>Filter & Search Applications</h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label for="search" class="form-label">Search Candidates</label>
+                <input type="text" class="form-control" id="search" name="search" 
+                       placeholder="Search by name or email..." value="{{ filters.search }}">
+            </div>
+            <div class="col-md-3">
+                <label for="status" class="form-label">Application Status</label>
+                <select class="form-select" id="status" name="status">
+                    <option value="">All Status</option>
+                    <option value="PENDING" {% if filters.status == 'PENDING' %}selected{% endif %}>Pending</option>
+                    <option value="ACCEPTED" {% if filters.status == 'ACCEPTED' %}selected{% endif %}>Accepted</option>
+                    <option value="REJECTED" {% if filters.status == 'REJECTED' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="jobOffer" class="form-label">Job Offer</label>
+                <select class="form-select" id="jobOffer" name="jobOffer">
+                    <option value="">All Job Offers</option>
+                    {% for job_offer in all_job_offers %}
+                        <option value="{{ job_offer.id }}" {% if filters.jobOffer == job_offer.id %}selected{% endif %}>{{ job_offer.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label><br>
+                <div class="btn-group w-100" role="group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-1"></i> Search
+                    </button>
+                    <a href="{{ path('app_hr_job_requests') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle me-1"></i> Clear
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Back Button -->
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{{ path('app_hr_dashboard') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Job Applications List -->
+<div class="card">
+    <div class="card-header text-white" style="background: linear-gradient(135deg, #495057 0%, #343a40 100%);">
+        <h5 class="mb-0"><i class="bi bi-file-text me-2"></i>Applications for Your Job Offers</h5>
+    </div>
+    <div class="card-body">
+        {% if job_requests|length > 0 %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Candidate</th>
+                            <th>Job Offer</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Applied Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for job_request in job_requests %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                            {{ job_request.candidate.firstName|first|upper }}
+                                        </div>
+                                        <div>
+                                            <strong>{{ job_request.candidate.fullName }}</strong>
+                                            {% if job_request.candidate.phoneNumber %}
+                                                <br><small class="text-muted">{{ job_request.candidate.phoneNumber }}</small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>{{ job_request.jobOffer.title }}</strong>
+                                        <br><small class="text-muted">{{ job_request.jobOffer.location }}</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="mailto:{{ job_request.candidate.email }}" class="text-decoration-none">
+                                        <i class="bi bi-envelope me-1"></i>{{ job_request.candidate.email }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if job_request.candidate.phoneNumber %}
+                                        <a href="tel:{{ job_request.candidate.phoneNumber }}" class="text-decoration-none">
+                                            <i class="bi bi-telephone me-1"></i>{{ job_request.candidate.phoneNumber }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">Not provided</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if job_request.status == 'PENDING' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% elseif job_request.status == 'ACCEPTED' %}
+                                        <span class="badge bg-success">Accepted</span>
+                                    {% elseif job_request.status == 'REJECTED' %}
+                                        <span class="badge bg-danger">Rejected</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ job_request.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ job_request.submissionDate|date('M d, Y') }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-info" title="View Details" 
+                                                data-bs-toggle="modal" data-bs-target="#applicationModal{{ job_request.id }}">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" title="View CV" 
+                                                {% if job_request.cvUrl %}onclick="window.open('{{ job_request.cvUrl }}', '_blank')"{% else %}disabled{% endif %}>
+                                            <i class="bi bi-file-earmark-text"></i>
+                                        </button>
+                                        {% if job_request.status == 'PENDING' %}
+                                            <a href="{{ path('app_hr_interviews_schedule', {'jobRequestId': job_request.id}) }}" class="btn btn-sm btn-outline-success" title="Schedule Interview">
+                                                <i class="bi bi-calendar-plus"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-success" title="Accept">
+                                                <i class="bi bi-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" title="Reject">
+                                                <i class="bi bi-x"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-file-text fs-1 text-muted mb-3"></i>
+                <h5 class="text-muted">No applications found</h5>
+                <p class="text-muted">
+                    No candidates have applied to your job offers yet. 
+                    Applications will appear here when candidates submit them.
+                </p>
+                <a href="{{ path('app_hr_job_offers') }}" class="btn btn-primary">
+                    <i class="bi bi-briefcase me-2"></i>Manage Job Offers
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Application Details Modals -->
+{% for job_request in job_requests %}
+<div class="modal fade" id="applicationModal{{ job_request.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Application Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Candidate Information</h6>
+                        <p><strong>Name:</strong> {{ job_request.candidate.fullName }}</p>
+                        <p><strong>Email:</strong> {{ job_request.candidate.email }}</p>
+                        {% if job_request.candidate.phoneNumber %}
+                            <p><strong>Phone:</strong> {{ job_request.candidate.phoneNumber }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Application Details</h6>
+                        <p><strong>Job Offer:</strong> {{ job_request.jobOffer.title }}</p>
+                        <p><strong>Location:</strong> {{ job_request.jobOffer.location }}</p>
+                        <p><strong>Status:</strong> 
+                            {% if job_request.status == 'PENDING' %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% elseif job_request.status == 'ACCEPTED' %}
+                                <span class="badge bg-success">Accepted</span>
+                            {% elseif job_request.status == 'REJECTED' %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Applied:</strong> {{ job_request.submissionDate|date('M d, Y H:i') }}</p>
+                        {% if job_request.suggestedSalary %}
+                            <p><strong>Suggested Salary:</strong> {{ job_request.suggestedSalary }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if job_request.coverLetter %}
+                    <hr>
+                    <h6>Cover Letter</h6>
+                    <div class="p-3 bg-light rounded">
+                        <p class="mb-0">{{ job_request.coverLetter|nl2br }}</p>
+                    </div>
+                {% endif %}
+                
+                {% if job_request.cvUrl %}
+                    <hr>
+                    <h6>Resume/CV</h6>
+                    <a href="{{ job_request.cvUrl }}" class="btn btn-outline-primary" target="_blank">
+                        <i class="bi bi-file-earmark-text me-2"></i>Download CV
+                    </a>
+                {% endif %}
+                
+                <hr>
+                <h6>Job Offer Details</h6>
+                <div class="p-3 bg-light rounded">
+                    <p class="mb-0">{{ job_request.jobOffer.description|slice(0, 200) }}...</p>
+                    <a href="{{ path('app_hr_job_offers_edit', {'id': job_request.jobOffer.id}) }}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-pencil me-1"></i>View Full Job Offer
+                    </a>
+                </div>
+            </div>
+            <div class="modal-footer">
+                {% if job_request.status == 'PENDING' %}
+                    <button type="button" class="btn btn-success">
+                        <i class="bi bi-check me-2"></i>Accept Application
+                    </button>
+                    <button type="button" class="btn btn-danger">
+                        <i class="bi bi-x me-2"></i>Reject Application
+                    </button>
+                {% endif %}
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,189 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}Event Ticket - SmartHire{% endblock %}
+
+{% block candidate_page_title %}Event Ticket{% endblock %}
+
+{% block candidate_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header candidate-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-qr-code me-2"></i>{{ event.name }} - Event Ticket</h5>
+            </div>
+            <div class="card-body text-center">
+                <!-- Event Ticket -->
+                <div class="ticket-container border border-3 p-4 mb-4" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                    <div class="ticket-header candidate-info text-white p-3 rounded-top">
+                        <h4 class="mb-0">{{ event.name }}</h4>
+                        <p class="mb-0">{{ event.eventDate|date('F j, Y H:i') }}</p>
+                    </div>
+                    <div class="ticket-body p-4">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Participant:</strong><br>
+                                {{ app.user.firstName }} {{ app.user.lastName }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Registration ID:</strong><br>
+                                #{{ participant.id }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Location:</strong><br>
+                                {{ event.location }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Date:</strong><br>
+                                {{ event.eventDate|date('M d, Y') }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <strong>Status:</strong><br>
+                                <span class="badge bg-success">{{ participant.status }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QR Code -->
+                <div class="text-center mt-4">
+                    <div class="qr-code-container d-inline-block p-3 border border-2" style="background: white;">
+                        <img src="{{ qrCodeUrl }}" alt="QR Code" width="200" height="200">
+                    </div>
+                    <p class="text-muted small mt-2">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Scan this QR code at the event entrance for quick check-in
+                    </p>
+                </div>
+
+                <!-- Ticket Actions -->
+                <div class="d-flex justify-content-center gap-2 mt-4">
+                    <button onclick="window.print()" class="btn btn-outline-success">
+                        <i class="bi bi-printer me-2"></i>Print Ticket
+                    </button>
+                    <a href="{{ path('app_candidate_events_show', {'id': event.id}) }}" class="btn btn-outline-info">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Event
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Information Sidebar -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header candidate-warning text-dark">
+                <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Ticket Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6>Event Details</h6>
+                    <hr>
+                    <div class="mb-2">
+                        <strong>Event Name:</strong><br>
+                        {{ event.name }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>Date & Time:</strong><br>
+                        {{ event.eventDate|date('F j, Y H:i') }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>Location:</strong><br>
+                        {{ event.location }}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <h6>Registration Details</h6>
+                    <hr>
+                    <div class="mb-2">
+                        <strong>Registered By:</strong><br>
+                        {{ app.user.firstName }} {{ app.user.lastName }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>Registration Date:</strong><br>
+                        {{ participant.joinedAt|date('F j, Y H:i') }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>Status:</strong><br>
+                        <span class="badge bg-success">{{ participant.status }}</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <h6>Important Notes</h6>
+                    <hr>
+                    <div class="alert alert-info">
+                        <ul class="mb-0">
+                            <li>Please arrive 15 minutes before the event start time</li>
+                            <li>Bring a valid ID for verification</li>
+                            <li>This ticket is non-transferable</li>
+                            <li>Keep this ticket safe until the event</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <a href="{{ path('app_candidate_events_my') }}" class="btn btn-success">
+                        <i class="bi bi-list me-2"></i>View All My Events
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.candidate-primary {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+}
+
+.candidate-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.candidate-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.ticket-container {
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.qr-code-container {
+    border-radius: 10px;
+}
+
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.btn-outline-success {
+    border-color: #87a042;
+    color: #87a042;
+}
+
+.btn-outline-success:hover {
+    background-color: #87a042;
+    border-color: #87a042;
+}
+
+@media print {
+    .btn, .card-header, .candidate-warning {
+        display: none !important;
+    }
+    
+    .ticket-container {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,297 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}{{ event.name }} - SmartHire{% endblock %}
+
+{% block candidate_page_title %}Event Details{% endblock %}
+
+{% block candidate_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header candidate-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-calendar-event me-2"></i>{{ event.name }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Date & Time:</strong><br>
+                        <i class="bi bi-calendar3 me-2"></i>
+                        {{ event.eventDate|date('F j, Y H:i') }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Location:</strong><br>
+                        <i class="bi bi-geo-alt me-2"></i>
+                        {{ event.location }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Capacity:</strong><br>
+                        <i class="bi bi-people me-2"></i>
+                        {{ event.participants|length }}/{{ event.maxParticipants }} participants
+                        {% if event.maxParticipants > 0 %}
+                            <div class="progress mt-2" style="height: 10px;">
+                                <div class="progress-bar bg-success" style="width: {{ (event.participants|length / event.maxParticipants * 100)|round }}%"></div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Status:</strong><br>
+                        {% if event.eventDate >= date() %}
+                            <span class="badge bg-success">Upcoming</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Past</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Description:</strong>
+                    <div class="mt-2 p-3 bg-light rounded">
+                        {{ event.description|nl2br }}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Organizer:</strong><br>
+                    <div class="mt-2">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                {{ event.organizer.firstName|first }}{{ event.organizer.lastName|first }}
+                            </div>
+                            <div>
+                                <strong>{{ event.organizer.firstName }} {{ event.organizer.lastName }}</strong>
+                                <br>
+                                <small class="text-muted">Event Organizer</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather Information - DYNAMIQUE -->
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6><i class="bi bi-cloud-sun me-2"></i>Weather Information</h6>
+                        {% if weather is defined and weather %}
+                            <div class="text-center">
+                                <div class="mb-2">
+                                    <i class="bi bi-{{ weather.icon == '01d' ? 'sun' : (weather.icon == '02d' ? 'cloud-sun' : (weather.icon == '03d' or weather.icon == '04d' ? 'cloud' : 'cloud-rain')) }} fs-1" 
+                                       style="font-size: 2rem; color: #ffc107;"></i>
+                                </div>
+                                <h4 class="mb-0">{{ weather.temperature }}°C</h4>
+                                <p class="text-capitalize mb-2">{{ weather.description }}</p>
+                                <div class="row text-center mt-2">
+                                    <div class="col-6">
+                                        <small>💧 Humidity</small><br>
+                                        <strong>{{ weather.humidity }}%</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small>💨 Wind</small><br>
+                                        <strong>{{ weather.wind_speed }} km/h</strong>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-geo-alt"></i> {{ weather.city }}
+                                    </small>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-2">
+                                <i class="bi bi-cloud fs-2 text-muted"></i>
+                                <p class="text-muted mb-0">Weather information not available</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        {% if isRegistered %}
+                            <span class="badge bg-success me-2">
+                                <i class="bi bi-check-circle me-1"></i>Registered
+                            </span>
+                            {% if canCancel %}
+                                <form method="post" action="{{ path('app_candidate_events_cancel', {'id': event.id}) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('Are you sure you want to cancel your registration?');">
+                                        <i class="bi bi-x-circle me-1"></i>Cancel Registration
+                                    </button>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            {% if event.eventDate >= date() and event.participants|length < event.maxParticipants %}
+                                <form method="post" action="{{ path('app_candidate_events_join', {'id': event.id}) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="bi bi-plus-circle me-2"></i>Join Event
+                                    </button>
+                                </form>
+                            {% else %}
+                                <button class="btn btn-secondary" disabled>
+                                    <i class="bi bi-x-circle me-2"></i>Event Full/Past
+                                </button>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <div>
+                        {% if isRegistered %}
+                            <a href="{{ path('app_candidate_events_ticket', {'id': event.id}) }}" class="btn btn-outline-info btn-sm">
+                                <i class="bi bi-qr-code me-1"></i>Generate QR Ticket
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Recommendations Sidebar - SCROLLABLE -->
+    <div class="col-md-4">
+        <div class="card sticky-top" style="top: 20px; z-index: 1;">
+            <div class="card-header candidate-warning text-dark">
+                <h6 class="mb-0"><i class="bi bi-stars me-2"></i>AI Recommendations</h6>
+            </div>
+            <div class="card-body p-0">
+                {% if recommendations|length > 0 %}
+                    <div style="max-height: 500px; overflow-y: auto;">
+                        {% for recommendation in recommendations %}
+                            <div class="card m-3 border-0 shadow-sm">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="mb-0 text-truncate" style="max-width: 150px;" title="{{ recommendation.event.name }}">
+                                            {{ recommendation.event.name }}
+                                        </h6>
+                                        <span class="badge {% if recommendation.match_score >= 70 %}bg-success{% elseif recommendation.match_score >= 40 %}bg-warning{% else %}bg-secondary{% endif %}">
+                                            {{ recommendation.match_score }}%
+                                        </span>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar3 me-1"></i>
+                                            {{ recommendation.event.eventDate|date('M d, Y H:i') }}
+                                        </small>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">
+                                            <i class="bi bi-geo-alt me-1"></i>
+                                            {{ recommendation.event.location|slice(0, 30) }}
+                                        </small>
+                                    </div>
+                                    <p class="small text-muted mb-2">
+                                        <strong>Why match?</strong><br>
+                                        {{ recommendation.reason|slice(0, 100) }}{% if recommendation.reason|length > 100 %}...{% endif %}
+                                    </p>
+                                    <div class="progress mb-2" style="height: 5px;">
+                                        <div class="progress-bar {% if recommendation.match_score >= 70 %}bg-success{% elseif recommendation.match_score >= 40 %}bg-warning{% else %}bg-secondary{% endif %}" 
+                                             style="width: {{ recommendation.match_score }}%"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-end">
+                                        <a href="{{ path('app_candidate_events_show', {'id': recommendation.event.id}) }}" class="btn btn-sm btn-outline-success">
+                                            <i class="bi bi-eye me-1"></i>View Event
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-robot fs-1 text-muted mb-2"></i>
+                        <p class="text-muted small px-3">No AI recommendations available. Upload your CV to get personalized event suggestions!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Event Statistics -->
+        <div class="card mt-3">
+            <div class="card-header candidate-success text-white">
+                <h6 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Event Statistics</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <small class="text-muted">Total Participants</small>
+                    <h5>{{ event.participants|length }}</h5>
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted">Available Spots</small>
+                    <h5>{{ event.maxParticipants - event.participants|length }}</h5>
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted">Registration Rate</small>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-success" style="width: {{ (event.participants|length / event.maxParticipants * 100)|round }}%"></div>
+                    </div>
+                    <small class="text-muted">{{ (event.participants|length / event.maxParticipants * 100)|round }}% Full</small>
+                </div>
+                <div class="mt-3 pt-2 border-top">
+                    <small class="text-muted">
+                        <i class="bi bi-robot me-1"></i>
+                        Recommendations based on your skills and past events
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.candidate-primary {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+}
+
+.candidate-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.candidate-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.avatar-circle {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+    box-shadow: 0 2px 8px rgba(135, 160, 66, 0.3);
+}
+
+.btn-outline-success {
+    border-color: #87a042;
+    color: #87a042;
+}
+
+.btn-outline-success:hover {
+    background-color: #87a042;
+    border-color: #87a042;
+}
+
+.sticky-top {
+    position: sticky;
+    top: 20px;
+    z-index: 1;
+}
+
+/* Custom scrollbar */
+div[style*="overflow-y: auto"]::-webkit-scrollbar {
+    width: 6px;
+}
+
+div[style*="overflow-y: auto"]::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb {
+    background: #87a042;
+    border-radius: 10px;
+}
+
+div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb:hover {
+    background: #6d8233;
+}
+</style>
+{% endblock %}

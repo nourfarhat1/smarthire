@@ -1,0 +1,383 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}Edit Spontaneous Application - SmartHire{% endblock %}
+
+{% block candidate_page_title %}Edit Spontaneous Application{% endblock %}
+
+{% block candidate_actions %}
+<a href="{{ path('app_candidate_applications') }}" class="btn btn-secondary">
+    <i class="bi bi-arrow-left me-2"></i>Back to Applications
+</a>
+{% endblock %}
+
+{% block candidate_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header candidate-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-pencil me-2"></i>Edit Spontaneous Application</h5>
+            </div>
+            <div class="card-body">
+                <!-- Application Information -->
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title">{{ jobRequest.jobTitle }}</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Category:</strong><br>
+                                <span class="badge bg-secondary">{{ jobRequest.categorie }}</span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Location:</strong><br>
+                                {{ jobRequest.location }}
+                            </div>
+                        </div>
+                        
+                        {% if jobRequest.suggestedSalary %}
+                        <div class="row mt-2">
+                            <div class="col-md-12">
+                                <strong>Expected Salary:</strong><br>
+                                ${{ jobRequest.suggestedSalary }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Edit Form -->
+                <form method="post" id="edit-spontaneous-application-form" novalidate>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="subject" class="form-label">Subject/Position *</label>
+                                <input type="text" class="form-control" id="subject" name="subject" value="{{ jobRequest.jobTitle }}" required>
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Enter the position or type of work you're looking for.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Category *</label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="IT" {{ jobRequest.categorie == 'IT' ? 'selected' : '' }}>IT/Software</option>
+                                    <option value="Marketing" {{ jobRequest.categorie == 'Marketing' ? 'selected' : '' }}>Marketing</option>
+                                    <option value="Sales" {{ jobRequest.categorie == 'Sales' ? 'selected' : '' }}>Sales</option>
+                                    <option value="HR" {{ jobRequest.categorie == 'HR' ? 'selected' : '' }}>Human Resources</option>
+                                    <option value="Finance" {{ jobRequest.categorie == 'Finance' ? 'selected' : '' }}>Finance</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="location" class="form-label">Location *</label>
+                                <input type="text" class="form-control" id="location" name="location" value="{{ jobRequest.location }}" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description/Cover Letter *</label>
+                                <textarea class="form-control" id="description" name="description" rows="8" required placeholder="Describe your skills, experience, and what you're looking for...">{{ jobRequest.coverLetter }}</textarea>
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Explain your background, skills, and why you'd be a good fit for opportunities.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="expectedSalary" class="form-label">Expected Salary (Optional)</label>
+                                <input type="number" class="form-control" id="expectedSalary" name="expectedSalary" value="{{ jobRequest.suggestedSalary }}" placeholder="e.g., 50000" min="0">
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    You can leave this empty if you prefer to discuss salary later.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                                    <label class="form-check-label" for="terms">
+                                        I confirm that all information provided is accurate and complete.
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('app_candidate_applications') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Cancel
+                        </a>
+                        <div>
+                            <button type="reset" class="btn btn-outline-secondary me-2">
+                                <i class="bi bi-x-circle me-2"></i>Clear
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-send me-2"></i>Update Application
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header candidate-info text-white">
+                <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Application Tips</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h6><i class="bi bi-check-circle me-2"></i>Best Practices</h6>
+                    <ul class="mb-0">
+                        <li>Be specific about your skills and experience</li>
+                        <li>Highlight your unique qualifications</li>
+                        <li>Keep your description concise (200-400 words)</li>
+                        <li>Proofread carefully before submitting</li>
+                    </ul>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <h6><i class="bi bi-exclamation-triangle me-2"></i>Important Notes</h6>
+                    <ul class="mb-0">
+                        <li>Applications can only be edited while in "Pending" status</li>
+                        <li>You can withdraw your application at any time</li>
+                        <li>Response time varies by company</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header candidate-warning text-dark">
+                <h6 class="mb-0"><i class="bi bi-person me-2"></i>Application Status</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    {% if jobRequest.status == 'PENDING' %}
+                        <span class="badge bg-warning fs-6 p-2">Pending Review</span>
+                    {% elseif jobRequest.status == 'ACCEPTED' %}
+                        <span class="badge bg-success fs-6 p-2">Accepted</span>
+                    {% elseif jobRequest.status == 'REJECTED' %}
+                        <span class="badge bg-danger fs-6 p-2">Rejected</span>
+                    {% endif %}
+                </div>
+                
+                {% if jobRequest.status == 'PENDING' %}
+                <div class="d-grid gap-2">
+                    <form method="post" action="{{ path('app_candidate_delete_application', {'id': jobRequest.id}) }}" class="d-inline">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this application?');">
+                            <i class="bi bi-trash me-2"></i>Delete Application
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.candidate-primary {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+}
+
+.candidate-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.candidate-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.btn-outline-success {
+    border-color: #87a042;
+    color: #87a042;
+}
+
+.btn-outline-success:hover {
+    background-color: #87a042;
+    border-color: #87a042;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('edit-spontaneous-application-form');
+    const subjectInput = document.getElementById('subject');
+    const categorySelect = document.getElementById('category');
+    const locationInput = document.getElementById('location');
+    const descriptionTextarea = document.getElementById('description');
+    const expectedSalaryInput = document.getElementById('expectedSalary');
+
+    // Form validation function
+    function validateForm() {
+        let isValid = true;
+        let errors = [];
+
+        // Clear previous error states
+        clearErrors();
+
+        // Validate required fields
+        if (!subjectInput.value.trim()) {
+            errors.push('Subject/Position is required');
+            markInvalid(subjectInput);
+        } else {
+            markValid(subjectInput);
+        }
+
+        if (!categorySelect.value) {
+            errors.push('Please select a category');
+            markInvalid(categorySelect);
+        } else {
+            markValid(categorySelect);
+        }
+
+        if (!locationInput.value.trim()) {
+            errors.push('Location is required');
+            markInvalid(locationInput);
+        } else {
+            markValid(locationInput);
+        }
+
+        if (!descriptionTextarea.value.trim()) {
+            errors.push('Description/Cover Letter is required');
+            markInvalid(descriptionTextarea);
+        } else {
+            markValid(descriptionTextarea);
+        }
+
+        // Check if fields are truly empty (not just whitespace)
+        if (subjectInput.value.trim().length === 0) {
+            errors.push('Subject/Position cannot be empty');
+            markInvalid(subjectInput);
+        }
+
+        if (locationInput.value.trim().length === 0) {
+            errors.push('Location cannot be empty');
+            markInvalid(locationInput);
+        }
+
+        if (descriptionTextarea.value.trim().length === 0) {
+            errors.push('Description/Cover Letter cannot be empty');
+            markInvalid(descriptionTextarea);
+        }
+
+        // Validate description length
+        if (descriptionTextarea.value.trim().length < 50) {
+            errors.push('Description must be at least 50 characters');
+            markInvalid(descriptionTextarea);
+        } else if (descriptionTextarea.value.trim().length > 1000) {
+            errors.push('Description must not exceed 1000 characters');
+            markInvalid(descriptionTextarea);
+        }
+
+        // Show errors or enable submit
+        if (errors.length > 0) {
+            showErrors(errors);
+            return false;
+        } else {
+            clearErrors();
+            return true;
+        }
+    }
+
+    // Helper functions for validation feedback
+    function markInvalid(element) {
+        element.classList.add('is-invalid');
+        element.classList.remove('is-valid');
+    }
+
+    function markValid(element) {
+        element.classList.add('is-valid');
+        element.classList.remove('is-invalid');
+    }
+
+    function clearErrors() {
+        const existingErrors = document.querySelectorAll('.validation-error');
+        existingErrors.forEach(error => error.remove());
+        
+        // Clear validation states
+        document.querySelectorAll('.is-invalid, .is-valid').forEach(element => {
+            element.classList.remove('is-invalid', 'is-valid');
+        });
+    }
+
+    function showErrors(errors) {
+        const errorContainer = document.getElementById('validation-errors') || createErrorContainer();
+        errorContainer.innerHTML = errors.map(error => `<div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i>${error}</div>`).join('');
+        errorContainer.style.display = 'block';
+    }
+
+    function createErrorContainer() {
+        const container = document.createElement('div');
+        container.id = 'validation-errors';
+        container.className = 'validation-errors mb-3';
+        form.insertBefore(container, form.firstChild);
+        return container;
+    }
+
+    // Add validation styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        .is-valid {
+            border-color: #28a745 !important;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        }
+        .validation-errors {
+            margin-bottom: 1rem;
+        }
+        .validation-errors .alert {
+            margin-bottom: 0.5rem;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Real-time validation
+    [subjectInput, categorySelect, locationInput, descriptionTextarea, expectedSalaryInput].forEach(element => {
+        element.addEventListener('input', validateForm);
+        element.addEventListener('change', validateForm);
+    });
+
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Scroll to first error
+            const firstError = document.querySelector('.validation-errors .alert');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

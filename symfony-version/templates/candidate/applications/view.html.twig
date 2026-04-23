@@ -1,0 +1,228 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}Application Details - SmartHire{% endblock %}
+
+{% block candidate_page_title %}Application Details{% endblock %}
+
+{% block candidate_actions %}
+<a href="{{ path('app_candidate_applications') }}" class="btn btn-secondary">
+    <i class="bi bi-arrow-left me-2"></i>Back to Applications
+</a>
+{% endblock %}
+
+{% block candidate_content %}
+<div class="row">
+    <!-- Application Status Card -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Application Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    {% if jobRequest.status == 'PENDING' %}
+                        <span class="badge bg-warning fs-6 p-2">Pending Review</span>
+                    {% elseif jobRequest.status == 'ACCEPTED' %}
+                        <span class="badge bg-success fs-6 p-2">Accepted</span>
+                    {% elseif jobRequest.status == 'REJECTED' %}
+                        <span class="badge bg-danger fs-6 p-2">Rejected</span>
+                    {% endif %}
+                </div>
+                
+                {% if jobRequest.status == 'PENDING' %}
+                <div class="d-grid gap-2">
+                    <a href="{{ path('app_candidate_edit_application', {'id': jobRequest.id}) }}" class="btn btn-warning">
+                        <i class="bi bi-pencil me-2"></i>Edit Application
+                    </a>
+                    <form method="post" action="{{ path('app_candidate_delete_application', {'id': jobRequest.id}) }}" class="d-inline">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this application?');">
+                            <i class="bi bi-trash me-2"></i>Delete Application
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Job/Position Information -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    {% if jobRequest.jobOffer %}
+                        Job Application Details
+                    {% else %}
+                        Spontaneous Application Details
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if jobRequest.jobOffer %}
+                    <!-- Job Offer Information -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title">{{ jobRequest.jobOffer.title }}</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Recruiter:</strong><br>
+                                    {% if jobRequest.jobOffer.recruiter %}
+                                        {{ jobRequest.jobOffer.recruiter.firstName }} {{ jobRequest.jobOffer.recruiter.lastName }}
+                                    {% else %}
+                                        Not specified
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Location:</strong><br>
+                                    {{ jobRequest.jobOffer.location }}
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <strong>Job Type:</strong><br>
+                                    <span class="badge bg-info">{{ jobRequest.jobOffer.jobType }}</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Category:</strong><br>
+                                    <span class="badge bg-secondary">{{ jobRequest.jobOffer.categoryName }}</span>
+                                </div>
+                            </div>
+                            
+                            {% if jobRequest.jobOffer.salaryRange %}
+                            <div class="row mt-2">
+                                <div class="col-md-12">
+                                    <strong>Salary Range:</strong><br>
+                                    {{ jobRequest.jobOffer.salaryRange }}
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if jobRequest.jobOffer.description %}
+                            <div class="mt-3">
+                                <h6>Job Description</h6>
+                                <div class="border rounded p-3 bg-light">
+                                    {{ jobRequest.jobOffer.description|raw }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Spontaneous Application Information -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title">{{ jobRequest.jobTitle }}</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Category:</strong><br>
+                                    <span class="badge bg-secondary">{{ jobRequest.categorie }}</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Location:</strong><br>
+                                    {{ jobRequest.location }}
+                                </div>
+                            </div>
+                            
+                            {% if jobRequest.suggestedSalary %}
+                            <div class="row mt-2">
+                                <div class="col-md-12">
+                                    <strong>Expected Salary:</strong><br>
+                                    ${{ jobRequest.suggestedSalary }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Application Information -->
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title">Application Information</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Submission Date:</strong><br>
+                                {{ jobRequest.submissionDate|date('M d, Y H:i') }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Status:</strong><br>
+                                <span class="badge bg-{{ jobRequest.status == 'ACCEPTED' ? 'success' : jobRequest.status == 'REJECTED' ? 'danger' : 'warning' }}">{{ jobRequest.status }}</span>
+                            </div>
+                        </div>
+                        
+                        {% if jobRequest.suggestedSalary %}
+                        <div class="row mt-2">
+                            <div class="col-md-12">
+                                <strong>Expected Salary:</strong><br>
+                                ${{ jobRequest.suggestedSalary }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Cover Letter -->
+                {% if jobRequest.coverLetter %}
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title">Cover Letter</h6>
+                        <div class="bg-light p-3 rounded">
+                            <p class="mb-0">{{ jobRequest.coverLetter|nl2br }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Resume/CV -->
+                {% if jobRequest.cvUrl %}
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title">Resume/CV</h6>
+                        <div class="d-flex align-items-center p-3 border rounded">
+                            <i class="bi bi-file-earmark-text fs-3 text-primary me-3"></i>
+                            <div>
+                                <h6 class="mb-1">Resume</h6>
+                                <a href="{{ jobRequest.cvUrl }}" class="btn btn-outline-primary" target="_blank">Download Resume</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.candidate-primary {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+}
+
+.candidate-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.candidate-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.candidate-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.btn-outline-primary {
+    border-color: #87a042;
+    color: #87a042;
+}
+
+.btn-outline-primary:hover {
+    background-color: #87a042;
+    border-color: #87a042;
+}
+</style>
+{% endblock %}

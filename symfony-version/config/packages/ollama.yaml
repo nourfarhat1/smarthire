@@ -1,0 +1,31 @@
+# Ollama Service Configuration
+services:
+    # Ollama Cloud Service with API Key Authentication
+    App\Service\OllamaCloudService:
+        arguments:
+            $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface'
+            $parameterBag: '@Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface'
+            $doctrine: '@doctrine'
+
+    # Hugging Face Salary Service
+    App\Service\HuggingFaceSalaryService:
+        arguments:
+            $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface'
+            $parameterBag: '@Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface'
+
+    # Legacy Ollama Service (if needed)
+    App\Service\OllamaService:
+        arguments:
+            $ollamaUrl: '%env(default:https://localhost:11434)%OLLAMA_URL%'
+            $model: '%env(default:llama2)%OLLAMA_MODEL%'
+
+    # Text-to-SQL Service
+    App\Service\TextToSqlService:
+        arguments:
+            $ollamaService: '@App\Service\OllamaService'
+            $doctrine: '@doctrine'
+
+    # Candidate Application Controller with HuggingFace Salary Service
+    App\Controller\Candidate\CandidateApplicationController:
+        arguments:
+            $huggingFaceSalaryService: '@App\Service\HuggingFaceSalaryService'

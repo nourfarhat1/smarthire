@@ -1,0 +1,7 @@
+gtranslate:
+    auto_wrapper: true
+    script_src: 'https://cdn.gtranslate.net/widgets/latest/float.js'
+    settings:
+        default_language: 'en'
+        languages: ['en', 'fr', 'ar']
+        wrapper_selector: '.gtranslate_wrapper'

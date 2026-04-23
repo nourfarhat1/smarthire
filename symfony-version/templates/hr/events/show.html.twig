@@ -1,0 +1,142 @@
+{% extends 'hr/layout.html.twig' %}
+
+{% block title %}Event Details - SmartHire{% endblock %}
+
+{% block hr_page_title %}Event Details{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+                <h5 class="mb-0"><i class="bi bi-calendar-event me-2"></i>{{ event.name }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p><strong><i class="bi bi-calendar me-2"></i>Date:</strong> {{ event.eventDate|date('F d, Y') }}</p>
+                        <p><strong><i class="bi bi-clock me-2"></i>Time:</strong> {{ event.eventDate|date('H:i') }}</p>
+                        <p><strong><i class="bi bi-geo-alt me-2"></i>Location:</strong> {{ event.location }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong><i class="bi bi-people me-2"></i>Max Participants:</strong> {{ event.maxParticipants }}</p>
+                        <p><strong><i class="bi bi-person me-2"></i>Organizer:</strong> {{ event.organizer.fullName }}</p>
+                        <p><strong><i class="bi bi-tag me-2"></i>Status:</strong> 
+                            {% if event.eventDate > date() %}
+                                <span class="badge bg-success">Upcoming</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Completed</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h6><i class="bi bi-text-paragraph me-2"></i>Description</h6>
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            {{ event.description|raw }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ path('app_hr_events') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Events
+                    </a>
+                    <div>
+                        <a href="{{ path('app_hr_events_edit', {'id': event.id}) }}" class="btn btn-warning">
+                            <i class="bi bi-pencil me-2"></i>Edit Event
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Weather Information Card -->
+        <div class="card mb-3">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);">
+                <h6 class="mb-0"><i class="bi bi-cloud-sun me-2"></i>Weather Information</h6>
+            </div>
+            <div class="card-body">
+                {% if weather is defined and weather %}
+                    <div class="text-center">
+                        <div class="mb-2">
+                            <i class="bi bi-{{ weather.icon == '01d' ? 'sun' : (weather.icon == '02d' ? 'cloud-sun' : (weather.icon == '03d' or weather.icon == '04d' ? 'cloud' : 'cloud-rain')) }} fs-1" 
+                               style="font-size: 3rem; color: #ffc107;"></i>
+                        </div>
+                        <h3 class="mb-0">{{ weather.temperature }}°C</h3>
+                        <p class="text-capitalize mb-2">{{ weather.description }}</p>
+                        <div class="row text-center mt-3">
+                            <div class="col-6">
+                                <small>💧 Humidity</small><br>
+                                <strong>{{ weather.humidity }}%</strong>
+                            </div>
+                            <div class="col-6">
+                                <small>💨 Wind</small><br>
+                                <strong>{{ weather.wind_speed }} km/h</strong>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <i class="bi bi-geo-alt"></i> {{ weather.city }}
+                            </small>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="bi bi-cloud fs-1 text-muted"></i>
+                        <p class="text-muted mt-2 mb-0">Weather information not available</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Event Information Card -->
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%);">
+                <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Event Information</h6>
+            </div>
+            <div class="card-body">
+                <h6>Event Details</h6>
+                <ul class="small">
+                    <li><strong>Created:</strong> {{ event.createdAt|date('Y-m-d H:i') }}</li>
+                    <li><strong>Event ID:</strong> #{{ event.id }}</li>
+                    <li><strong>Organizer:</strong> {{ event.organizer.email }}</li>
+                </ul>
+
+                <hr>
+
+                <h6>Quick Actions</h6>
+                <div class="d-grid gap-2">
+                    <a href="{{ path('app_hr_events_edit', {'id': event.id}) }}" class="btn btn-outline-warning btn-sm">
+                        <i class="bi bi-pencil me-1"></i>Edit Event
+                    </a>
+                    <a href="{{ path('app_hr_events') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-list me-1"></i>All Events
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    border: none;
+    border-radius: 10px 10px 0 0;
+}
+
+.card-body {
+    border-radius: 0 0 10px 10px;
+}
+</style>
+{% endblock %}

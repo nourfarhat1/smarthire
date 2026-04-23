@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
+
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+# See also https://symfony.com/doc/current/service_container/import.html
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    app.ai_api_key: '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'
+    app.ai_api_url: 'https://api.groq.com/openai/v1/chat/completions'
+    app.ai_model: 'llama-3.3-70b-versatile'
+    app.profanity_api_url: 'https://www.purgomalum.com/service/containsprofanity'
+    faceio_app_id: 'bd61aa886a0a46538c87d7b35ec11700'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/'
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+    # Service configuration with environment variables
+    App\Service\EmailService:
+        arguments:
+            $senderEmail: 'redcirclemxxn2001@gmail.com'
+            $senderName: 'SmartHire'
+
+    App\Service\SMSService:
+        arguments:
+            $accountSid: '%env(string:TWILIO_ACCOUNT_SID)%'
+            $authToken: '%env(string:TWILIO_AUTH_TOKEN)%'
+            $fromNumber: '%env(string:TWILIO_FROM_NUMBER)%'
+
+    App\Service\AIService:
+        arguments:
+            $parameterBag: '@Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface'
+
+    App\Service\TranslationService:
+        # Autowired - no special configuration needed
+
+    App\Service\ProfanityFilterService:
+        arguments:
+            $profanityApiUrl: '%app.profanity_api_url%'
+
+    App\Service\SalarySuggestionService:
+        arguments:
+            $adzunaAppId: '%env(ADZUNA_APP_ID)%'
+            $adzunaApiKey: '%env(ADZUNA_API_KEY)%'        

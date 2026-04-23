@@ -1,0 +1,316 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}Edit Application - SmartHire{% endblock %}
+
+{% block candidate_page_title %}Edit Application{% endblock %}
+
+{% block candidate_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header candidate-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-pencil me-2"></i>Edit Application for {{ jobRequest.jobOffer.title }}</h5>
+            </div>
+            <div class="card-body">
+                <!-- Current Application Status -->
+                <div class="alert alert-info">
+                    <h6><i class="bi bi-info-circle me-2"></i>Application Status</h6>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Current Status:</strong> 
+                            <span class="badge bg-warning">{{ jobRequest.status }}</span>
+                        </div>
+                        <div>
+                            <strong>Applied:</strong> {{ jobRequest.submissionDate|date('M d, Y') }}
+                        </div>
+                    </div>
+                    <p class="mb-0 mt-2">
+                        <small class="text-muted">
+                            You can only edit your application while it's in "Pending" status. Once reviewed, changes cannot be made.
+                        </small>
+                    </p>
+                </div>
+
+                <!-- Job Information -->
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title">{{ jobRequest.jobOffer.title }}</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Recruiter:</strong><br>
+                                {{ jobRequest.jobOffer.recruiter.firstName }} {{ jobRequest.jobOffer.recruiter.lastName }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Location:</strong><br>
+                                {{ jobRequest.jobOffer.location }}
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <strong>Employment Type:</strong><br>
+                                <span class="badge bg-info">{{ jobRequest.jobOffer.jobType }}</span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Category:</strong><br>
+                                <span class="badge bg-secondary">{{ jobRequest.jobOffer.category.name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Form -->
+                <form method="post">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="coverLetter" class="form-label">Cover Letter *</label>
+                                <textarea class="form-control" id="coverLetter" name="coverLetter" rows="8" required>{{ jobRequest.coverLetter }}</textarea>
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Update your cover letter to better highlight your qualifications for this position.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="expectedSalary" class="form-label">Expected Salary (Optional)</label>
+                                <input type="number" class="form-control" id="expectedSalary" name="expectedSalary" 
+                                       value="{{ jobRequest.suggestedSalary }}" placeholder="e.g., 50000" min="0">
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    You can update your salary expectations based on your qualifications.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="availability" class="form-label">Availability</label>
+                                <select class="form-select" id="availability" name="availability">
+                                    <option value="immediately">Immediately</option>
+                                    <option value="2-weeks">2 weeks notice</option>
+                                    <option value="1-month">1 month notice</option>
+                                    <option value="2-months">2 months notice</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="additionalInfo" class="form-label">Additional Information</label>
+                                <textarea class="form-control" id="additionalInfo" name="additionalInfo" rows="4" 
+                                          placeholder="Any additional information you'd like to include..."></textarea>
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Add any additional details that might strengthen your application.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="resume" class="form-label">Update Resume/CV</label>
+                                <input type="file" class="form-control" id="resume" name="resume" accept=".pdf,.doc,.docx">
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Upload an updated resume if you have one (Max 5MB).
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                                    <label class="form-check-label" for="terms">
+                                        I confirm that all information provided is accurate and up-to-date.
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('app_candidate_applications') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Cancel
+                        </a>
+                        <div>
+                            <button type="reset" class="btn btn-outline-secondary me-2">
+                                <i class="bi bi-x-circle me-2"></i>Reset
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-save me-2"></i>Update Application
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header candidate-info text-white">
+                <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Improvement Tips</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success">
+                    <h6><i class="bi bi-check-circle me-2"></i>Enhance Your Application</h6>
+                    <ul class="mb-0">
+                        <li>Review the job description for keywords</li>
+                        <li>Quantify your achievements with numbers</li>
+                        <li>Address specific requirements mentioned</li>
+                        <li>Keep your cover letter concise and focused</li>
+                    </ul>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <h6><i class="bi bi-exclamation-triangle me-2"></i>Important Notes</h6>
+                    <ul class="mb-0">
+                        <li>Applications can only be edited while in "Pending" status</li>
+                        <li>Changes are saved immediately</li>
+                        <li>Recruiters will see your updated information</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header candidate-warning text-dark">
+                <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Application Analytics</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="text-center">
+                            <h4 class="text-info">{{ jobRequest.submissionDate|date('d') }}</h4>
+                            <p class="text-muted">Days Since Applied</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-center">
+                            <h4 class="text-warning">{{ jobRequest.coverLetter|length }}</h4>
+                            <p class="text-muted">Cover Letter Length</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="progress mb-3" style="height: 10px;">
+                    <div class="progress-bar bg-info" style="width: 75%"></div>
+                </div>
+                <p class="text-muted small">
+                    Your application is currently under review. Average response time is 3-5 business days.
+                </p>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header candidate-success text-white">
+                <h6 class="mb-0"><i class="bi bi-person me-2"></i>Recruiter Information</h6>
+            </div>
+            <div class="card-body">
+                {% if jobRequest.jobOffer.recruiter %}
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar-circle bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            {{ jobRequest.jobOffer.recruiter.firstName|first }}{{ jobRequest.jobOffer.recruiter.lastName|first }}
+                        </div>
+                        <div>
+                            <h6 class="mb-0">{{ jobRequest.jobOffer.recruiter.firstName }} {{ jobRequest.jobOffer.recruiter.lastName }}</h6>
+                            <small class="text-muted">Hiring Manager</small>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">
+                            <i class="bi bi-envelope me-1"></i>
+                            {{ jobRequest.jobOffer.recruiter.email }}
+                        </small>
+                    </div>
+                    {% if jobRequest.jobOffer.recruiter.phoneNumber %}
+                    <div class="mb-2">
+                        <small class="text-muted">
+                            <i class="bi bi-phone me-1"></i>
+                            {{ jobRequest.jobOffer.recruiter.phoneNumber }}
+                        </small>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <p class="text-muted">No recruiter information available.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header candidate-primary text-white">
+                <h6 class="mb-0"><i class="bi bi-mortarboard me-2"></i>Skill Enhancement</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">
+                    Based on this job position, consider these trainings:
+                </p>
+                <div class="list-group list-group-flush">
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ jobRequest.jobOffer.category }} Advanced Skills</h6>
+                                <small class="text-muted">Improve your expertise</small>
+                            </div>
+                            <span class="badge bg-success">Recommended</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ path('app_candidate_training_recommendations') }}" class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-mortarboard me-1"></i>View Recommendations
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.candidate-primary {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+}
+
+.candidate-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.candidate-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.candidate-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.avatar-circle {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+    box-shadow: 0 2px 8px rgba(135, 160, 66, 0.3);
+}
+
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.btn-outline-success {
+    border-color: #87a042;
+    color: #87a042;
+}
+
+.btn-outline-success:hover {
+    background-color: #87a042;
+    border-color: #87a042;
+}
+</style>
+{% endblock %}

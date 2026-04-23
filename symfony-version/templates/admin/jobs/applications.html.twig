@@ -1,0 +1,389 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block admin_page_title %}Job Applications{% endblock %}
+
+{% block admin_content %}
+<style>
+.stats-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.stats-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 12px rgba(0,0,0,0.12);
+}
+
+.stats-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Soft, professional color palette */
+.soft-blue {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+}
+
+.soft-teal {
+    background: linear-gradient(135deg, #5D9C9E, #4A7C7E);
+    color: white;
+}
+
+.soft-sage {
+    background: linear-gradient(135deg, #87A96B, #6B8E5A);
+    color: white;
+}
+
+.soft-coral {
+    background: linear-gradient(135deg, #E6B89C, #D4A574);
+    color: white;
+}
+
+.soft-lavender {
+    background: linear-gradient(135deg, #9B8FB3, #7F6B8F);
+    color: white;
+}
+
+.soft-cream {
+    background: linear-gradient(135deg, #F5E6D3, #E8D5B7);
+    color: #333;
+}
+
+.filter-section {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+}
+
+.table-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(107, 140, 174, 0.08);
+}
+
+.btn-action {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(107, 140, 174, 0.2);
+}
+
+.btn-action:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(107, 140, 174, 0.2);
+}
+
+.status-pending {
+    background: linear-gradient(135deg, #E6B89C, #D4A574);
+    color: white;
+}
+
+.status-accepted {
+    background: linear-gradient(135deg, #87A96B, #6B8E5A);
+    color: white;
+}
+
+.status-rejected {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+}
+
+/* Calm table headers */
+.table-container .card-header {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+    border: none;
+}
+
+/* Form controls with soft colors */
+.form-control:focus {
+    border-color: #6B8CAE;
+    box-shadow: 0 0 0 0.15rem rgba(107, 140, 174, 0.15);
+}
+
+.form-select:focus {
+    border-color: #6B8CAE;
+    box-shadow: 0 0 0 0.15rem rgba(107, 140, 174, 0.15);
+}
+</style>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Job Applications Management</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <span class="badge bg-secondary">All Applications</span>
+            <span class="badge bg-info ms-1">{{ applications|length }} Total</span>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="filter-section">
+    <h4 class="mb-3"><i class="bi bi-funnel me-2"></i>Filter Applications</h4>
+    <form method="GET" class="row g-3">
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">All Status</option>
+                <option value="PENDING" {{ filters.status == 'PENDING' ? 'selected' : '' }}>Pending</option>
+                <option value="ACCEPTED" {{ filters.status == 'ACCEPTED' ? 'selected' : '' }}>Accepted</option>
+                <option value="REJECTED" {{ filters.status == 'REJECTED' ? 'selected' : '' }}>Rejected</option>
+            </select>
+        </div>
+        
+        <div class="col-md-3">
+            <input type="text" name="search" class="form-control" placeholder="Search by name, email, or job title" value="{{ filters.search }}">
+        </div>
+        
+        <div class="col-md-3">
+            <select name="job_offer" class="form-select">
+                <option value="">All Job Offers</option>
+                {% for job in all_job_offers %}
+                    <option value="{{ job.id }}" {{ filters.job_offer == job.id ? 'selected' : '' }}>{{ job.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-search me-2"></i>Filter
+            </button>
+        </div>
+    </form>
+    <div class="row mt-2">
+        <div class="col-md-3">
+            <a href="{{ path('app_admin_applications') }}" class="btn btn-danger w-100">
+                <i class="bi bi-x-circle me-2"></i>Clear Filters
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stats-card soft-blue text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.total }}</h4>
+                        <p class="card-text">Total Applications</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-file-text fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card soft-coral text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.pending }}</h4>
+                        <p class="card-text">Pending Review</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-clock fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card soft-sage text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.accepted }}</h4>
+                        <p class="card-text">Accepted</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-check-circle fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card soft-lavender text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.rejected }}</h4>
+                        <p class="card-text">Rejected</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-x-circle fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Section -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card stats-card soft-teal text-white">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-pie-chart me-2"></i>Application Status</h5>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h4>{{ stats.pending }}</h4>
+                        <small>Pending</small>
+                    </div>
+                    <div class="col-4">
+                        <h4>{{ stats.accepted }}</h4>
+                        <small>Accepted</small>
+                    </div>
+                    <div class="col-4">
+                        <h4>{{ stats.rejected }}</h4>
+                        <small>Rejected</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card stats-card soft-cream text-white">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-bar-chart me-2"></i>Quick Actions</h5>
+                <div class="d-grid gap-2">
+                    <a href="{{ path('app_admin_applications_analytics') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-graph-up me-2"></i>Analytics Dashboard
+                    </a>
+                    <a href="{{ path('app_admin_jobs') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-briefcase me-2"></i>Manage Jobs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Applications Table -->
+<div class="table-container">
+    <div class="card-header" style="background: linear-gradient(135deg, #6B8CAE, #4A6FA5); color: white; border: none;">
+        <h5 class="card-title mb-0">All Applications</h5>
+    </div>
+    <div class="card-body table-responsive p-0">
+        <table class="table table-hover text-nowrap">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Candidate</th>
+                    <th>Job Title</th>
+                    <th>Company</th>
+                    <th>Applied Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in applications %}
+                <tr>
+                    <td>{{ application.id }}</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white me-2">
+                                {{ application.candidate.firstName|first }}{{ application.candidate.lastName|first }}
+                            </div>
+                            <div>
+                                <a href="#" class="text-decoration-none fw-bold">
+                                    {{ application.candidate.firstName }} {{ application.candidate.lastName }}
+                                </a>
+                                <br>
+                                <small class="text-muted">{{ application.candidate.email }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            {% if application.jobOffer %}
+                                <a href="#" class="text-decoration-none fw-bold">
+                                    {{ application.jobOffer.title }}
+                                </a>
+                                <br>
+                                <small class="text-muted">ID: {{ application.jobOffer.id }}</small>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        {% if application.jobOffer and application.jobOffer.recruiter %}
+                            <span class="badge bg-info">{{ application.jobOffer.recruiter.fullName|default('Unknown') }}</span>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div>
+                            <strong>{{ application.submissionDate|date('M d, Y') }}</strong>
+                            <br>
+                            <small class="text-muted">{{ application.submissionDate|date('g:i A') }}</small>
+                        </div>
+                    </td>
+                    <td>
+                        {% if application.status == 'PENDING' %}
+                            <span class="badge status-pending">PENDING</span>
+                        {% elseif application.status == 'ACCEPTED' %}
+                            <span class="badge status-accepted">ACCEPTED</span>
+                        {% elseif application.status == 'REJECTED' %}
+                            <span class="badge status-rejected">REJECTED</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="{{ path('app_admin_application_view', {'id': application.id}) }}" 
+                               class="btn btn-sm btn-action" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            {% if application.status == 'PENDING' %}
+                            <form method="post" action="{{ path('app_admin_application_status', {'id': application.id}) }}" 
+                                  style="display: inline;" 
+                                  onsubmit="return confirm('Accept this application?')">
+                                <input type="hidden" name="status" value="ACCEPTED">
+                                <input type="hidden" name="_token" value="{{ csrf_token('status' ~ application.id) }}">
+                                <button type="submit" class="btn btn-sm btn-action" title="Accept">
+                                    <i class="bi bi-check"></i>
+                                </button>
+                            </form>
+                            <form method="post" action="{{ path('app_admin_application_status', {'id': application.id}) }}" 
+                                  style="display: inline;" 
+                                  onsubmit="return confirm('Reject this application?')">
+                                <input type="hidden" name="status" value="REJECTED">
+                                <input type="hidden" name="_token" value="{{ csrf_token('status' ~ application.id) }}">
+                                <button type="submit" class="btn btn-sm btn-action" title="Reject">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted">
+                        <div class="py-4">
+                            <i class="bi bi-file-text fs-1 text-muted"></i>
+                            <p class="mt-2">No applications found</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

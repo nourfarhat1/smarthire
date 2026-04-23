@@ -1,0 +1,351 @@
+{% extends 'hr/layout.html.twig' %}
+
+{% block title %}HR Interviews - SmartHire{% endblock %}
+
+{% block hr_page_title %}Interview Management{% endblock %}
+
+{% block hr_content %}
+<!-- Interview Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stats-card text-white" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ totalCount }}</h4>
+                        <p class="card-text">Total Interviews</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-calendar-check fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card text-white" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ scheduledCount }}</h4>
+                        <p class="card-text">Scheduled</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-clock fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card text-white" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ completedCount }}</h4>
+                        <p class="card-text">Completed</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-check-circle fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card text-white" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ cancelledCount }}</h4>
+                        <p class="card-text">Cancelled</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-x-circle fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters and Actions -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #495057 0%, #343a40 100%);">
+                <h5 class="mb-0"><i class="bi bi-funnel me-2"></i>Filter Interviews</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" class="row g-3">
+                    <div class="col-md-8">
+                        <label for="status" class="form-label">Interview Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">All Status</option>
+                            <option value="SCHEDULED" {% if selectedStatus == 'SCHEDULED' %}selected{% endif %}>Scheduled</option>
+                            <option value="COMPLETED" {% if selectedStatus == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                            <option value="CANCELLED" {% if selectedStatus == 'CANCELLED' %}selected{% endif %}>Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">&nbsp;</label><br>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search me-1"></i> Filter
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+                <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex gap-2">
+                    <a href="{{ path('app_hr_interviews_calendar') }}" class="btn btn-outline-primary flex-fill">
+                        <i class="bi bi-calendar me-1"></i>Calendar View
+                    </a>
+                    <a href="{{ path('app_hr_job_requests') }}" class="btn btn-outline-secondary flex-fill">
+                        <i class="bi bi-file-text me-1"></i>Applications
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Back Button -->
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{{ path('app_hr_dashboard') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Interviews List -->
+<div class="card">
+    <div class="card-header text-white d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #495057 0%, #343a40 100%);">
+        <h5 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Scheduled Interviews</h5>
+        <div>
+            <form method="POST" action="{{ path('app_hr_interviews_batch_reminders') }}" class="d-inline">
+                <button type="submit" class="btn btn-warning btn-sm" title="Send Reminders to All Pending Interviews">
+                    <i class="bi bi-bell-fill me-1"></i>Send All Reminders
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if interviews|length > 0 %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Candidate</th>
+                            <th>Job Offer</th>
+                            <th>Date & Time</th>
+                            <th>Location</th>
+                            <th>Meeting Link</th>
+                            <th>Notifications</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for interview in interviews %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                            {{ interview.jobRequest.candidate.firstName|first|upper }}
+                                        </div>
+                                        <div>
+                                            <strong>{{ interview.jobRequest.candidate.fullName }}</strong>
+                                            <br><small class="text-muted">{{ interview.jobRequest.candidate.email }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>{{ interview.jobRequest.jobOffer.title }}</strong>
+                                        <br><small class="text-muted">{{ interview.jobRequest.jobOffer.location }}</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <i class="bi bi-calendar me-1"></i>{{ interview.dateTime|date('M d, Y') }}
+                                        <br><small class="text-muted"><i class="bi bi-clock me-1"></i>{{ interview.dateTime|date('H:i') }}</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <i class="bi bi-geo-alt me-1"></i>{{ interview.location }}
+                                        {% if interview.notes %}
+                                            <br><small class="text-muted"><i class="bi bi-info-circle me-1"></i>Notes available</small>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% set meetLink = null %}
+                                    {% if interview.notes %}
+                                        {% set parts = interview.notes|split('Google Meet Link:') %}
+                                        {% if parts|length > 1 %}
+                                            {% set meetLink = parts[1]|trim %}
+                                        {% endif %}
+                                    {% endif %}
+                                    
+                                    {% if meetLink %}
+                                        <a href="{{ meetLink }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Join Meeting">
+                                            <i class="bi bi-camera-video me-1"></i>Google Meet
+                                        </a>
+                                    {% else %}
+                                        <span class="badge bg-secondary">In-Person</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="badge bg-success mb-1"><i class="bi bi-envelope-check me-1"></i>Email Sent</span>
+                                        <span class="badge bg-info"><i class="bi bi-bell me-1"></i>Reminder Available</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if interview.status == 'SCHEDULED' %}
+                                        <span class="badge bg-warning">Scheduled</span>
+                                    {% elseif interview.status == 'COMPLETED' %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% elseif interview.status == 'CANCELLED' %}
+                                        <span class="badge bg-danger">Cancelled</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ interview.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-info" title="View Details" 
+                                                data-bs-toggle="modal" data-bs-target="#interviewModal{{ interview.id }}">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        {% if interview.status == 'SCHEDULED' %}
+                                            <a href="{{ path('app_hr_interviews_reschedule', {'id': interview.id}) }}" class="btn btn-sm btn-outline-warning" title="Reschedule">
+                                                <i class="bi bi-calendar-event"></i>
+                                            </a>
+                                            <form method="POST" action="{{ path('app_hr_interviews_send_reminder', {'id': interview.id}) }}" class="d-inline" 
+                                                  title="Send Reminder">
+                                                <button type="submit" class="btn btn-sm btn-outline-info">
+                                                    <i class="bi bi-bell"></i>
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ path('app_hr_interviews_cancel', {'id': interview.id}) }}" class="d-inline" 
+                                                  onsubmit="return confirm('Are you sure you want to cancel this interview?')">
+                                                <input type="hidden" name="reason" value="Cancelled by HR">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancel">
+                                                    <i class="bi bi-x"></i>
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-calendar-check fs-1 text-muted mb-3"></i>
+                <h5 class="text-muted">No interviews found</h5>
+                <p class="text-muted">
+                    {% if selectedStatus %}
+                        No interviews with the selected status. 
+                        <a href="{{ path('app_hr_interviews') }}">View all interviews</a>.
+                    {% else %}
+                        No interviews have been scheduled yet. 
+                        Go to <a href="{{ path('app_hr_job_requests') }}">job applications</a> to schedule interviews.
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Interview Details Modals -->
+{% for interview in interviews %}
+<div class="modal fade" id="interviewModal{{ interview.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Interview Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Candidate Information</h6>
+                        <p><strong>Name:</strong> {{ interview.jobRequest.candidate.fullName }}</p>
+                        <p><strong>Email:</strong> {{ interview.jobRequest.candidate.email }}</p>
+                        {% if interview.jobRequest.candidate.phoneNumber %}
+                            <p><strong>Phone:</strong> {{ interview.jobRequest.candidate.phoneNumber }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Interview Details</h6>
+                        <p><strong>Job Offer:</strong> {{ interview.jobRequest.jobOffer.title }}</p>
+                        <p><strong>Date:</strong> {{ interview.dateTime|date('M d, Y H:i') }}</p>
+                        <p><strong>Location:</strong> {{ interview.location }}</p>
+                        <p><strong>Status:</strong> 
+                            {% if interview.status == 'SCHEDULED' %}
+                                <span class="badge bg-warning">Scheduled</span>
+                            {% elseif interview.status == 'COMPLETED' %}
+                                <span class="badge bg-success">Completed</span>
+                            {% elseif interview.status == 'CANCELLED' %}
+                                <span class="badge bg-danger">Cancelled</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                {% if interview.notes %}
+                    <hr>
+                    <h6>Interview Notes</h6>
+                    <div class="p-3 bg-light rounded">
+                        <p class="mb-0">{{ interview.notes|nl2br }}</p>
+                    </div>
+                {% endif %}
+                
+                <hr>
+                <h6>Application Details</h6>
+                <div class="p-3 bg-light rounded">
+                    <p class="mb-2"><strong>Applied:</strong> {{ interview.jobRequest.submissionDate|date('M d, Y') }}</p>
+                    {% if interview.jobRequest.coverLetter %}
+                        <p class="mb-2"><strong>Cover Letter:</strong> Available</p>
+                    {% endif %}
+                    {% if interview.jobRequest.cvUrl %}
+                        <p class="mb-0">
+                            <a href="{{ interview.jobRequest.cvUrl }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                <i class="bi bi-file-earmark-text me-1"></i>Download CV
+                            </a>
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                {% if interview.status == 'SCHEDULED' %}
+                    <a href="{{ path('app_hr_interviews_edit', {'id': interview.id}) }}" class="btn btn-warning">
+                        <i class="bi bi-pencil me-2"></i>Edit Interview
+                    </a>
+                    <form method="POST" action="{{ path('app_hr_interviews_delete', {'id': interview.id}) }}" class="d-inline" 
+                          onsubmit="return confirm('Are you sure you want to cancel this interview?')">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-x me-2"></i>Cancel Interview
+                        </button>
+                    </form>
+                {% endif %}
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

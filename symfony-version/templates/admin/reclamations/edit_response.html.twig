@@ -1,0 +1,210 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block admin_page_title %}Edit Response{% endblock %}
+
+{% block admin_content %}
+<style>
+.form-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    padding: 2rem;
+}
+
+.btn-gradient {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 2rem;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+    background: linear-gradient(135deg, #4A6FA5, #6B8CAE);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(107, 140, 174, 0.2);
+    color: white;
+}
+
+.complaint-preview {
+    background: linear-gradient(135deg, #9B8FB3, #7F6B8F);
+    color: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.form-control:focus {
+    border-color: #6B8CAE;
+    box-shadow: 0 0 0 0.15rem rgba(107, 140, 174, 0.15);
+}
+</style>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Edit Response</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ path('app_admin_reclamations_show', {'id': response.complaint.id}) }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Complaint
+        </a>
+    </div>
+</div>
+
+<!-- Complaint Preview -->
+<div class="complaint-preview">
+    <h5><i class="bi bi-exclamation-triangle me-2"></i>Original Complaint</h5>
+    <div class="row">
+        <div class="col-md-6">
+            <strong>Subject:</strong> {{ response.complaint.subject }}
+        </div>
+        <div class="col-md-6">
+            <strong>Status:</strong> {{ response.complaint.status }}
+        </div>
+    </div>
+    <div class="mt-2">
+        <strong>Description:</strong><br>
+        {{ response.complaint.description|slice(0, 200) }}{% if response.complaint.description|length > 200 %}...{% endif %}
+    </div>
+</div>
+
+<!-- Edit Response Form -->
+<div class="form-container">
+    <h4 class="mb-4"><i class="bi bi-pencil-square me-2"></i>Edit Response</h4>
+    
+    <form method="POST">
+        <div class="mb-3">
+            <label for="message" class="form-label">Response Message</label>
+            <textarea 
+                class="form-control" 
+                id="message" 
+                name="message" 
+                rows="8" 
+                required
+                placeholder="Enter your response here...">{{ response.message }}</textarea>
+            <div class="form-text">
+                <i class="bi bi-info-circle me-1"></i>
+                Provide a clear and helpful response to address the complaint.
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Current Response Date</label>
+                    <input type="text" class="form-control" value="{{ response.responseDate|date('M d, Y H:i') }}" readonly>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Will be updated to</label>
+                    <input type="text" class="form-control" value="{{ "now"|date('M d, Y H:i') }}" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-gradient">
+                <i class="bi bi-check-circle me-2"></i>Update Response
+            </button>
+            <a href="{{ path('app_admin_reclamations_show', {'id': response.complaint.id}) }}" class="btn btn-secondary">
+                <i class="bi bi-x-circle me-2"></i>Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- AI Assistant Section -->
+<div class="form-container mt-4">
+    <h5 class="mb-3"><i class="bi bi-robot me-2"></i>AI Assistant</h5>
+    <p class="text-muted">Get AI-powered suggestions to improve your response:</p>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <button type="button" class="btn btn-outline-primary w-100 mb-2" onclick="improveTone()">
+                <i class="bi bi-megaphone me-2"></i>Improve Tone
+            </button>
+        </div>
+        <div class="col-md-6">
+            <button type="button" class="btn btn-outline-success w-100 mb-2" onclick="addProfessionalClosing()">
+                <i class="bi bi-envelope me-2"></i>Add Professional Closing
+            </button>
+        </div>
+        <div class="col-md-6">
+            <button type="button" class="btn btn-outline-info w-100 mb-2" onclick="addTimeline()">
+                <i class="bi bi-clock me-2"></i>Add Timeline
+            </button>
+        </div>
+        <div class="col-md-6">
+            <button type="button" class="btn btn-outline-warning w-100 mb-2" onclick="generateFullResponse()">
+                <i class="bi bi-magic me-2"></i>Generate Full Response
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function improveTone() {
+    const message = document.getElementById('message');
+    const currentText = message.value;
+    
+    // Simple tone improvement logic
+    let improvedText = currentText
+        .replace(/bad/gi, 'unfortunate')
+        .replace(/terrible/gi, 'challenging')
+        .replace(/awful/gi, 'difficult')
+        .replace(/hate/gi, 'strongly dislike')
+        .replace(/stupid/gi, 'misunderstood')
+        .replace(/idiot/gi, 'individual');
+    
+    if (currentText !== improvedText) {
+        message.value = improvedText;
+        alert('Tone has been improved for professionalism.');
+    } else {
+        alert('The response already appears to have a professional tone.');
+    }
+}
+
+function addProfessionalClosing() {
+    const message = document.getElementById('message');
+    const closing = '\n\n---\nThank you for your patience and understanding. We appreciate you bringing this matter to our attention and are committed to resolving it promptly.\n\nBest regards,\nSupport Team';
+    
+    if (!message.value.includes('Thank you for your patience')) {
+        message.value += closing;
+        alert('Professional closing has been added.');
+    } else {
+        alert('Professional closing already exists.');
+    }
+}
+
+function addTimeline() {
+    const message = document.getElementById('message');
+    const timeline = '\n\nWe expect to resolve this matter within 3-5 business days. You will receive updates on our progress.';
+    
+    if (!message.value.includes('expect to resolve')) {
+        message.value += timeline;
+        alert('Timeline information has been added.');
+    } else {
+        alert('Timeline information already exists.');
+    }
+}
+
+function generateFullResponse() {
+    if (confirm('This will replace your current response with an AI-generated one. Continue?')) {
+        // Simulate AI response generation
+        const aiResponse = `Thank you for bringing this matter to our attention. We sincerely apologize for any inconvenience you may have experienced.
+
+We have carefully reviewed your complaint and understand your concerns. Our team is currently investigating the situation and working to implement appropriate solutions.
+
+We expect to resolve this matter within 3-5 business days and will keep you informed of our progress. Your satisfaction is our top priority.
+
+Please don't hesitate to contact us if you have any additional questions or concerns.
+
+Best regards,
+Customer Support Team`;
+
+        document.getElementById('message').value = aiResponse;
+        alert('AI-generated response has been inserted. Please review and customize as needed.');
+    }
+}
+</script>
+{% endblock %}

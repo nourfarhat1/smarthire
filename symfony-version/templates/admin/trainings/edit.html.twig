@@ -1,0 +1,657 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block admin_page_title %}Edit Training{% endblock %}
+
+{% block upper %}
+    <!-- Page Header -->
+    <div class="admin-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0">Edit Training: {{ training.title }}</h1>
+            <div class="d-flex gap-2">
+                {% block admin_actions %}{% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block admin_content %}
+<style>
+.stats-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.stats-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 12px rgba(0,0,0,0.12);
+}
+
+.stats-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Soft, professional color palette */
+.soft-blue {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+}
+
+.soft-teal {
+    background: linear-gradient(135deg, #5D9C9E, #4A7C7E);
+    color: white;
+}
+
+.soft-sage {
+    background: linear-gradient(135deg, #87A96B, #6B8E5A);
+    color: white;
+}
+
+.soft-coral {
+    background: linear-gradient(135deg, #E6B89C, #D4A574);
+    color: white;
+}
+
+.soft-lavender {
+    background: linear-gradient(135deg, #9B8FB3, #7F6B8F);
+    color: white;
+}
+
+.soft-cream {
+    background: linear-gradient(135deg, #F5E6D3, #E8DCC0);
+    color: #333;
+}
+</style>
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header soft-teal text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-pencil me-2"></i>Edit Training: {{ training.title }}
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post" id="edit-training-form" novalidate>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Title *</label>
+                                <input type="text" class="form-control" id="title" name="title" value="{{ training.title }}" required 
+                                       placeholder="Enter training title...">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Category *</label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="">Select Category</option>
+                                    <option value="IT" {{ training.category == 'IT' ? 'selected' : '' }}>IT/Software</option>
+                                    <option value="Marketing" {{ training.category == 'Marketing' ? 'selected' : '' }}>Marketing</option>
+                                    <option value="Sales" {{ training.category == 'Sales' ? 'selected' : '' }}>Sales</option>
+                                    <option value="HR" {{ training.category == 'HR' ? 'selected' : '' }}>Human Resources</option>
+                                    <option value="Finance" {{ training.category == 'Finance' ? 'selected' : '' }}>Finance</option>
+                                    <option value="Leadership" {{ training.category == 'Leadership' ? 'selected' : '' }}>Leadership</option>
+                                    <option value="Communication" {{ training.category == 'Communication' ? 'selected' : '' }}>Communication</option>
+                                    <option value="Project Management" {{ training.category == 'Project Management' ? 'selected' : '' }}>Project Management</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="video_url" class="form-label">Video URL (Optional)</label>
+                                <input type="url" class="form-control" id="video_url" name="video_url" 
+                                       value="{{ training.videoUrl }}" placeholder="https://example.com/video">
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Enter a URL for training video if available.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description *</label>
+                                <textarea class="form-control" id="description" name="description" rows="6" required 
+                                          placeholder="Enter detailed description of training content...">{{ training.description }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Statistics</label>
+                                <div class="p-3 bg-light rounded">
+                                    <div class="d-flex justify-content-between">
+                                        <span>
+                                            <i class="bi bi-hand-thumbs-up text-success me-2"></i>
+                                            <strong>Likes:</strong> {{ training.likes }}
+                                        </span>
+                                        <span>
+                                            <i class="bi bi-hand-thumbs-down text-danger me-2"></i>
+                                            <strong>Dislikes:</strong> {{ training.dislikes }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Created</label>
+                                <div class="p-3 bg-light rounded">
+                                    <i class="bi bi-calendar text-primary me-2"></i>
+                                    {{ training.createdAt|date('M d, Y H:i') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('app_admin_trainings') }}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                        <div>
+                            <button type="reset" class="btn btn-outline-secondary me-2">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-2"></i>Update Training
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-info-circle me-2"></i>Training Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6>Current Stats</h6>
+                    <div class="d-flex justify-content-between">
+                        <span class="badge bg-success">
+                            <i class="bi bi-hand-thumbs-up"></i> {{ training.likes }}
+                        </span>
+                        <span class="badge bg-danger">
+                            <i class="bi bi-hand-thumbs-down"></i> {{ training.dislikes }}
+                        </span>
+                    </div>
+                </div>
+                
+                {% if training.videoUrl %}
+                <div class="mb-3">
+                    <h6>Video Preview</h6>
+                    <a href="{{ training.videoUrl }}" target="_blank" class="btn btn-outline-info btn-sm">
+                        <i class="bi bi-play-circle me-2"></i>Watch Video
+                    </a>
+                </div>
+                {% endif %}
+                
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="bi bi-magic me-2"></i>AI-Powered Editing Tips
+                        </h6>
+                        <p class="card-text small text-muted mb-3">
+                            Get personalized editing suggestions based on your training content analysis.
+                        </p>
+                        <div class="mb-3">
+                            <label for="tone" class="form-label">Tips Tone/Style</label>
+                            <select class="form-select" id="tone" name="tone">
+                                <option value="professional">Professional</option>
+                                <option value="formal">Formal</option>
+                                <option value="friendly">Friendly</option>
+                                <option value="casual">Casual</option>
+                                <option value="funny">Funny</option>
+                                <option value="creative">Creative</option>
+                                <option value="technical">Technical</option>
+                                <option value="inspirational">Inspirational</option>
+                                <option value="persuasive">Persuasive</option>
+                            </select>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="button" id="generate-tips-btn" class="btn btn-primary" onclick="generateAITipsSimple();">
+                                <i class="bi bi-magic me-2"></i>Generate AI Tips
+                            </button>
+                            <button type="button" id="refresh-tips-btn" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Refresh Tips
+                            </button>
+                        </div>
+                        <div id="ai-tips-container" class="mt-3" style="display: block;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-lightbulb me-2"></i>AI Editing Suggestions
+                                </h6>
+                                <span class="badge bg-info" id="tips-source">AI Generated</span>
+                            </div>
+                            <div id="ai-tips-list" class="alert alert-info">
+                                <p class="mb-2"><i class="bi bi-info-circle me-2"></i>Analyzing your training content...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+}
+</style>
+
+<script>
+console.log('Edit training script loading...');
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing AI tips functionality');
+    
+    const form = document.getElementById('edit-training-form');
+    const titleInput = document.getElementById('title');
+    const categorySelect = document.getElementById('category');
+    const descriptionTextarea = document.getElementById('description');
+    const videoUrlInput = document.getElementById('video_url');
+    const generateTipsBtn = document.getElementById('generate-tips-btn');
+    const refreshTipsBtn = document.getElementById('refresh-tips-btn');
+    const toneSelect = document.getElementById('tone');
+    const tipsContainer = document.getElementById('ai-tips-container');
+    const tipsList = document.getElementById('ai-tips-list');
+    const tipsSource = document.getElementById('tips-source');
+    
+    console.log('Elements found:', {
+        form: !!form,
+        titleInput: !!titleInput,
+        categorySelect: !!categorySelect,
+        descriptionTextarea: !!descriptionTextarea,
+        generateTipsBtn: !!generateTipsBtn,
+        refreshTipsBtn: !!refreshTipsBtn,
+        toneSelect: !!toneSelect,
+        tipsContainer: !!tipsContainer,
+        tipsList: !!tipsList,
+        tipsSource: !!tipsSource
+    });
+
+    // Generate AI tips function
+    function generateAITips() {
+        console.log('generateAITips function called');
+        
+        const title = titleInput.value.trim();
+        const category = categorySelect.value;
+        const description = descriptionTextarea.value.trim();
+        const tone = toneSelect.value;
+        
+        console.log('Generating AI tips for:', { title, category, description, tone });
+        console.log('Button elements:', { generateTipsBtn, refreshTipsBtn, tipsContainer, tipsList });
+        
+        if (!title || !category || !description) {
+            console.log('Validation failed - missing required fields');
+            showNotification('Please fill in title, category, and description before generating AI tips.', 'warning');
+            return;
+        }
+        
+        // Show loading state
+        tipsList.innerHTML = '<p class="mb-2"><i class="bi bi-info-circle me-2"></i>Analyzing your training content...</p>';
+        tipsSource.textContent = 'AI Generated';
+        tipsSource.className = 'badge bg-info';
+        tipsContainer.style.display = 'block';
+        
+        // Make API call
+        fetch('{{ path('app_admin_trainings_generate_editing_tips') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new URLSearchParams({
+                'title': title,
+                'category': category,
+                'description': description,
+                'tone': tone
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('AI tips response:', data);
+            
+            if (data.success) {
+                displayTips(data.tips, data.source, data.confidence);
+            } else {
+                tipsList.innerHTML = `<p class="mb-2 text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Failed to generate AI tips: ${data.error}</p>`;
+                tipsSource.textContent = 'Error';
+                tipsSource.className = 'badge bg-danger';
+            }
+        })
+        .catch(error => {
+            console.error('Error generating AI tips:', error);
+            tipsList.innerHTML = '<p class="mb-2 text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Failed to generate AI tips. Please try again.</p>';
+            tipsSource.textContent = 'Error';
+            tipsSource.className = 'badge bg-danger';
+        });
+    }
+
+    // Display tips function
+    function displayTips(tips, source, confidence) {
+        tipsList.innerHTML = '';
+        
+        if (tips && tips.length > 0) {
+            tips.forEach((tip, index) => {
+                const tipElement = document.createElement('div');
+                tipElement.className = 'mb-2';
+                tipElement.innerHTML = `
+                    <div class="d-flex align-items-start">
+                        <span class="badge bg-primary me-2">${index + 1}</span>
+                        <span>${tip}</span>
+                    </div>
+                `;
+                tipsList.appendChild(tipElement);
+            });
+            
+            tipsSource.textContent = source === 'ai' ? 'AI Generated' : 'Fallback';
+            tipsSource.className = source === 'ai' ? 'badge bg-success' : 'badge bg-secondary';
+        } else {
+            tipsList.innerHTML = '<p class="mb-2 text-muted">No tips available. Please fill in the training details first.</p>';
+            tipsSource.textContent = 'No Data';
+            tipsSource.className = 'badge bg-secondary';
+        }
+        
+        tipsContainer.style.display = 'block';
+    }
+
+    // Show notification function
+    function showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+        notification.style.zIndex = '9999';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+        `;
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                <i class="bi bi-x"></i>
+            </button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 5000);
+    }
+
+    // Event listeners
+    console.log('Setting up event listeners for AI tips buttons');
+    
+    if (generateTipsBtn) {
+        generateTipsBtn.addEventListener('click', function(e) {
+            console.log('Generate Tips button clicked');
+            e.preventDefault();
+            generateAITips();
+        });
+        console.log('Generate Tips button event listener added');
+    } else {
+        console.error('Generate Tips button not found');
+    }
+    
+    if (refreshTipsBtn) {
+        refreshTipsBtn.addEventListener('click', function(e) {
+            console.log('Refresh Tips button clicked');
+            e.preventDefault();
+            if (titleInput.value.trim() && categorySelect.value && descriptionTextarea.value.trim()) {
+                generateAITips();
+            } else {
+                showNotification('Please fill in all required fields first.', 'warning');
+            }
+        });
+        console.log('Refresh Tips button event listener added');
+    } else {
+        console.error('Refresh Tips button not found');
+    }
+
+    // Form validation function
+    function validateForm() {
+        let isValid = true;
+        let errors = [];
+
+        // Clear previous error states
+        clearErrors();
+
+        // Validate required fields
+        if (!titleInput.value.trim()) {
+            errors.push('Title is required');
+            markInvalid(titleInput);
+        } else {
+            markValid(titleInput);
+        }
+
+        if (!categorySelect.value) {
+            errors.push('Please select a category');
+            markInvalid(categorySelect);
+        } else {
+            markValid(categorySelect);
+        }
+
+        if (!descriptionTextarea.value.trim()) {
+            errors.push('Description is required');
+            markInvalid(descriptionTextarea);
+        } else {
+            markValid(descriptionTextarea);
+        }
+
+        // Validate description length
+        if (descriptionTextarea.value.trim().length < 50) {
+            errors.push('Description must be at least 50 characters');
+            markInvalid(descriptionTextarea);
+        } else if (descriptionTextarea.value.trim().length > 2000) {
+            errors.push('Description must not exceed 2000 characters');
+            markInvalid(descriptionTextarea);
+        }
+
+        // Validate video URL if provided
+        if (videoUrlInput.value && !isValidUrl(videoUrlInput.value)) {
+            errors.push('Please enter a valid video URL');
+            markInvalid(videoUrlInput);
+        }
+
+        // Show errors or enable submit
+        if (errors.length > 0) {
+            showErrors(errors);
+            return false;
+        } else {
+            clearErrors();
+            return true;
+        }
+    }
+
+    // Helper functions for validation feedback
+    function markInvalid(element) {
+        element.classList.add('is-invalid');
+        element.classList.remove('is-valid');
+    }
+
+    function markValid(element) {
+        element.classList.add('is-valid');
+        element.classList.remove('is-invalid');
+    }
+
+    function clearErrors() {
+        const existingErrors = document.querySelectorAll('.validation-error');
+        existingErrors.forEach(error => error.remove());
+        
+        // Clear validation states
+        document.querySelectorAll('.is-invalid, .is-valid').forEach(element => {
+            element.classList.remove('is-invalid', 'is-valid');
+        });
+    }
+
+    function showErrors(errors) {
+        const errorContainer = document.getElementById('validation-errors') || createErrorContainer();
+        errorContainer.innerHTML = errors.map(error => `<div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i>${error}</div>`).join('');
+        errorContainer.style.display = 'block';
+    }
+
+    function createErrorContainer() {
+        const container = document.createElement('div');
+        container.id = 'validation-errors';
+        container.className = 'validation-errors mb-3';
+        form.insertBefore(container, form.firstChild);
+        return container;
+    }
+
+    // URL validation helper
+    function isValidUrl(string) {
+        try {
+            new URL(string);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    // Add validation styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        .is-valid {
+            border-color: #28a745 !important;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        }
+        .validation-errors {
+            margin-bottom: 1rem;
+        }
+        .validation-errors .alert {
+            margin-bottom: 0.5rem;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Real-time validation
+    [titleInput, categorySelect, descriptionTextarea, videoUrlInput].forEach(element => {
+        element.addEventListener('input', validateForm);
+        element.addEventListener('change', validateForm);
+    });
+
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Scroll to first error
+            const firstError = document.querySelector('.validation-errors .alert');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+    });
+});
+
+// Simple function that can be called directly from onclick
+function generateAITipsSimple() {
+    console.log('Simple AI tips function called');
+    
+    const title = document.getElementById('title').value.trim();
+    const category = document.getElementById('category').value;
+    const description = document.getElementById('description').value.trim();
+    const tone = document.getElementById('tone').value;
+    
+    console.log('Data:', { title, category, description, tone });
+    
+    if (!title || !category || !description) {
+        alert('Please fill in title, category, and description first!');
+        return;
+    }
+    
+    // Show loading
+    const tipsList = document.getElementById('ai-tips-list');
+    const tipsSource = document.getElementById('tips-source');
+    
+    tipsList.innerHTML = '<p class="mb-2"><i class="bi bi-info-circle me-2"></i>Generating AI tips...</p>';
+    tipsSource.textContent = 'AI Generated';
+    tipsSource.className = 'badge bg-info';
+    
+    // Make API call
+    fetch('{{ path('app_admin_trainings_generate_editing_tips') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: new URLSearchParams({
+            'title': title,
+            'category': category,
+            'description': description,
+            'tone': tone
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Response:', data);
+        
+        if (data.success) {
+            let tipsHtml = '';
+            data.tips.forEach((tip, index) => {
+                tipsHtml += `
+                    <div class="mb-2">
+                        <div class="d-flex align-items-start">
+                            <span class="badge bg-primary me-2">${index + 1}</span>
+                            <span>${tip}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            tipsList.innerHTML = tipsHtml;
+            tipsSource.textContent = data.source === 'ai' ? 'AI Generated' : 'Fallback';
+            tipsSource.className = data.source === 'ai' ? 'badge bg-success' : 'badge bg-secondary';
+        } else {
+            tipsList.innerHTML = `<p class="mb-2 text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Error: ${data.error}</p>`;
+            tipsSource.textContent = 'Error';
+            tipsSource.className = 'badge bg-danger';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        tipsList.innerHTML = '<p class="mb-2 text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Failed to generate tips. Please try again.</p>';
+        tipsSource.textContent = 'Error';
+        tipsSource.className = 'badge bg-danger';
+    });
+}
+</script>
+{% endblock %}
