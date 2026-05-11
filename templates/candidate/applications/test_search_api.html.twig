@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-button { padding: 10px 20px; margin: 10px; background: #007bff; color: white; border: none; cursor: pointer; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-left: 4px solid #007bff; }
+        .error { background: #f8d7da; border-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>Search API Test</h1>
+    
+    <button class="test-button" onclick="testSearch('dev')">Search for 'dev'</button>
+    <button class="test-button" onclick="testSearch('manager')">Search for 'manager'</button>
+    <button class="test-button" onclick="testSearch('it')">Search for 'it'</button>
+    
+    <div id="results"></div>
+    
+    <script>
+        async function testSearch(query) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="result">Searching for: ' + query + '...</div>';
+            
+            try {
+                const response = await fetch('/api/search/jobs?q=' + encodeURIComponent(query) + '&limit=5');
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status);
+                }
+                
+                const data = await response.json();
+                console.log('Search data:', data);
+                
+                let html = '<div class="result">Found ' + data.nbHits + ' results for "' + data.query + '":</div>';
+                
+                if (data.hits && data.hits.length > 0) {
+                    data.hits.forEach(hit => {
+                        html += '<div class="result">';
+                        html += '<strong>' + hit.title + '</strong><br>';
+                        html += 'Location: ' + (hit.location || 'N/A') + '<br>';
+                        html += 'Category: ' + (hit.category || 'N/A') + '<br>';
+                        html += 'Description: ' + (hit.description ? hit.description.substring(0, 100) + '...' : 'N/A');
+                        html += '</div>';
+                    });
+                } else {
+                    html += '<div class="result">No results found</div>';
+                }
+                
+                resultsDiv.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                resultsDiv.innerHTML = '<div class="result error">Error: ' + error.message + '</div>';
+            }
+        }
+        
+        // Test on page load
+        window.onload = function() {
+            console.log('Test page loaded');
+            testSearch('dev');
+        };
+    </script>
+</body>
+</html>

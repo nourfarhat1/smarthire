@@ -1,0 +1,3 @@
+framework:  
+    mailer:  
+        dsn: 'smtp://redcirclemxxn2001@gmail.com:gctwnkvionexxwai@smtp.gmail.com:587?encryption=tls&verify_peer=0'  
