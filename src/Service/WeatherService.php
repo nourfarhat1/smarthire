@@ -14,7 +14,7 @@ class WeatherService
     {
         $this->client = $client;
         // Clé API gratuite OpenWeatherMap (remplace par la tienne)
-        $this->apiKey = '237a60a1146d46bb5b7cbcf1337e6072';
+        $this->apiKey = 'REMOVED';
         $this->apiUrl = 'https://api.openweathermap.org/data/2.5/weather';
     }
 

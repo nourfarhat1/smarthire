@@ -1,0 +1,43 @@
+<!-- HR Menu (Pink header #e91e63) -->
+<div class="hr-menu mb-4">
+    <div class="role-header text-center py-2 mb-3 rounded" style="background-color: #e91e63;">
+        <small class="text-white fw-bold">HR</small>
+    </div>
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link text-white {{ app.request.get('_route') == 'app_hr_dashboard' ? 'active' : '' }}" href="{{ path('app_hr_dashboard') }}">
+                <i class="bi bi-speedometer2 me-2"></i> Dashboard
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white {{ app.request.get('_route') starts with 'app_hr_events' ? 'active' : '' }}" href="{{ path('app_hr_events') }}">
+                <i class="bi bi-calendar-event me-2"></i> Manage Events
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white {{ app.request.get('_route') starts with 'app_hr_quizzes' ? 'active' : '' }}" href="{{ path('app_hr_quizzes') }}">
+                <i class="bi bi-question-circle me-2"></i> Quizzes
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white {{ app.request.get('_route') starts with 'app_hr_job_requests' ? 'active' : '' }}" href="{{ path('app_hr_job_requests') }}">
+                <i class="bi bi-file-text me-2"></i> Job Applications
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white {{ app.request.get('_route') starts with 'app_hr_interviews' ? 'active' : '' }}" href="{{ path('app_hr_interviews') }}">
+                <i class="bi bi-calendar-check me-2"></i> Interviews
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white {{ app.request.get('_route') starts with 'app_hr_complaints' ? 'active' : '' }}" href="{{ path('app_hr_complaints') }}">
+                <i class="bi bi-exclamation-triangle me-2"></i> Complaints
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white {{ app.request.get('_route') starts with 'app_hr_job_offers' ? 'active' : '' }}" href="{{ path('app_hr_job_offers') }}">
+                <i class="bi bi-briefcase me-2"></i> Job Offers
+            </a>
+        </li>
+    </ul>
+</div>

@@ -1,0 +1,130 @@
+{% extends 'base.html.twig' %}
+
+{% block page_title %}Face Login{% endblock %}
+
+{% block body %}
+{% if app.user %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="alert alert-info">
+                    <h4><i class="bi bi-info-circle me-2"></i>Already Logged In</h4>
+                    <p>You are already logged in as {{ app.user.firstName }} {{ app.user.lastName }}.</p>
+                    <a href="{{ path('app_profile') }}" class="btn btn-primary">Go to Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+<div class="container-fluid vh-100 d-flex align-items-center justify-content-center bg-light">
+    <div class="row w-100">
+        <div class="col-md-6 mx-auto">
+            <div class="card shadow-lg" style="max-width: 480px; margin: auto;">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h4 class="mb-0">
+                        <i class="bi bi-camera-video me-2"></i>Face Recognition Login
+                    </h4>
+                </div>
+                <div class="card-body text-center p-4">
+
+                    <p class="text-muted mb-4">
+                        Click the button below to authenticate using your face.<br>
+                        Make sure your face is enrolled first.
+                    </p>
+
+                    <button id="faceLoginBtn" class="btn btn-primary btn-lg px-5 mb-3">
+                        <i class="bi bi-person-bounding-box me-2"></i>Login with Face
+                    </button>
+
+                    <!-- Status Messages -->
+                    <div id="statusMessage" class="mt-3"></div>
+
+                </div>
+                <div class="card-footer text-center py-3">
+                    <a href="{{ path('app_login') }}" class="btn btn-outline-secondary me-2">
+                        <i class="bi bi-key me-2"></i>Traditional Login
+                    </a>
+                    <a href="{{ path('app_register') }}" class="btn btn-outline-info">
+                        <i class="bi bi-person-plus me-2"></i>Register
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+
+{# Load the Faceio SDK #}
+<script src="https://cdn.faceio.net/fio.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Initialize Faceio with your public application ID
+    const faceio = new faceIO('{{ faceio_app_id }}');
+
+    const loginBtn = document.getElementById('faceLoginBtn');
+    const statusDiv = document.getElementById('statusMessage');
+
+    function showStatus(message, type) {
+        statusDiv.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+    }
+
+    loginBtn.addEventListener('click', async function () {
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Scanning...';
+        statusDiv.innerHTML = '';
+
+        try {
+            // Faceio authenticates the face and returns a facialId
+            const response = await faceio.authenticate({
+                locale: 'auto'
+            });
+
+            const facialId = response.facialId;
+
+            showStatus('Face recognized! Logging you in...', 'info');
+
+            // Send facialId to our backend to find the user and create a session
+            const res = await fetch('{{ path('app_face_login_authenticate') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ facialId: facialId })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                showStatus('✅ ' + data.message + ' Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = data.redirect_url;
+                }, 1500);
+            } else {
+                showStatus('❌ ' + data.error, 'danger');
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="bi bi-person-bounding-box me-2"></i>Login with Face';
+            }
+
+        } catch (err) {
+            console.error('Faceio error:', err);
+            showStatus('❌ Face recognition failed. Please try again or use traditional login.', 'danger');
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = '<i class="bi bi-person-bounding-box me-2"></i>Login with Face';
+        }
+    });
+
+});
+</script>
+{% endblock %}

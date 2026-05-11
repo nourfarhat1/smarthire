@@ -1,0 +1,24 @@
+{
+    "firstName": "Hamza",
+    "lastName": "Jellali",
+    "phone": "93791088",
+    "skills": [
+        "C",
+        "C++",
+        "Python",
+        "PHP",
+        "JavaScript",
+        "SQL",
+        "Qt",
+        "Arduino",
+        "Oracle SQL",
+        "MySQL",
+        "XAMPP",
+        "Bootstrap",
+        "REST API",
+        "OpenCV",
+        "Git",
+        "Ubuntu"
+    ],
+    "summary": "Enthusiastic and highly skilled Computer Science student with hands-on experience in developing innovative solutions in the fields of IoT, computer vision, and embedded systems."
+}

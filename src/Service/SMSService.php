@@ -12,7 +12,7 @@ class SMSService
     private string $authToken;
     private string $fromNumber;
 
-    public function __construct(string $accountSid = '', string $authToken = '', string $fromNumber = '')
+    public function __construct(string $accountSid = 'REMOVED', string $authToken = 'REMOVED', string $fromNumber = '+16812926760')
     {
         $this->client = HttpClient::create();
         $this->accountSid = $accountSid;

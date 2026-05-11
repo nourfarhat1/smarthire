@@ -1,0 +1,288 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block admin_page_title %}Training Management{% endblock %}
+
+{% block admin_content %}
+    <!-- Page Header -->
+    <div class="admin-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0">Training Materials Management</h1>
+            <div class="d-flex gap-2">
+                <a href="{{ path('app_admin_trainings_new') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Create Training
+                </a>
+            </div>
+        </div>
+    </div>
+<style>
+.stats-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.stats-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 12px rgba(0,0,0,0.12);
+}
+
+.stats-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Soft, professional color palette */
+.soft-blue {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+}
+
+.soft-teal {
+    background: linear-gradient(135deg, #5D9C9E, #4A7C7E);
+    color: white;
+}
+
+.soft-sage {
+    background: linear-gradient(135deg, #87A96B, #6B8E5A);
+    color: white;
+}
+
+.soft-coral {
+    background: linear-gradient(135deg, #E6B89C, #D4A574);
+    color: white;
+}
+
+.soft-lavender {
+    background: linear-gradient(135deg, #9B8FB3, #7F6B8F);
+    color: white;
+}
+
+.soft-cream {
+    background: linear-gradient(135deg, #F5E6D3, #E8DCC0);
+    color: #333;
+}
+</style>
+<!-- Filters -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-funnel me-2"></i>Filter Trainings
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="search" class="form-label">Search</label>
+                        <input type="text" class="form-control" id="search" name="search" value="{{ app.request.get('search') }}" placeholder="Search by title or description...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" name="category">
+                            <option value="">All Categories</option>
+                            <option value="IT" {{ app.request.get('category') == 'IT' ? 'selected' : '' }}>IT/Software</option>
+                            <option value="Marketing" {{ app.request.get('category') == 'Marketing' ? 'selected' : '' }}>Marketing</option>
+                            <option value="Sales" {{ app.request.get('category') == 'Sales' ? 'selected' : '' }}>Sales</option>
+                            <option value="HR" {{ app.request.get('category') == 'HR' ? 'selected' : '' }}>Human Resources</option>
+                            <option value="Finance" {{ app.request.get('category') == 'Finance' ? 'selected' : '' }}>Finance</option>
+                            <option value="Leadership" {{ app.request.get('category') == 'Leadership' ? 'selected' : '' }}>Leadership</option>
+                            <option value="Communication" {{ app.request.get('category') == 'Communication' ? 'selected' : '' }}>Communication</option>
+                            <option value="Project Management" {{ app.request.get('category') == 'Project Management' ? 'selected' : '' }}>Project Management</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="sort" class="form-label">Sort By</label>
+                        <select class="form-select" id="sort" name="sort">
+                            <option value="created_desc" {{ app.request.get('sort') == 'created_desc' ? 'selected' : '' }}>Newest First</option>
+                            <option value="created_asc" {{ app.request.get('sort') == 'created_asc' ? 'selected' : '' }}>Oldest First</option>
+                            <option value="likes_desc" {{ app.request.get('sort') == 'likes_desc' ? 'selected' : '' }}>Most Liked</option>
+                            <option value="title_asc" {{ app.request.get('sort') == 'title_asc' ? 'selected' : '' }}>Title (A-Z)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-outline-primary">
+                                <i class="bi bi-search me-2"></i>Filter
+                            </button>
+                            <a href="{{ path('app_admin_trainings') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Clear
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stats-card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ trainings|length }}</h4>
+                        <p class="card-text">Total Trainings</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-play-circle fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ trainings|reduce((sum, t) => sum + t.likes, 0) }}</h4>
+                        <p class="card-text">Total Likes</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-hand-thumbs-up fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card bg-danger text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ trainings|reduce((sum, t) => sum + t.dislikes, 0) }}</h4>
+                        <p class="card-text">Total Dislikes</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-hand-thumbs-down fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        {% set totalLikes = trainings|reduce((sum, t) => sum + t.likes, 0) %}
+{% set totalDislikes = trainings|reduce((sum, t) => sum + t.dislikes, 0) %}
+{% set totalEngagement = totalLikes + totalDislikes %}
+{% set engagementRate = totalEngagement > 0 ? (totalLikes / totalEngagement * 100) : 0 %}
+<h4 class="card-title">{{ engagementRate|round(1) }}%</h4>
+                        <p class="card-text">Engagement Rate</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-graph-up fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Training Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header soft-blue text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-book me-2"></i>Training Materials
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if trainings|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Created By</th>
+                                <th>Created Date</th>
+                                <th>Likes</th>
+                                <th>Dislikes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for training in trainings %}
+                            <tr>
+                                <td>
+                                    <strong>{{ training.title }}</strong>
+                                    {% if training.videoUrl %}
+                                    <br><small class="text-muted">
+                                        <i class="bi bi-play-circle me-1"></i>Video Available
+                                    </small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ training.category }}</span>
+                                </td>
+                                <td>
+                                    <span class="text-muted">{{ training.adminName|default('Admin') }}</span>
+                                </td>
+                                <td>
+                                    <span class="text-muted">{{ training.createdAt|date('M d, Y') }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-hand-thumbs-up"></i> {{ training.likes }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-hand-thumbs-down"></i> {{ training.dislikes }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ path('app_admin_trainings_view', {'id': training.id}) }}" 
+                                           class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ path('app_admin_trainings_edit', {'id': training.id}) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        {% if training.videoUrl %}
+                                        <a href="{{ training.videoUrl }}" target="_blank" 
+                                           class="btn btn-sm btn-outline-success">
+                                            <i class="bi bi-play-circle"></i>
+                                        </a>
+                                        {% endif %}
+                                        <form method="post" 
+                                              action="{{ path('app_admin_trainings_delete', {'id': training.id}) }}" 
+                                              onsubmit="return confirm('Are you sure you want to delete this training?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete') }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-play-circle fs-1 text-muted"></i>
+                    <h4 class="text-muted">No Training Materials Found</h4>
+                    <p class="text-muted">Start by creating your first training material to help users develop their skills.</p>
+                    <a href="{{ path('app_admin_trainings_new') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Create First Training
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

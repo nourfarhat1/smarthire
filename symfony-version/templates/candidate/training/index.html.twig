@@ -1,0 +1,308 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}Training Modules - SmartHire{% endblock %}
+
+{% block candidate_page_title %}Training Modules{% endblock %}
+
+{% block candidate_content %}
+<div class="row">
+    <div class="col-md-12">
+        <!-- Search and Filters -->
+        <div class="card mb-4">
+            <div class="card-header candidate-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-search me-2"></i>Search & Filter Training</h5>
+                    {{ gtranslate_widget() }}
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="search" class="form-label">Search</label>
+                        <input type="text" class="form-control" id="search" name="search" 
+                               value="{{ search }}" placeholder="Search trainings...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" name="category">
+                            <option value="">All Categories</option>
+                            <option value="IT/Software" {{ selectedCategory == 'IT/Software' ? 'selected' : '' }}>IT/Software</option>
+                            <option value="Marketing" {{ selectedCategory == 'Marketing' ? 'selected' : '' }}>Marketing</option>
+                            <option value="Sales" {{ selectedCategory == 'Sales' ? 'selected' : '' }}>Sales</option>
+                            <option value="Human Resources" {{ selectedCategory == 'Human Resources' ? 'selected' : '' }}>Human Resources</option>
+                            <option value="Finance" {{ selectedCategory == 'Finance' ? 'selected' : '' }}>Finance</option>
+                            <option value="Operations" {{ selectedCategory == 'Operations' ? 'selected' : '' }}>Operations</option>
+                            <option value="Customer Service" {{ selectedCategory == 'Customer Service' ? 'selected' : '' }}>Customer Service</option>
+                            <option value="Design" {{ selectedCategory == 'Design' ? 'selected' : '' }}>Design</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="level" class="form-label">Level</label>
+                        <select class="form-select" id="level" name="level">
+                            <option value="">All Levels</option>
+                            <option value="Beginner" {{ selectedLevel == 'Beginner' ? 'selected' : '' }}>Beginner</option>
+                            <option value="Intermediate" {{ selectedLevel == 'Intermediate' ? 'selected' : '' }}>Intermediate</option>
+                            <option value="Advanced" {{ selectedLevel == 'Advanced' ? 'selected' : '' }}>Advanced</option>
+                        </select>
+                    </div>
+                                        <div class="col-12">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-search me-2"></i>Search
+                            </button>
+                            <a href="{{ path('app_candidate_training') }}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Clear
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Training Results -->
+        {% if trainings|length > 0 %}
+            <div class="row">
+                {% for training in trainings %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 border-0 shadow-sm training-card">
+                            <div class="card-header candidate-info text-white">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">{{ training.title }}</h6>
+                                        <small class="text-white-50">{{ training.category }}</small>
+                                    </div>
+                                    <div>
+                                        {% if training.id in ratedTrainingIds %}
+                                            <span class="badge bg-light text-dark">Rated</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <p class="card-text">{{ training.description|slice(0, 120) }}...</p>
+                                </div>
+                                
+                                <div class="mb-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-heart me-1"></i>{{ training.likes }} likes
+                                        <i class="bi bi-heart-fill text-danger ms-2 me-1"></i>{{ training.dislikes }} dislikes
+                                    </small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar3 me-1"></i>
+                                            {{ training.createdAt|date('M d, Y') }}
+                                        </small>
+                                        {% if training.videoUrl %}
+                                            <small class="text-success">
+                                                <i class="bi bi-play-circle me-1"></i>Video Available
+                                            </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <a href="{{ path('app_candidate_training_show', {'id': training.id}) }}" class="btn btn-sm btn-success">
+                                        <i class="bi bi-eye me-1"></i>View Details
+                                    </a>
+                                    <div class="btn-group" role="group">
+                                        {% set userVote = null %}
+                                        {% if app.user %}
+                                            {% for vote in training.userVotes %}
+                                                {% if vote.user.id == app.user.id %}
+                                                    {% set userVote = vote %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                        
+                                        <form method="post" action="{{ path('app_candidate_training_like', {'id': training.id}) }}" class="d-inline">
+                                            <button type="submit" class="btn btn-sm {% if userVote and userVote.isLike() %}btn-success disabled{% else %}btn-outline-success{% endif %}" 
+                                                    {% if userVote and userVote.isLike() %}disabled{% endif %}>
+                                                <i class="bi bi-hand-thumbs-up me-1"></i>
+                                                {% if userVote and userVote.isLike() %}Liked{% else %}Like{% endif %}
+                                            </button>
+                                        </form>
+                                        <form method="post" action="{{ path('app_candidate_training_dislike', {'id': training.id}) }}" class="d-inline">
+                                            <button type="submit" class="btn btn-sm {% if userVote and userVote.isDislike() %}btn-secondary disabled{% else %}btn-outline-secondary{% endif %}"
+                                                    {% if userVote and userVote.isDislike() %}disabled{% endif %}>
+                                                <i class="bi bi-hand-thumbs-down me-1"></i>
+                                                {% if userVote and userVote.isDislike() %}Disliked{% else %}Dislike{% endif %}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- No Trainings Found -->
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="bi bi-book text-muted" style="font-size: 4rem;"></i>
+                </div>
+                <h5 class="text-muted">No Training Modules Found</h5>
+                <p class="text-muted">
+                    {% if search or selectedCategory or selectedLevel or selectedRating %}
+                        Try adjusting your search criteria or filters to find training modules.
+                    {% else %}
+                        No training modules are available at the moment. Check back later!
+                    {% endif %}
+                </p>
+                <div class="mt-3">
+                    {% if search or selectedCategory or selectedLevel or selectedRating %}
+                        <a href="{{ path('app_candidate_training') }}" class="btn btn-success">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Clear Filters
+                        </a>
+                    {% endif %}
+                    <a href="{{ path('app_candidate_training_ai_recommendations') }}" class="btn btn-outline-success ms-2">
+                        <i class="bi bi-magic me-2"></i>Get AI Recommendations
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Sidebar -->
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header candidate-warning text-dark">
+                <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Popular Trainings</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">JavaScript Fundamentals</h6>
+                                <small class="text-muted">Essential web development</small>
+                            </div>
+                            <span class="badge bg-success">Popular</span>
+                        </div>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Project Management</h6>
+                                <small class="text-muted">Career advancement</small>
+                            </div>
+                            <span class="badge bg-info">Trending</span>
+                        </div>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Data Analysis</h6>
+                                <small class="text-muted">High demand skill</small>
+                            </div>
+                            <span class="badge bg-warning">New</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header candidate-info text-white">
+                <h6 class="mb-0"><i class="bi bi-trophy me-2"></i>Categories</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="{{ path('app_candidate_training', {'category': 'IT/Software'}) }}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-laptop me-2"></i>IT/Software
+                        <span class="badge bg-secondary float-end">24</span>
+                    </a>
+                    <a href="{{ path('app_candidate_training', {'category': 'Marketing'}) }}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-megaphone me-2"></i>Marketing
+                        <span class="badge bg-secondary float-end">18</span>
+                    </a>
+                    <a href="{{ path('app_candidate_training', {'category': 'Sales'}) }}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-graph-up-arrow me-2"></i>Sales
+                        <span class="badge bg-secondary float-end">15</span>
+                    </a>
+                    <a href="{{ path('app_candidate_training', {'category': 'Human Resources'}) }}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-people me-2"></i>Human Resources
+                        <span class="badge bg-secondary float-end">12</span>
+                    </a>
+                    <a href="{{ path('app_candidate_training', {'category': 'Finance'}) }}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-currency-dollar me-2"></i>Finance
+                        <span class="badge bg-secondary float-end">10</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header candidate-success text-white">
+                <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Learning Tips</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-light">
+                    <h6><i class="bi bi-check-circle me-2"></i>Maximize Your Learning</h6>
+                    <ul class="mb-0">
+                        <li>Set daily learning goals</li>
+                        <li>Take notes while watching videos</li>
+                        <li>Practice with real projects</li>
+                        <li>Join study groups or forums</li>
+                    </ul>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="{{ path('app_candidate_training_ai_recommendations') }}" class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-magic me-1"></i>Get Personalized Recommendations
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.candidate-primary {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+}
+
+.candidate-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.candidate-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.candidate-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.training-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.btn-outline-success {
+    border-color: #87a042;
+    color: #87a042;
+}
+
+.btn-outline-success:hover {
+    background-color: #87a042;
+    border-color: #87a042;
+}
+</style>
+{% endblock %}

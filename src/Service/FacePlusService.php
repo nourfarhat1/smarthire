@@ -17,8 +17,8 @@ class FacePlusService
         ParameterBagInterface $parameterBag
     ) {
         $this->httpClient = $httpClient;
-        $this->apiKey = '7bpN3FWx8PhlaeTQTE8T95s3JvB2uJ4B';
-        $this->apiSecret = 'e-uEE3EJMkyIwUhGqG9tzP0GqKGsNcj-';
+        $this->apiKey = 'REMOVED';
+        $this->apiSecret = 'REMOVED';
         $this->apiServer = 'https://api-us.faceplusplus.com';
     }
 

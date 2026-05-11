@@ -1,7 +1,7 @@
 <?php
 
 // Simple test script to check Resend API
-$apiKey = 're_M8LBoD2A_JVd5ieCegrfHofUkFA77cKBM';
+$apiKey = 'REMOVED';
 $testEmail = 'test@example.com';
 
 echo "Testing Resend API...\n";
