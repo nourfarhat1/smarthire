@@ -1,0 +1,150 @@
+{% extends 'hr/layout.html.twig' %}
+
+{% block title %}Submit New Complaint - SmartHire{% endblock %}
+
+{% block hr_page_title %}Submit New Complaint{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header hr-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Submit New Complaint</h5>
+            </div>
+            <div class="card-body">
+                {% for flash in app.flashes('error') %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ flash }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% for flash in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ flash }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% if profanityWords is defined %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <strong>Profanity Detected:</strong> Your complaint contains inappropriate language: 
+                        <em>{{ profanityWords|join(', ') }}</em>. Please remove these words and try again.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endif %}
+
+                <form method="POST" action="{{ path('app_hr_complaints_new') }}">
+                    <div class="mb-3">
+                        <label for="type" class="form-label">Complaint Type <span class="text-danger">*</span></label>
+                        <select class="form-select" id="type" name="type" required>
+                            <option value="">Select a type...</option>
+                            {% for complaintType in types %}
+                                <option value="{{ complaintType.id }}">{{ complaintType.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Choose the category that best describes your complaint.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Subject <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="subject" name="subject" 
+                               value="{{ filteredSubject|default('') }}" 
+                               placeholder="Brief summary of your complaint" required>
+                        <div class="form-text">Maximum 100 characters.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="description" name="description" 
+                                  rows="6" required placeholder="Provide detailed information about your complaint..."
+                                  {% if filteredDescription is defined %}>{{ filteredDescription }}{% endif %}></textarea>
+                        <div class="form-text">Minimum 20 characters. Please be specific and provide all relevant details.</div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Important:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Be respectful and professional in your language</li>
+                            <li>Provide specific details and facts</li>
+                            <li>Avoid using profanity or inappropriate language</li>
+                            <li>Your complaint will be reviewed by our admin team</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('app_hr_complaints') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Complaints
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-2"></i>Submit Complaint
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header hr-info text-white">
+                <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>Help</h6>
+            </div>
+            <div class="card-body">
+                <h6>Complaint Guidelines</h6>
+                <ul class="small">
+                    <li>Submit complaints for work-related issues only</li>
+                    <li>Include relevant dates, times, and locations</li>
+                    <li>Attach supporting documents if available</li>
+                    <li>Be factual and avoid emotional language</li>
+                </ul>
+
+                <hr>
+
+                <h6>What Happens Next?</h6>
+                <ul class="small">
+                    <li>Your complaint will be reviewed by admin</li>
+                    <li>You'll receive a response within 48 hours</li>
+                    <li>Status updates will be sent to you</li>
+                    <li>You can edit/delete pending complaints</li>
+                </ul>
+
+                <hr>
+
+                <h6>Need Help?</h6>
+                <p class="small">
+                    If you need assistance with submitting a complaint, 
+                    contact HR support at hr@smarthare.com
+                </p>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header hr-warning text-dark">
+                <h6 class="mb-0"><i class="bi bi-shield-exclamation me-2"></i>Code of Conduct</h6>
+            </div>
+            <div class="card-body">
+                <p class="small mb-0">
+                    All complaints must follow our company's code of conduct. 
+                    False or malicious complaints may result in disciplinary action.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hr-primary {
+    background: linear-gradient(135deg, #e91e63 0%, #f06292 100%);
+}
+
+.hr-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.hr-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+</style>
+{% endblock %}

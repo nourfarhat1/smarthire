@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Email Service Debug - SmartHire{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>🔧 Email Service Debug Information</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Configuration Status</h5>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>API Key Configured:</strong></td>
+                                    <td>
+                                        {% if debug.api_key_configured %}
+                                            <span class="badge bg-success">✓ Yes</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">✗ No</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>API Key Length:</strong></td>
+                                    <td>{{ debug.api_key_length }} characters</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>API Key Preview:</strong></td>
+                                    <td><code>{{ debug.api_key_starts_with }}</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Test Time:</strong></td>
+                                    <td>{{ debug.timestamp }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Test Results</h5>
+                            {% if debug.test_email_sent %}
+                                <div class="alert alert-success">
+                                    <h6>✅ Email Test Successful</h6>
+                                    <p><strong>Email ID:</strong> {{ debug.test_results.details.response.id ?? 'N/A' }}</p>
+                                    <p><strong>Status:</strong> {{ debug.test_results.message }}</p>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-danger">
+                                    <h6>❌ Email Test Failed</h6>
+                                    <p><strong>Error:</strong> {{ debug.test_results.message ?? 'Unknown error' }}</p>
+                                    {% if debug.test_results.details.exception is defined %}
+                                        <p><strong>Exception:</strong> {{ debug.test_results.details.exception }}</p>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if debug.test_results.details is defined %}
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h5>Detailed Debug Information</h5>
+                                <pre class="bg-light p-3 rounded">{{ debug.test_results.details|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-3">
+                        <a href="{{ path('app_forgot_password') }}" class="btn btn-primary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Forgot Password
+                        </a>
+                        <a href="{{ path('app_debug_email_check') }}" class="btn btn-info ms-2">
+                            <i class="bi bi-gear me-2"></i>Check Configuration (JSON)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

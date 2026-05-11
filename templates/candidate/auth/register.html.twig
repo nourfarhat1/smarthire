@@ -1,0 +1,160 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}Candidate Registration - SmartHire{% endblock %}
+
+{% block candidate_page_title %}Candidate Registration{% endblock %}
+
+{% block candidate_content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header candidate-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-person-plus me-2"></i>Create Your Candidate Account</h5>
+            </div>
+            <div class="card-body">
+                {{ form_start(registrationForm, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.firstName, 'First Name', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(registrationForm.firstName, {'attr': {'class': 'form-control', 'placeholder': 'Enter your first name'}}) }}
+                            {{ form_errors(registrationForm.firstName) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.lastName, 'Last Name', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(registrationForm.lastName, {'attr': {'class': 'form-control', 'placeholder': 'Enter your last name'}}) }}
+                            {{ form_errors(registrationForm.lastName) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(registrationForm.email, 'Email Address', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control', 'placeholder': 'Enter your email address'}}) }}
+                    {{ form_errors(registrationForm.email) }}
+                    <small class="form-text text-muted">We'll never share your email with anyone else.</small>
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(registrationForm.phoneNumber, 'Phone Number', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(registrationForm.phoneNumber, {'attr': {'class': 'form-control', 'placeholder': 'Enter your phone number'}}) }}
+                    {{ form_errors(registrationForm.phoneNumber) }}
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.plainPassword, 'Password', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control', 'placeholder': 'Create a strong password'}}) }}
+                            {{ form_errors(registrationForm.plainPassword) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirm Password</label>
+                            <input type="password" id="confirm_password" class="form-control" placeholder="Confirm your password" required>
+                            <div class="invalid-feedback">
+                                Passwords do not match.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+    {{ form_label(registrationForm.roleId, 'Account Type', {'label_attr': {'class': 'form-label'}}) }}
+    {{ form_widget(registrationForm.roleId, {'attr': {'class': 'form-select'}}) }}
+    {{ form_errors(registrationForm.roleId) }}
+    <small class="text-muted">Select if you are a job seeker (Candidate) or a recruiter (HR).</small>
+</div>
+
+
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="agree_terms" required>
+                        <label class="form-check-label" for="agree_terms">
+                            I agree to the <a href="#" class="text-decoration-none">Terms and Conditions</a> and <a href="#" class="text-decoration-none">Privacy Policy</a>
+                        </label>
+                        <div class="invalid-feedback">
+                            You must agree to the terms to register.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="bi bi-person-plus me-2"></i>Create Account
+                    </button>
+                </div>
+
+                {{ form_end(registrationForm) }}
+            </div>
+            <div class="card-footer text-center">
+                <p class="mb-0">Already have an account? <a href="{{ path('app_login') }}" class="text-decoration-none">Sign in here</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.candidate-primary {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+}
+
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.form-control:focus {
+    border-color: #87a042;
+    box-shadow: 0 0 0 0.2rem rgba(135, 160, 66, 0.25);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+    border: none;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #7a9038 0%, #95b35c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(135, 160, 66, 0.3);
+}
+</style>
+
+<script>
+// Bootstrap form validation
+(function () {
+    'use strict'
+    
+    var forms = document.querySelectorAll('.needs-validation')
+    
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            
+            // Check password confirmation
+            var password = document.querySelector('#registration_form_plainPassword').value
+            var confirmPassword = document.querySelector('#confirm_password').value
+            
+            if (password !== confirmPassword) {
+                document.querySelector('#confirm_password').classList.add('is-invalid')
+                event.preventDefault()
+                event.stopPropagation()
+            } else {
+                document.querySelector('#confirm_password').classList.remove('is-invalid')
+            }
+            
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
+{% endblock %}

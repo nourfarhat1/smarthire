@@ -1,0 +1,426 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Edit Profile - SmartHire{% endblock %}
+
+{% block stylesheets %}
+<style>
+.edit-profile-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.edit-profile-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.edit-profile-card .card-header {
+    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    border: none;
+    padding: 1.25rem;
+}
+
+.edit-profile-card .card-body {
+    padding: 2rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #2196f3;
+    box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+}
+
+.face-recognition-section {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.face-recognition-section .card-header {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+}
+
+@media (max-width: 768px) {
+    .edit-profile-card .card-body {
+        padding: 1.5rem;
+    }
+    
+    .col-lg-7 {
+        padding: 0 15px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.faceio.net/fio.js"></script>
+<script>
+const faceio = new faceIO('{{ faceio_app_id }}');
+
+function enableFaceLogin() {
+    document.getElementById('faceStatus').innerHTML = '<div class="alert alert-info"><i class="bi bi-camera-video me-2"></i>Initializing face recognition...</div>';
+    
+    faceio.enroll({
+        locale: "auto",
+        payload: {
+            userId: "{{ user.id }}",
+            userEmail: "{{ user.email }}"
+        }
+    }).then(userInfo => {
+        // Face enrolled successfully
+        document.getElementById('faceLoginToggle').checked = true;
+        document.getElementById('faceStatus').innerHTML = '<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>Face enrolled successfully! You can now use face login.</div>';
+        setTimeout(() => {
+            location.reload();
+        }, 2000);
+    }).catch(errCode => {
+        // Handle enrollment error
+        let errorMessage = 'Face enrollment failed. ';
+        switch(errCode) {
+            case 'PERMISSION_REFUSED':
+                errorMessage += 'Camera permission was denied. Please allow camera access.';
+                break;
+            case 'NO_SINGLE_FACE_DETECTED':
+                errorMessage += 'Please ensure only one face is visible in the camera.';
+                break;
+            case 'FACE_NOT_DETECTED':
+                errorMessage += 'No face detected. Please position your face clearly in the camera.';
+                break;
+            case 'UNRECOGNIZED_FACE':
+                errorMessage += 'Face not recognized properly. Please try again with better lighting.';
+                break;
+            case 'MANY_FACES':
+                errorMessage += 'Multiple faces detected. Please ensure only one face is visible.';
+                break;
+            case 'FACE_DUPLICATE':
+                errorMessage += 'This face is already registered to another account.';
+                break;
+            case 'MIN_FACE_SIZE_NOT_REACHED':
+                errorMessage += 'Face too small. Please move closer to the camera.';
+                break;
+            case 'FACE_NOT_CENTERED':
+                errorMessage += 'Please center your face in the camera frame.';
+                break;
+            case 'UNSUPPORTED_BROWSER':
+                errorMessage += 'Your browser is not supported. Please use Chrome, Firefox, or Edge.';
+                break;
+            default:
+                errorMessage += 'Please try again.';
+        }
+        document.getElementById('faceStatus').innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i>' + errorMessage + '</div>';
+    });
+}
+
+function disableFaceLogin() {
+    if (confirm('Are you sure you want to disable face login? You will need to set it up again to use this feature.')) {
+        document.getElementById('faceStatus').innerHTML = '<div class="alert alert-info"><i class="bi bi-gear me-2"></i>Disabling face login...</div>';
+        
+        // Send request to disable face login
+        fetch('/profile/disable-face-login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({})
+        }).then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('faceLoginToggle').checked = false;
+                document.getElementById('faceStatus').innerHTML = '<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>Face login disabled successfully.</div>';
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                document.getElementById('faceStatus').innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i>Error disabling face login. Please try again.</div>';
+            }
+        }).catch(error => {
+            document.getElementById('faceStatus').innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i>Error disabling face login. Please try again.</div>';
+        });
+    }
+}
+
+function manageFaceTokens() {
+    document.getElementById('faceStatus').innerHTML = '<div class="alert alert-info"><i class="bi bi-gear me-2"></i>Loading face management...</div>';
+    
+    // Send request to get face tokens
+    fetch('/profile/get-face-tokens', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    }).then(response => response.json())
+    .then(data => {
+        if (data.success && data.tokens) {
+            let tokensHtml = '<div class="alert alert-info"><h6><i class="bi bi-list-ul me-2"></i>Registered Face Tokens:</h6>';
+            tokensHtml += '<div class="row">';
+            
+            data.tokens.forEach((token, index) => {
+                tokensHtml += `
+                    <div class="col-md-6 mb-2">
+                        <div class="card card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-muted">Face Token ${index + 1}</small><br>
+                                    <small>Added: ${new Date(token.createdAt * 1000).toLocaleDateString()}</small>
+                                </div>
+                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteFaceToken('${token.token}')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            tokensHtml += '</div>';
+            tokensHtml += '<div class="mt-3"><button type="button" class="btn btn-success btn-sm" onclick="addNewFaceToken()"><i class="bi bi-plus-circle me-1"></i>Add New Face</button></div>';
+            tokensHtml += '</div>';
+            
+            document.getElementById('faceStatus').innerHTML = tokensHtml;
+        } else {
+            document.getElementById('faceStatus').innerHTML = '<div class="alert alert-warning"><i class="bi bi-exclamation-triangle me-2"></i>No face tokens found.</div>';
+        }
+    }).catch(error => {
+        document.getElementById('faceStatus').innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i>Error loading face tokens.</div>';
+    });
+}
+
+function addNewFaceToken() {
+    enableFaceLogin();
+}
+
+function deleteFaceToken(token) {
+    if (confirm('Are you sure you want to delete this face token?')) {
+        fetch('/profile/delete-face-token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({token: token})
+        }).then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('faceStatus').innerHTML = '<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>Face token deleted successfully.</div>';
+                setTimeout(() => {
+                    manageFaceTokens();
+                }, 1500);
+            } else {
+                document.getElementById('faceStatus').innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i>Error deleting face token.</div>';
+            }
+        }).catch(error => {
+            document.getElementById('faceStatus').innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i>Error deleting face token.</div>';
+        });
+    }
+}
+
+// Toggle face login
+document.getElementById('faceLoginToggle')?.addEventListener('change', function() {
+    if (this.checked) {
+        enableFaceLogin();
+    } else {
+        disableFaceLogin();
+    }
+});
+</script>
+{% endblock %}
+
+{% block admin_page_title %}Edit Profile{% endblock %}
+
+{% block admin_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7 col-xl-6">
+        <div class="card shadow-sm edit-profile-card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-person-gear me-2"></i>Edit Profile Information
+                </h4>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(form.firstName, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.firstName, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.firstName) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(form.lastName, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.lastName, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.lastName) }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    {{ form_label(form.email, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.email) }}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form_label(form.phoneNumber, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.phoneNumber, {'attr': {'class': 'form-control', 'placeholder': '8 digits only'}}) }}
+                    {{ form_errors(form.phoneNumber) }}
+                    <div class="form-text">Enter your 8-digit phone number (e.g., 12345678)</div>
+                </div>
+                
+                <div class="mb-3">
+                    {{ form_label(form.profilePicture, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.profilePicture, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.profilePicture) }}
+                    <div class="form-text">Upload a profile picture (JPEG, PNG, or GIF, max 2MB)</div>
+                    
+                    {% if user.profilePicture %}
+                    <div class="mt-2">
+                        <small class="text-muted">Current profile picture:</small><br>
+                        {% if user.profilePicture starts with 'http' %}
+                            <img src="{{ user.profilePicture }}" 
+                                 alt="Current Profile Picture" 
+                                 class="rounded-circle mt-1" 
+                                 style="width: 60px; height: 60px; object-fit: cover;"
+                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ user.firstName }}+{{ user.lastName }}&background=2196f3&color=fff&size=60';">
+                        {% else %}
+                            <img src="{{ asset('uploads/profiles/' ~ user.profilePicture) }}" 
+                                 alt="Current Profile Picture" 
+                                 class="rounded-circle mt-1" 
+                                 style="width: 60px; height: 60px; object-fit: cover;"
+                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ user.firstName }}+{{ user.lastName }}&background=2196f3&color=fff&size=60';">
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form_label(form.plainPassword, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.plainPassword, {'attr': {'class': 'form-control', 'placeholder': 'Leave blank to keep current password'}}) }}
+                    {{ form_errors(form.plainPassword) }}
+                    <div class="form-text">Enter a new password if you want to change it (min 8 characters, must contain uppercase, lowercase, and number)</div>
+                </div>
+                
+                </div>
+                
+                {{ form_end(form) }}
+            </div>
+        </div>
+        
+        <!-- Face Recognition Section -->
+        <div class="card mt-4 face-recognition-section">
+            <div class="card-header text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-camera-video me-2"></i>Face Recognition Settings
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="faceLoginToggle" 
+                                   {% if user.faceLoginEnabled %}checked{% endif %}>
+                            <label class="form-check-label" for="faceLoginToggle">
+                                <strong>Enable Face Login</strong>
+                                <div class="form-text">Allow login using facial recognition for faster access</div>
+                            </label>
+                        </div>
+                        
+                        {% if user.faceLoginEnabled %}
+                        <div class="mt-3">
+                            <small class="text-success">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Face login is currently enabled
+                                {% if user.faceTokens|length > 0 %}
+                                ({{ user.faceTokens|length }} face token{{ user.faceTokens|length > 1 ? 's' : '' }} registered)
+                                {% endif %}
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 text-end">
+                        {% if user.faceLoginEnabled %}
+                        <button type="button" class="btn btn-outline-success btn-sm me-2" onclick="manageFaceTokens()">
+                            <i class="bi bi-gear me-1"></i>Manage Faces
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="disableFaceLogin()">
+                            <i class="bi bi-x-circle me-1"></i>Disable
+                        </button>
+                        {% else %}
+                        <button type="button" class="btn btn-primary btn-sm" onclick="enableFaceLogin()">
+                            <i class="bi bi-camera-video me-1"></i>Setup Face Login
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div id="faceStatus" class="mt-3"></div>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{{ path('app_profile') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-circle me-2"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle me-2"></i>Save Changes
+            </button>
+        </div>
+            </div>
+        </div>
+        
+        <!-- Admin-Specific Information -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-shield-check me-2"></i>Admin Account Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Account Type:</strong> <span class="badge bg-danger">Administrator</span></p>
+                        <p class="mb-2"><strong>Role:</strong> {{ user.roleName }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Member Since:</strong> {{ user.createdAt|date('M d, Y') }}</p>
+                        <p class="mb-2"><strong>Status:</strong> <span class="badge bg-success">Active</span></p>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning mt-3">
+                    <h6><i class="bi bi-exclamation-triangle me-2"></i>Admin Privileges:</h6>
+                    <ul class="mb-0">
+                        <li>Full system administration access</li>
+                        <li>User management and role assignment</li>
+                        <li>System configuration and settings</li>
+                        <li>Content moderation and oversight</li>
+                        <li>Analytics and reporting access</li>
+                        <li>Security and compliance management</li>
+                    </ul>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <h6><i class="bi bi-info-circle me-2"></i>Security Notice:</h6>
+                    <p class="mb-0">As an administrator, you have elevated privileges. Please ensure your account security by using a strong password and enabling two-factor authentication when available.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,377 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block admin_page_title %}Event Analytics{% endblock %}
+
+{% block admin_content %}
+<style>
+.chart-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.stats-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.stats-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 12px rgba(0,0,0,0.12);
+}
+
+/* Soft, professional color palette */
+.soft-blue {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+}
+
+.soft-teal {
+    background: linear-gradient(135deg, #5D9C9E, #4A7C7E);
+    color: white;
+}
+
+.soft-sage {
+    background: linear-gradient(135deg, #87A96B, #6B8E5A);
+    color: white;
+}
+
+.soft-coral {
+    background: linear-gradient(135deg, #E6B89C, #D4A574);
+    color: white;
+}
+
+.soft-lavender {
+    background: linear-gradient(135deg, #9B8FB3, #7F6B8F);
+    color: white;
+}
+
+.soft-cream {
+    background: linear-gradient(135deg, #F5E6D3, #E8D5B7);
+    color: #333;
+}
+</style>
+
+<!-- Statistics Overview -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stats-card soft-blue text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ analytics.total_events }}</h4>
+                        <p class="card-text">Total Events</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-calendar-event fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card soft-teal text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ analytics.total_participants }}</h4>
+                        <p class="card-text">Total Participants</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-people fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card soft-sage text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ analytics.by_status.upcoming }}</h4>
+                        <p class="card-text">Upcoming Events</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-calendar-check fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card soft-coral text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ analytics.by_status.today }}</h4>
+                        <p class="card-text">Today's Events</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-calendar-today fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="chart-container">
+            <h5 class="mb-4"><i class="bi bi-pie-chart me-2"></i>Event Status Distribution</h5>
+            <canvas id="statusChart" width="400" height="400"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="chart-container">
+            <h5 class="mb-4"><i class="bi bi-bar-chart me-2"></i>Monthly Events Trend</h5>
+            <canvas id="monthlyChart" width="400" height="400"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Popular Events and Participation Rates -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="chart-container">
+            <h5 class="mb-4"><i class="bi bi-trophy me-2"></i>Popular Events</h5>
+            <canvas id="popularEventsChart" width="400" height="400"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="chart-container">
+            <h5 class="mb-4"><i class="bi bi-graph-up me-2"></i>Participation Rates</h5>
+            <canvas id="participationChart" width="400" height="400"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Statistics -->
+<div class="row">
+    <div class="col-12">
+        <div class="chart-container">
+            <h5 class="mb-4"><i class="bi bi-table me-2"></i>Detailed Event Statistics</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-muted">Top Events by Participation</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Event Name</th>
+                                    <th>Participants</th>
+                                    <th>Capacity</th>
+                                    <th>Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event in analytics.popular_events %}
+                                <tr>
+                                    <td>{{ event.name }}</td>
+                                    <td><span class="badge bg-info">{{ event.participants }}</span></td>
+                                    <td>{{ event.maxParticipants }}</td>
+                                    <td>
+                                        {% set rate = event.maxParticipants > 0 ? (event.participants / event.maxParticipants) * 100 : 0 %}
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-{{ rate > 80 ? 'danger' : rate > 60 ? 'warning' : 'success' }}" 
+                                                 style="width: {{ rate }}%"></div>
+                                        </div>
+                                        <small>{{ rate|round(1) }}%</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-muted">Monthly Summary</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Events</th>
+                                    <th>Trend</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for month, count in analytics.monthly_events %}
+                                <tr>
+                                    <td>{{ month|date('F Y') }}</td>
+                                    <td><span class="badge bg-primary">{{ count }}</span></td>
+                                    <td>
+                                        {% if loop.index > 1 %}
+                                            {% set previous_month = analytics.monthly_events|keys|slice(loop.index - 2, 1)|first %}
+                                            {% set previous_count = analytics.monthly_events[previous_month] %}
+                                            {% if count > previous_count %}
+                                                <i class="bi bi-arrow-up text-success"></i>
+                                            {% elseif count < previous_count %}
+                                                <i class="bi bi-arrow-down text-danger"></i>
+                                            {% else %}
+                                                <i class="bi bi-dash text-secondary"></i>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Status Distribution Pie Chart
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+const statusChart = new Chart(statusCtx, {
+    type: 'pie',
+    data: {
+        labels: {{ analytics.by_status|keys|json_encode|raw }},
+        datasets: [{
+            data: {{ analytics.by_status|values|json_encode|raw }},
+            backgroundColor: [
+                '#87A96B', // Upcoming - soft sage
+                '#E6B89C', // Today - soft coral  
+                '#9B8FB3', // Past - soft lavender
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Monthly Events Line Chart
+const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+const monthlyData = {{ analytics.monthly_events|json_encode|raw }};
+const monthlyChart = new Chart(monthlyCtx, {
+    type: 'line',
+    data: {
+        labels: Object.keys(monthlyData).map(month => {
+            const date = new Date(month + '-01');
+            return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        }),
+        datasets: [{
+            label: 'Number of Events',
+            data: Object.values(monthlyData),
+            borderColor: '#6B8CAE',
+            backgroundColor: 'rgba(107, 140, 174, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+
+// Popular Events Bar Chart
+const popularCtx = document.getElementById('popularEventsChart').getContext('2d');
+const popularEvents = {{ analytics.popular_events|slice(0, 5)|json_encode|raw }};
+const popularChart = new Chart(popularCtx, {
+    type: 'bar',
+    data: {
+        labels: popularEvents.map(event => event.name.length > 15 ? event.name.substring(0, 15) + '...' : event.name),
+        datasets: [{
+            label: 'Participants',
+            data: popularEvents.map(event => event.participants),
+            backgroundColor: '#5D9C9E',
+            borderColor: '#4A7C7E',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+
+// Participation Rates Doughnut Chart
+const participationCtx = document.getElementById('participationChart').getContext('2d');
+const participationRates = {{ analytics.participation_rates|slice(0, 5)|json_encode|raw }};
+const participationChart = new Chart(participationCtx, {
+    type: 'doughnut',
+    data: {
+        labels: participationRates.map(rate => rate.name.length > 12 ? rate.name.substring(0, 12) + '...' : rate.name),
+        datasets: [{
+            data: participationRates.map(rate => rate.rate),
+            backgroundColor: [
+                '#87A96B', // High participation - green
+                '#5D9C9E', // Good participation - teal
+                '#F5E6D3', // Medium participation - cream
+                '#E6B89C', // Low participation - coral
+                '#9B8FB3'  // Very low participation - lavender
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const rate = participationRates[context.dataIndex];
+                        return rate.name + ': ' + rate.rate + '% (' + rate.current + '/' + rate.max + ')';
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Complaint Types - SmartHire Admin{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Complaint Types</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ path('app_admin_complaint_types_new') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i> Add New Type
+            </a>
+        </div>
+    </div>
+</div>
+
+{% for flash in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ flash }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+{% endfor %}
+
+{% for flash in app.flashes('error') %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ flash }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+{% endfor %}
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Manage Complaint Types</h5>
+    </div>
+    <div class="card-body">
+        {% if complaint_types|length > 0 %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type Name</th>
+                            <th>Urgency Level</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for complaint_type in complaint_types %}
+                            <tr>
+                                <td>{{ complaint_type.id }}</td>
+                                <td>
+                                    <strong>{{ complaint_type.name }}</strong>
+                                </td>
+                                <td>
+                                    {% if complaint_type.urgencyLevel %}
+                                        <span class="badge 
+                                            {% if complaint_type.urgencyLevel == 'Critical' %}bg-danger
+                                            {% elseif complaint_type.urgencyLevel == 'High' %}bg-warning
+                                            {% elseif complaint_type.urgencyLevel == 'Medium' %}bg-info
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ complaint_type.urgencyLevel }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">Not set</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ path('app_admin_complaint_types_edit', {'id': complaint_type.id}) }}" class="btn btn-sm btn-outline-warning">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </a>
+                                        <form method="POST" action="{{ path('app_admin_complaint_types_delete', {'id': complaint_type.id}) }}" class="d-inline" 
+                                              onsubmit="return confirm('Are you sure you want to delete this complaint type?')">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ complaint_type.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-tags fs-1 text-muted mb-3"></i>
+                <h5 class="text-muted">No complaint types found</h5>
+                <p class="text-muted">
+                    No complaint types have been created yet. 
+                    <a href="{{ path('app_admin_complaint_types_new') }}">Add the first complaint type</a> to get started.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Statistics</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-2"><strong>Total Types:</strong> {{ complaint_types|length }}</p>
+                <p class="mb-0"><strong>System Status:</strong> <span class="badge bg-success">Active</span></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ path('app_admin_complaint_types_new') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Add New Type
+                    </a>
+                    <a href="{{ path('app_admin_dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
