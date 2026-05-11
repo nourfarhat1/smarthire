@@ -52,24 +52,6 @@ class JobService
             ];
         }
 
-        // Check if job is still active
-        if (!$jobOffer->isActive()) {
-            return [
-                'success' => false,
-                'error' => 'This job is no longer accepting applications',
-                'job_inactive' => true
-            ];
-        }
-
-        // Check if application deadline has passed
-        if ($jobOffer->getDeadline() && $jobOffer->getDeadline() < new \DateTime()) {
-            return [
-                'success' => false,
-                'error' => 'The application deadline for this job has passed',
-                'deadline_passed' => true
-            ];
-        }
-
         // Create new job application
         $jobRequest = new JobRequest();
         $jobRequest->setCandidate($user);
@@ -137,18 +119,6 @@ class JobService
         if ($this->hasUserAppliedForJob($user, $jobOffer)) {
             $checks['can_apply'] = false;
             $checks['reasons'][] = 'You have already applied for this job';
-        }
-
-        // Check if job is active
-        if (!$jobOffer->isActive()) {
-            $checks['can_apply'] = false;
-            $checks['reasons'][] = 'This job is no longer accepting applications';
-        }
-
-        // Check deadline
-        if ($jobOffer->getDeadline() && $jobOffer->getDeadline() < new \DateTime()) {
-            $checks['can_apply'] = false;
-            $checks['reasons'][] = 'The application deadline has passed';
         }
 
         // Check if user is the job poster (HR can't apply to their own jobs)
@@ -295,7 +265,7 @@ class JobService
         $appliedJobIds = array_map(fn($app) => $app->getJobOffer()->getId(), $userApplications);
 
         // Get active jobs the user hasn't applied for
-        $availableJobs = $this->jobOfferRepository->findActiveJobsNotAppliedByUser($user->getId(), $appliedJobIds, $limit);
+        $availableJobs = $this->jobOfferRepository->findActiveJobsNotAppliedByUser($user, $limit);
 
         return $availableJobs;
     }

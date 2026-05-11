@@ -19,7 +19,11 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <strong>Recruiter:</strong><br>
-                                {{ jobOffer.recruiter.firstName }} {{ jobOffer.recruiter.lastName }}
+                                {% if jobOffer.recruiter %}
+                                    {{ jobOffer.recruiter.firstName }} {{ jobOffer.recruiter.lastName }}
+                                {% else %}
+                                    Not specified
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
                                 <strong>Location:</strong><br>
@@ -33,7 +37,7 @@
                             </div>
                             <div class="col-md-6">
                                 <strong>Category:</strong><br>
-                                <span class="badge bg-secondary">{{ jobOffer.category.name }}</span>
+                                <span class="badge bg-secondary">{{ jobOffer.categoryName }}</span>
                             </div>
                         </div>
                     </div>
@@ -58,10 +62,28 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="expectedSalary" class="form-label">Expected Salary (Optional)</label>
-                                <input type="number" class="form-control" id="expectedSalary" name="expectedSalary" placeholder="e.g., 50000" min="0">
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" step="0.01" class="form-control" id="expectedSalary" name="expectedSalary" placeholder="e.g., 55000.00" min="0">
+                                    <button class="btn btn-outline-secondary" type="button" id="suggestSalaryBtn" title="Get AI salary suggestion">
+                                        <i class="bi bi-magic"></i> Suggest
+                                    </button>
+                                </div>
                                 <div class="form-text">
                                     <i class="bi bi-info-circle me-1"></i>
-                                    You can leave this empty if you prefer to discuss salary later.
+                                    Enter your expected salary or click "Suggest" for AI-powered salary recommendation.
+                                </div>
+                                <!-- Salary suggestion container -->
+                                <div id="salarySuggestion" class="mt-2" style="display: none;">
+                                    <div class="card card-body bg-light">
+                                        <h6 class="card-title"><i class="bi bi-currency-dollar me-2"></i>AI Salary Suggestion</h6>
+                                        <div id="salaryRange" class="mb-2"></div>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-sm btn-success" id="useMinSalary">Use Min</button>
+                                            <button class="btn btn-sm btn-primary" id="useAvgSalary">Use Average</button>
+                                            <button class="btn btn-sm btn-info" id="useMaxSalary">Use Max</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -260,4 +282,126 @@
     border-color: #87a042;
 }
 </style>
+
+<!-- Salary Suggestion JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const suggestBtn = document.getElementById('suggestSalaryBtn');
+    const salaryInput = document.getElementById('expectedSalary');
+    const suggestionContainer = document.getElementById('salarySuggestion');
+    const salaryRange = document.getElementById('salaryRange');
+    const useMinBtn = document.getElementById('useMinSalary');
+    const useAvgBtn = document.getElementById('useAvgSalary');
+    const useMaxBtn = document.getElementById('useMaxSalary');
+
+    let currentSalaryData = null;
+
+    // Get salary suggestion from Hugging Face
+    suggestBtn.addEventListener('click', async function() {
+        const jobTitle = '{{ jobOffer.title|escape('js') }}';
+        const jobDescription = '{{ jobOffer.description|escape('js') }}';
+        const location = '{{ jobOffer.location|escape('js') }}';
+
+        // Show loading state
+        suggestBtn.disabled = true;
+        suggestBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Loading...';
+        suggestionContainer.style.display = 'none';
+
+        try {
+            const response = await fetch('/api/salary-suggestion', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    jobTitle: jobTitle,
+                    jobDescription: jobDescription,
+                    location: location
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                currentSalaryData = data.salary_data;
+                displaySalarySuggestion(data.salary_data);
+            } else {
+                showError(data.error || 'Failed to get salary suggestion');
+            }
+        } catch (error) {
+            showError('Network error: ' + error.message);
+        } finally {
+            suggestBtn.disabled = false;
+            suggestBtn.innerHTML = '<i class="bi bi-magic"></i> Suggest';
+        }
+    });
+
+    function displaySalarySuggestion(salaryData) {
+        const currency = salaryData.currency || 'USD';
+        const confidence = salaryData.confidence || 'medium';
+        
+        salaryRange.innerHTML = `
+            <div class="row">
+                <div class="col-4 text-center">
+                    <small class="text-muted">Minimum</small><br>
+                    <strong>${currency} ${salaryData.min_salary.toLocaleString()}</strong>
+                </div>
+                <div class="col-4 text-center">
+                    <small class="text-muted">Average</small><br>
+                    <strong>${currency} ${salaryData.average_salary.toLocaleString()}</strong>
+                </div>
+                <div class="col-4 text-center">
+                    <small class="text-muted">Maximum</small><br>
+                    <strong>${currency} ${salaryData.max_salary.toLocaleString()}</strong>
+                </div>
+            </div>
+            <div class="mt-2">
+                <span class="badge bg-${getConfidenceColor(confidence)}">Confidence: ${confidence}</span>
+            </div>
+        `;
+        
+        suggestionContainer.style.display = 'block';
+    }
+
+    function getConfidenceColor(confidence) {
+        switch(confidence.toLowerCase()) {
+            case 'high': return 'success';
+            case 'medium': return 'warning';
+            case 'low': return 'danger';
+            default: return 'secondary';
+        }
+    }
+
+    function showError(message) {
+        salaryRange.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle me-2"></i>${message}
+            </div>
+        `;
+        suggestionContainer.style.display = 'block';
+    }
+
+    // Use salary buttons
+    useMinBtn.addEventListener('click', function() {
+        if (currentSalaryData) {
+            salaryInput.value = currentSalaryData.min_salary;
+            salaryInput.dispatchEvent(new Event('input'));
+        }
+    });
+
+    useAvgBtn.addEventListener('click', function() {
+        if (currentSalaryData) {
+            salaryInput.value = currentSalaryData.average_salary;
+            salaryInput.dispatchEvent(new Event('input'));
+        }
+    });
+
+    useMaxBtn.addEventListener('click', function() {
+        if (currentSalaryData) {
+            salaryInput.value = currentSalaryData.max_salary;
+            salaryInput.dispatchEvent(new Event('input'));
+        }
+    });
+});
+</script>
 {% endblock %}

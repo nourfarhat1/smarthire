@@ -467,7 +467,7 @@ class JobServiceTest extends TestCase
 
         $this->jobOfferRepository->expects($this->once())
             ->method('findActiveJobsNotAppliedByUser')
-            ->with(1, [], 10)
+            ->with($user, 10)
             ->willReturn($jobs);
 
         $result = $this->jobService->getRecommendedJobs($user, 10);

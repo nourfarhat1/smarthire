@@ -33,25 +33,71 @@ class CandidateAuthController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Set candidate role
-            $user->setRoleId(1); // Candidate role
-            $user->setRoles(['ROLE_CANDIDATE']);
-            $user->setVerified(false);
+            try {
+                // Debug: Log form submission
+                error_log('REGISTRATION DEBUG: Form submitted and valid');
+                error_log('REGISTRATION DEBUG: User data - ' . print_r([
+                    'firstName' => $user->getFirstName(),
+                    'lastName' => $user->getLastName(),
+                    'email' => $user->getEmail(),
+                    'phoneNumber' => $user->getPhoneNumber(),
+                    'password' => '***hidden***',
+                    'roleId' => $user->getRoleId()
+                ], true));
 
-            // Store password as plain text
-            $user->setPassword(
-                $form->get('plainPassword')->getData()
-            );
+                // Set candidate role
+                $user->setRoleId(1); // Candidate role
+                $user->setRoles(['ROLE_CANDIDATE']);
+                $user->setVerified(false);
 
-            $this->entityManager->persist($user);
-            $this->entityManager->flush();
+                // Store password as plain text
+                $user->setPassword(
+                    $form->get('plainPassword')->getData()
+                );
 
-            // Auto-login after registration
-            return $userAuthenticator->authenticateUser(
-                $user,
-                $authenticator,
-                $request
-            );
+                error_log('REGISTRATION DEBUG: About to persist user');
+                $this->entityManager->persist($user);
+                
+                error_log('REGISTRATION DEBUG: About to flush entity manager');
+                $this->entityManager->flush();
+                
+                error_log('REGISTRATION DEBUG: User flushed with ID: ' . $user->getId());
+                
+                // Verify user was actually saved
+                $savedUser = $this->entityManager->getRepository(User::class)->find($user->getId());
+                if ($savedUser) {
+                    error_log('REGISTRATION DEBUG: User verified in database');
+                    $this->addFlash('success', 'Account created successfully! User ID: ' . $user->getId());
+                } else {
+                    error_log('REGISTRATION ERROR: User not found after save');
+                    $this->addFlash('error', 'Registration failed: User not saved properly');
+                    return $this->redirectToRoute('app_candidate_register');
+                }
+
+                // Auto-login after registration
+                error_log('REGISTRATION DEBUG: About to authenticate user');
+                return $userAuthenticator->authenticateUser(
+                    $user,
+                    $authenticator,
+                    $request
+                );
+                
+            } catch (\Exception $e) {
+                error_log('REGISTRATION ERROR: ' . $e->getMessage());
+                error_log('REGISTRATION ERROR TRACE: ' . $e->getTraceAsString());
+                $this->addFlash('error', 'Registration failed: ' . $e->getMessage());
+                return $this->redirectToRoute('app_candidate_register');
+            }
+        } else {
+            // Debug: Log why form is invalid
+            if ($form->isSubmitted()) {
+                error_log('REGISTRATION DEBUG: Form submitted but invalid');
+                foreach ($form->getErrors(true) as $error) {
+                    error_log('FORM ERROR: ' . $error->getMessage());
+                }
+            } else {
+                error_log('REGISTRATION DEBUG: Form not submitted');
+            }
         }
 
         return $this->render('candidate/auth/register.html.twig', [

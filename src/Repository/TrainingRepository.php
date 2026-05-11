@@ -124,12 +124,15 @@ class TrainingRepository extends ServiceEntityRepository
      */
     public function findAvailableTrainingsForCandidate($candidate, int $limit = 3): array
     {
-        return $this->createQueryBuilder('t')
+        $query = $this->createQueryBuilder('t')
             ->leftJoin('t.admin', 'a')
             ->addSelect('a')
             ->orderBy('t.likes', 'DESC')
             ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
+
+        // Use Paginator for proper pagination with joins
+        $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($query, $fetchJoinCollection = true);
+        return iterator_to_array($paginator);
     }
 }

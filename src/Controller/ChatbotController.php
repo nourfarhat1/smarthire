@@ -38,7 +38,7 @@ class ChatbotController extends AbstractController
                 'https://api.groq.com/openai/v1/chat/completions',
                 [
                     'headers' => [
-                        'Authorization' => 'Bearer ' . ($_ENV['GROQ_API_KEY'] ?? 'your_groq_api_key_here'),
+                        'Authorization' => 'Bearer ' . $_ENV['GROQ_API_KEY'],
                         'Content-Type' => 'application/json',
                     ],
                     'json' => [

@@ -1,5 +1,4 @@
 <?php
-// maram git version
 
 namespace App\Entity;
 
@@ -218,6 +217,11 @@ class JobOffer
     public function getCategoryName(): ?string
     {
         return $this->category?->getName();
+    }
+
+    public function getPostedBy(): ?User
+    {
+        return $this->recruiter;
     }
 
     public function __toString(): string

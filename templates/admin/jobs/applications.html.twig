@@ -1,6 +1,6 @@
 {% extends 'admin/layout.html.twig' %}
 
-{% block admin_page_title %}Job Applications Management{% endblock %}
+{% block admin_page_title %}Job Applications{% endblock %}
 
 {% block admin_content %}
 <style>
@@ -94,7 +94,7 @@
 }
 
 .status-rejected {
-    background: linear-gradient(135deg, #9B8FB3, #7F6B8F);
+    background: linear-gradient(135deg, #dc3545, #c82333);
     color: white;
 }
 
@@ -133,34 +133,38 @@
         <div class="col-md-3">
             <select name="status" class="form-select">
                 <option value="">All Status</option>
-                <option value="PENDING" {{ app.request.get('status') == 'PENDING' ? 'selected' : '' }}>Pending</option>
-                <option value="ACCEPTED" {{ app.request.get('status') == 'ACCEPTED' ? 'selected' : '' }}>Accepted</option>
-                <option value="REJECTED" {{ app.request.get('status') == 'REJECTED' ? 'selected' : '' }}>Rejected</option>
+                <option value="PENDING" {{ filters.status == 'PENDING' ? 'selected' : '' }}>Pending</option>
+                <option value="ACCEPTED" {{ filters.status == 'ACCEPTED' ? 'selected' : '' }}>Accepted</option>
+                <option value="REJECTED" {{ filters.status == 'REJECTED' ? 'selected' : '' }}>Rejected</option>
             </select>
         </div>
+        
         <div class="col-md-3">
-            <select name="job" class="form-select">
-                <option value="">All Jobs</option>
-                {% set jobOffers = [] %}
-                {% for application in applications %}
-                    {% if application.jobOffer and application.jobOffer not in jobOffers %}
-                        {% set jobOffers = jobOffers|merge([application.jobOffer]) %}
-                    {% endif %}
-                {% endfor %}
-                {% for job in jobOffers %}
-                <option value="{{ job.id }}" {{ app.request.get('job') == job.id ? 'selected' : '' }}>{{ job.title }}</option>
+            <input type="text" name="search" class="form-control" placeholder="Search by name, email, or job title" value="{{ filters.search }}">
+        </div>
+        
+        <div class="col-md-3">
+            <select name="job_offer" class="form-select">
+                <option value="">All Job Offers</option>
+                {% for job in all_job_offers %}
+                    <option value="{{ job.id }}" {{ filters.job_offer == job.id ? 'selected' : '' }}>{{ job.title }}</option>
                 {% endfor %}
             </select>
         </div>
+        
         <div class="col-md-3">
-            <input type="date" name="date_from" class="form-control" placeholder="Date From" value="{{ app.request.get('date_from') }}">
-        </div>
-        <div class="col-md-3">
-            <button type="submit" class="btn btn-outline-secondary w-100">
+            <button type="submit" class="btn btn-primary w-100">
                 <i class="bi bi-search me-2"></i>Filter
             </button>
         </div>
     </form>
+    <div class="row mt-2">
+        <div class="col-md-3">
+            <a href="{{ path('app_admin_applications') }}" class="btn btn-danger w-100">
+                <i class="bi bi-x-circle me-2"></i>Clear Filters
+            </a>
+        </div>
+    </div>
 </div>
 
 <!-- Statistics Cards -->
@@ -255,8 +259,8 @@
             <div class="card-body">
                 <h5 class="card-title"><i class="bi bi-bar-chart me-2"></i>Quick Actions</h5>
                 <div class="d-grid gap-2">
-                    <a href="{{ path('app_admin_applications_analytics') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-graph-up me-2"></i>View Analytics
+                    <a href="{{ path('app_admin_applications_analytics') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-graph-up me-2"></i>Analytics Dashboard
                     </a>
                     <a href="{{ path('app_admin_jobs') }}" class="btn btn-outline-secondary">
                         <i class="bi bi-briefcase me-2"></i>Manage Jobs
@@ -271,16 +275,6 @@
 <div class="table-container">
     <div class="card-header" style="background: linear-gradient(135deg, #6B8CAE, #4A6FA5); color: white; border: none;">
         <h5 class="card-title mb-0">All Applications</h5>
-        <div class="card-tools">
-            <div class="input-group input-group-sm" style="width: 200px;">
-                <input type="text" name="table_search" class="form-control float-right" placeholder="Search applications...">
-                <div class="input-group-append">
-                    <button type="submit" class="btn btn-outline-secondary">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
     </div>
     <div class="card-body table-responsive p-0">
         <table class="table table-hover text-nowrap">

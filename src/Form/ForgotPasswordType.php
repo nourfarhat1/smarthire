@@ -22,8 +22,8 @@ class ForgotPasswordType extends AbstractType
                 ],
             ])
             ->add('submit', SubmitType::class, [
-                'label' => 'Send Reset Link',
-                'attr' => ['class' => 'btn btn-primary'],
+                'label' => 'Send Verification Code',
+                'attr' => ['class' => 'btn btn-warning btn-lg'],
             ])
         ;
     }

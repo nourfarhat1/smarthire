@@ -1,5 +1,4 @@
 <?php
-// maram git version
 
 namespace App\Form;
 
@@ -28,6 +27,7 @@ class JobOfferType extends AbstractType
             ->add('category', ChoiceType::class, [
                 'label' => 'Category',
                 'choices' => function () {
+                    // This would typically fetch categories from database
                     return [
                         'Technology' => 1,
                         'Healthcare' => 2,
@@ -40,37 +40,10 @@ class JobOfferType extends AbstractType
                     new Assert\NotBlank(['message' => 'Please select a category']),
                 ],
             ])
-            ->add('location', ChoiceType::class, [
+            ->add('location', TextType::class, [
                 'label' => 'Location',
-                'placeholder' => 'Select a governorate',
-                'choices' => [
-                    'Tunis'       => 'Tunis',
-                    'Ariana'      => 'Ariana',
-                    'Ben Arous'   => 'Ben Arous',
-                    'Manouba'     => 'Manouba',
-                    'Nabeul'      => 'Nabeul',
-                    'Zaghouan'    => 'Zaghouan',
-                    'Bizerte'     => 'Bizerte',
-                    'Béja'        => 'Béja',
-                    'Jendouba'    => 'Jendouba',
-                    'Kef'         => 'Kef',
-                    'Siliana'     => 'Siliana',
-                    'Sousse'      => 'Sousse',
-                    'Monastir'    => 'Monastir',
-                    'Mahdia'      => 'Mahdia',
-                    'Sfax'        => 'Sfax',
-                    'Kairouan'    => 'Kairouan',
-                    'Kasserine'   => 'Kasserine',
-                    'Sidi Bouzid' => 'Sidi Bouzid',
-                    'Gabès'       => 'Gabès',
-                    'Medenine'    => 'Medenine',
-                    'Tataouine'   => 'Tataouine',
-                    'Gafsa'       => 'Gafsa',
-                    'Tozeur'      => 'Tozeur',
-                    'Kebili'      => 'Kebili',
-                ],
                 'constraints' => [
-                    new Assert\NotBlank(['message' => 'Please select a location']),
+                    new Assert\NotBlank(['message' => 'Please enter a location']),
                 ],
             ])
             ->add('salaryMin', NumberType::class, [
@@ -90,10 +63,10 @@ class JobOfferType extends AbstractType
             ->add('jobType', ChoiceType::class, [
                 'label' => 'Job Type',
                 'choices' => [
-                    'Full Time'  => 'Full-time',
-                    'Part Time'  => 'Part-time',
-                    'Remote'     => 'Remote',
-                    'Contract'   => 'Contract',
+                    'Full Time' => 'Full-time',
+                    'Part Time' => 'Part-time',
+                    'Remote' => 'Remote',
+                    'Contract' => 'Contract',
                     'Internship' => 'Internship',
                 ],
                 'constraints' => [

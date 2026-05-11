@@ -1,9 +1,9 @@
 <?php
-// maram git version
 
 namespace App\Repository;
 
 use App\Entity\JobOffer;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -102,6 +102,7 @@ class JobOfferRepository extends ServiceEntityRepository
         // Simple recommendation logic: jobs that match candidate's recent applications
         $qb = $this->createQueryBuilder('j')
             ->leftJoin('j.category', 'c')
+            ->addSelect('c')
             ->orderBy('j.postedDate', 'DESC')
             ->setMaxResults($limit);
 
@@ -122,6 +123,25 @@ class JobOfferRepository extends ServiceEntityRepository
             }
         }
 
-        return $qb->getQuery()->getResult();
+        // Use Paginator for proper pagination with joins
+        $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($qb->getQuery(), $fetchJoinCollection = true);
+        return iterator_to_array($paginator);
+    }
+
+    public function findActiveJobsNotAppliedByUser(User $user, int $limit = 10): array
+    {
+        $qb = $this->createQueryBuilder('j')
+            ->leftJoin('j.jobRequests', 'jr')
+            ->leftJoin('j.category', 'c')
+            ->addSelect('c')
+            ->where('jr.id IS NULL OR jr.candidate != :user')
+            ->andWhere('j.recruiter != :user')
+            ->setParameter('user', $user)
+            ->orderBy('j.postedDate', 'DESC')
+            ->setMaxResults($limit);
+
+        // Use Paginator for proper pagination with joins
+        $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($qb->getQuery(), $fetchJoinCollection = true);
+        return iterator_to_array($paginator);
     }
 }

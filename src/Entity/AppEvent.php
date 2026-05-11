@@ -35,7 +35,7 @@ class AppEvent
     #[ORM\Column(name: 'max_participants', type: 'integer')]
     private ?int $maxParticipants = null;
 
-    #[ORM\OneToMany(mappedBy: 'event', targetEntity: EventParticipant::class)]
+    #[ORM\OneToMany(mappedBy: 'event', targetEntity: EventParticipant::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $participants;
 
     public function __construct()

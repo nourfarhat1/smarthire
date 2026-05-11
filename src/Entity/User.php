@@ -10,10 +10,13 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'app_user')]
 #[Vich\Uploadable]
+#[UniqueEntity(fields: ['email'], message: 'This email is already in use.')]
+#[UniqueEntity(fields: ['phoneNumber'], message: 'This phone number is already in use.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -21,31 +24,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'integer')]
-    private ?int $roleId = null;
+    #[ORM\Column(name: 'role_id', type: 'integer')]
+    private int $roleId;
 
     #[ORM\Column(type: 'string', length: 180, unique: true)]
-    private ?string $email = null;
+    private string $email;
 
     #[ORM\Column(type: 'string')]
-    private ?string $password = null;
+    private string $password;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    private ?string $firstName = null;
+    #[ORM\Column(name: 'first_name', type: 'string', length: 255)]
+    private string $firstName;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    private ?string $lastName = null;
+    #[ORM\Column(name: 'last_name', type: 'string', length: 255)]
+    private string $lastName;
 
-    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    #[ORM\Column(name: 'phone_number', type: 'string', length: 20, nullable: true)]
     private ?string $phoneNumber = null;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(name: 'is_verified', type: 'boolean')]
     private bool $isVerified = false;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(name: 'is_banned', type: 'boolean')]
     private bool $isBanned = false;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(name: 'created_at', type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(type: 'json')]
@@ -54,25 +57,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $verificationToken = null;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $resetTokenExpiresAt = null;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private ?string $resetToken = null;
-
+    
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $profilePicture = null;
 
-    #[ORM\Column(type: 'boolean', nullable: true)]
-    private ?bool $faceLoginEnabled = false;
+    #[ORM\Column(name: 'face_login_enabled', type: 'boolean')]
+    private bool $faceLoginEnabled = false;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'face_features', type: 'string', length: 255, nullable: true)]
     private ?string $faceFeatures = null;
 
-    // ========== FACEIO ==========
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private ?string $faceioId = null;
-    // ========== FIN FACEIO ==========
+    #[ORM\Column(name: 'face_tokens', type: 'json', nullable: true)]
+    private array $faceTokens = [];
+
 
     // ========== NOUVEAUX CHAMPS POUR CV ET SKILLS ==========
     #[ORM\Column(type: 'text', nullable: true)]
@@ -94,6 +91,17 @@ private ?\DateTimeInterface $otpExpiry = null;
     private ?\DateTimeInterface $updatedAt = null;
     // ========== FIN NOUVEAUX CHAMPS ==========
 
+    // ========== GOOGLE OAUTH FIELDS ==========
+    #[ORM\Column(name: 'google_id', type: 'string', length: 255, nullable: true, unique: true)]
+    private ?string $googleId = null;
+
+    #[ORM\Column(name: 'google_access_token', type: 'text', nullable: true)]
+    private ?string $googleAccessToken = null;
+
+    #[ORM\Column(name: 'google_refresh_token', type: 'text', nullable: true)]
+    private ?string $googleRefreshToken = null;
+    // ========== FIN GOOGLE OAUTH FIELDS ==========
+
     #[ORM\OneToMany(mappedBy: 'candidate', targetEntity: JobRequest::class)]
     private Collection $jobApplications;
 
@@ -103,11 +111,18 @@ private ?\DateTimeInterface $otpExpiry = null;
     #[ORM\OneToMany(mappedBy: 'admin', targetEntity: Training::class)]
     private Collection $trainings;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: EventParticipant::class)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: EventParticipant::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $eventParticipations;
 
-    #[ORM\OneToMany(mappedBy: 'admin', targetEntity: Response::class)]
-    private Collection $responses;
+    // src/Entity/User.php
+
+#[ORM\OneToMany(
+    mappedBy: 'user', 
+    targetEntity: UserTrainingVote::class, 
+    cascade: ['persist'] // Remove 'remove' from this array
+)]
+private Collection $trainingVotes;
+
 
     #[ORM\OneToMany(mappedBy: 'recruiter', targetEntity: JobOffer::class)]
     private Collection $jobOffers;
@@ -117,6 +132,11 @@ private ?\DateTimeInterface $otpExpiry = null;
 
     public function __construct()
     {
+        $this->roleId = 1; // Default to candidate role
+        $this->email = '';
+        $this->password = '';
+        $this->firstName = '';
+        $this->lastName = '';
         $this->createdAt = new \DateTime();
         $this->jobOffers = new ArrayCollection();
         $this->savedJobs = new ArrayCollection();
@@ -124,7 +144,7 @@ private ?\DateTimeInterface $otpExpiry = null;
         $this->quizResults = new ArrayCollection();
         $this->trainings = new ArrayCollection();
         $this->eventParticipations = new ArrayCollection();
-        $this->responses = new ArrayCollection();
+        $this->trainingVotes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -132,7 +152,7 @@ private ?\DateTimeInterface $otpExpiry = null;
         return $this->id;
     }
 
-    public function getRoleId(): ?int
+    public function getRoleId(): int
     {
         return $this->roleId;
     }
@@ -144,7 +164,7 @@ private ?\DateTimeInterface $otpExpiry = null;
         return $this;
     }
 
-    public function getEmail(): ?string
+    public function getEmail(): string
     {
         return $this->email;
     }
@@ -193,7 +213,7 @@ public function setOtpExpiry(?\DateTimeInterface $otpExpiry): self
         return $this;
     }
 
-    public function getFirstName(): ?string
+    public function getFirstName(): string
     {
         return $this->firstName;
     }
@@ -204,7 +224,7 @@ public function setOtpExpiry(?\DateTimeInterface $otpExpiry): self
         return $this;
     }
 
-    public function getLastName(): ?string
+    public function getLastName(): string
     {
         return $this->lastName;
     }
@@ -326,20 +346,6 @@ public function setOtpExpiry(?\DateTimeInterface $otpExpiry): self
         // plain password is not stored as a property, nothing to erase
     }
 
-    // ========== FACEIO GETTER/SETTER ==========
-
-    public function getFaceioId(): ?string
-    {
-        return $this->faceioId;
-    }
-
-    public function setFaceioId(?string $faceioId): self
-    {
-        $this->faceioId = $faceioId;
-        return $this;
-    }
-
-    // ========== FIN FACEIO ==========
 
     public function getJobOffers(): Collection
     {
@@ -429,12 +435,12 @@ public function setOtpExpiry(?\DateTimeInterface $otpExpiry): self
         return $this;
     }
 
-    public function isFaceLoginEnabled(): ?bool
+    public function isFaceLoginEnabled(): bool
     {
         return $this->faceLoginEnabled;
     }
 
-    public function setFaceLoginEnabled(?bool $faceLoginEnabled): self
+    public function setFaceLoginEnabled(bool $faceLoginEnabled): self
     {
         $this->faceLoginEnabled = $faceLoginEnabled;
 
@@ -449,6 +455,36 @@ public function setOtpExpiry(?\DateTimeInterface $otpExpiry): self
     public function setFaceFeatures(?string $faceFeatures): self
     {
         $this->faceFeatures = $faceFeatures;
+
+        return $this;
+    }
+
+    public function getFaceTokens(): array
+    {
+        return $this->faceTokens ?? [];
+    }
+
+    public function setFaceTokens(array $faceTokens): self
+    {
+        $this->faceTokens = $faceTokens;
+
+        return $this;
+    }
+
+    public function addFaceToken(string $faceToken): self
+    {
+        if (!in_array($faceToken, $this->faceTokens)) {
+            $this->faceTokens[] = $faceToken;
+        }
+
+        return $this;
+    }
+
+    public function removeFaceToken(string $faceToken): self
+    {
+        $this->faceTokens = array_filter($this->faceTokens, function($token) use ($faceToken) {
+            return $token !== $faceToken;
+        });
 
         return $this;
     }
@@ -531,5 +567,71 @@ public function setOtpExpiry(?\DateTimeInterface $otpExpiry): self
         return !empty($this->getSkillsArray());
     }
 
-    // ========== FIN CV ET SKILLS ==========
+    // ========== GOOGLE OAUTH GETTERS/SETTERS ==========
+    public function getGoogleId(): ?string
+    {
+        return $this->googleId;
+    }
+
+    public function setGoogleId(?string $googleId): self
+    {
+        $this->googleId = $googleId;
+        return $this;
+    }
+
+    public function getGoogleAccessToken(): ?string
+    {
+        return $this->googleAccessToken;
+    }
+
+    public function setGoogleAccessToken(?string $googleAccessToken): self
+    {
+        $this->googleAccessToken = $googleAccessToken;
+        return $this;
+    }
+
+    public function getGoogleRefreshToken(): ?string
+    {
+        return $this->googleRefreshToken;
+    }
+
+    public function setGoogleRefreshToken(?string $googleRefreshToken): self
+    {
+        $this->googleRefreshToken = $googleRefreshToken;
+        return $this;
+    }
+
+    public function isGoogleUser(): bool
+    {
+        return $this->googleId !== null;
+    }
+
+    // ========== TRAINING VOTES METHODS ==========
+
+    public function getTrainingVotes(): Collection
+    {
+        return $this->trainingVotes;
+    }
+
+    public function addTrainingVote(UserTrainingVote $trainingVote): self
+    {
+        if (!$this->trainingVotes->contains($trainingVote)) {
+            $this->trainingVotes->add($trainingVote);
+            $trainingVote->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTrainingVote(UserTrainingVote $trainingVote): self
+    {
+        if ($this->trainingVotes->removeElement($trainingVote)) {
+            // set the owning side to null (unless already changed)
+            if ($trainingVote->getUser() === $this) {
+                $trainingVote->setUser(null);
+            }
+        }
+
+        return $this;
+    }
 }

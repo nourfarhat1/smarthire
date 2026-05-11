@@ -20,7 +20,7 @@ class AIService
         $this->client = $client ?: HttpClient::create([
             'timeout' => 60,
         ]);
-        $this->apiKey = $parameterBag->get('app.groq_api_key', 'your_groq_api_key_here');
+        $this->apiKey = 'REMOVED';
         $this->url = $parameterBag->get('app.ai_api_url', 'https://api.groq.com/openai/v1/chat/completions');
         $this->model = $parameterBag->get('app.ai_model', 'llama-3.3-70b-versatile');
     }

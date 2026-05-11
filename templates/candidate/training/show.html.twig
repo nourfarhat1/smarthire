@@ -14,11 +14,32 @@
                         <h5 class="mb-1">{{ training.title }}</h5>
                         <small class="text-white-50">{{ training.category }}</small>
                     </div>
-                    <div>
+                    <div class="d-flex align-items-center gap-2">
                         {% if userRating %}
                             <span class="badge bg-light text-dark">Rated</span>
                         {% endif %}
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-translate me-1"></i>Language
+                                <i class="bi bi-chevron-down ms-1"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+                                <li><a class="dropdown-item" href="#" onclick="translatePage('en')">
+                                    <i class="bi bi-flag me-2"></i> English
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="translatePage('fr')">
+                                    <i class="bi bi-flag me-2"></i> Français
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="translatePage('ar')">
+                                    <i class="bi bi-flag me-2"></i> العربية
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="translatePage('es')">
+                                    <i class="bi bi-flag me-2"></i> Español
+                                </a></li>
+                            </ul>
+                        </div>
                     </div>
+                    {{ gtranslate_widget() }}
                 </div>
             </div>
             <div class="card-body">
@@ -45,7 +66,8 @@
                                                 <i class="bi bi-star-fill text-warning"></i>
                                             {% else %}
                                                 <i class="bi bi-star text-muted"></i>
-                                            {% endfor %}
+                                            {% endif %}
+                                        {% endfor %}
                                             <span class="ms-1">{{ rating|number_format(1) }}</span>
                                         {% else %}
                                             <i class="bi bi-star text-muted"></i>
@@ -114,46 +136,41 @@
                 <div class="mb-4">
                     <h6><i class="bi bi-hand-thumbs-up me-2"></i>Rate This Training</h6>
                     <div class="d-flex gap-2">
-                        <form method="post" action="{{ path('app_candidate_training_like', {'id': training.id}) }}" class="d-inline">
-                            <button type="submit" class="btn btn-success">
-                                <i class="bi bi-hand-thumbs-up me-2"></i>Like ({{ training.likes }})
+                        {% set userVote = null %}
+                        {% if app.user %}
+                            {% for vote in training.userVotes %}
+                                {% if vote.user.id == app.user.id %}
+                                    {% set userVote = vote %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        
+                        <div class="d-flex gap-2" id="voting-section">
+                            <button type="button" class="btn {% if userVote and userVote.isLike() %}btn-success disabled{% else %}btn-outline-success{% endif %}" 
+                                    {% if userVote and userVote.isLike() %}disabled{% endif %}"
+                                    id="like-btn-{{ training.id }}"
+                                    onclick="vote({{ training.id }}, 'like')">
+                                <i class="bi bi-hand-thumbs-up me-2"></i>
+                                <span id="like-count-{{ training.id }}">{% if userVote and userVote.isLike() %}Liked{% else %}Like{% endif %} ({{ training.likes }})</span>
                             </button>
-                        </form>
-                        <form method="post" action="{{ path('app_candidate_training_dislike', {'id': training.id}) }}" class="d-inline">
-                            <button type="submit" class="btn btn-outline-secondary">
-                                <i class="bi bi-hand-thumbs-down me-2"></i>Dislike ({{ training.dislikes }})
+                            <button type="button" class="btn {% if userVote and userVote.isDislike() %}btn-secondary disabled{% else %}btn-outline-secondary{% endif %}"
+                                    {% if userVote and userVote.isDislike() %}disabled{% endif %}"
+                                    id="dislike-btn-{{ training.id }}"
+                                    onclick="vote({{ training.id }}, 'dislike')">
+                                <i class="bi bi-hand-thumbs-down me-2"></i>
+                                <span id="dislike-count-{{ training.id }}">{% if userVote and userVote.isDislike() %}Disliked{% else %}Dislike{% endif %} ({{ training.dislikes }})</span>
                             </button>
-                        </form>
+                        </div>
                     </div>
+                    {% if userVote %}
+                        <small class="text-muted mt-2 d-block">
+                            <i class="bi bi-info-circle me-1"></i>
+                            You can change your vote by clicking the other option.
+                        </small>
+                    {% endif %}
                 </div>
 
-                <!-- Recommendations -->
-                {% if recommendations|length > 0 %}
-                <div class="mb-4">
-                    <h6><i class="bi bi-magic me-2"></i>Recommended For You</h6>
-                    <div class="row">
-                        {% for recommendation in recommendations %}
-                            {% set recTraining = recommendation.training %}
-                            <div class="col-md-6 mb-3">
-                                <div class="card border-0 shadow-sm">
-                                    <div class="card-body">
-                                        <h6 class="card-title">{{ recTraining.title }}</h6>
-                                        <p class="card-text small">{{ recTraining.description|slice(0, 80) }}...</p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <small class="text-muted">{{ recTraining.category }}</small>
-                                            <span class="badge bg-info">{{ recommendation.match_score }}% Match</span>
-                                        </div>
-                                        <a href="{{ path('app_candidate_training_show', {'id': recTraining.id}) }}" class="btn btn-sm btn-outline-success mt-2">
-                                            <i class="bi bi-eye me-1"></i>View
-                                        </a>
-                                    </div>
-                                </div>
                             </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-            </div>
         </div>
     </div>
 
@@ -200,37 +217,11 @@
                         <i class="bi bi-grid me-2"></i>All Trainings
                         <span class="badge bg-secondary float-end">Browse</span>
                     </a>
-                    <a href="{{ path('app_candidate_training_ai_recommendations') }}" class="list-group-item list-group-item-action">
-                        <i class="bi bi-magic me-2"></i>AI Recommendations
-                        <span class="badge bg-success float-end">Personalized</span>
-                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="card mt-3">
-            <div class="card-header candidate-success text-white">
-                <h6 class="mb-0"><i class="bi bi-trophy me-2"></i>Track Your Progress</h6>
-            </div>
-            <div class="card-body">
-                <div class="text-center">
-                    <h4 class="text-success">0%</h4>
-                    <p class="text-muted">Course Progress</p>
-                </div>
-                <div class="progress mb-3" style="height: 10px;">
-                    <div class="progress-bar bg-success" style="width: 0%"></div>
-                </div>
-                <p class="text-muted small">
-                    Start this training to track your progress and earn certificates.
-                </p>
-                <div class="text-center">
-                    <button class="btn btn-sm btn-success">
-                        <i class="bi bi-play-circle me-1"></i>Start Training
-                    </button>
-                </div>
-            </div>
-        </div>
-
+        
         <div class="card mt-3">
             <div class="card-header candidate-primary text-white">
                 <h6 class="mb-0"><i class="bi bi-share me-2"></i>Share This Training</h6>
@@ -284,4 +275,124 @@
     border-color: #87a042;
 }
 </style>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function vote(trainingId, voteType) {
+    const likeBtn = document.getElementById(`like-btn-${trainingId}`);
+    const dislikeBtn = document.getElementById(`dislike-btn-${trainingId}`);
+    const likeCount = document.getElementById(`like-count-${trainingId}`);
+    const dislikeCount = document.getElementById(`dislike-count-${trainingId}`);
+    
+    // Disable both buttons during request
+    likeBtn.disabled = true;
+    dislikeBtn.disabled = true;
+    
+    const route = voteType === 'like' 
+        ? `{{ path('app_candidate_training_like', {'id': 'PLACEHOLDER'}) }}`.replace('PLACEHOLDER', trainingId)
+        : `{{ path('app_candidate_training_dislike', {'id': 'PLACEHOLDER'}) }}`.replace('PLACEHOLDER', trainingId);
+    
+    fetch(route, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: `vote_type=${voteType}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update button states and counts
+            if (voteType === 'like') {
+                likeBtn.classList.add('btn-success');
+                likeBtn.classList.remove('btn-outline-success');
+                likeBtn.disabled = true;
+                likeBtn.innerHTML = '<i class="bi bi-hand-thumbs-up me-2"></i>Liked';
+                
+                dislikeBtn.classList.remove('btn-secondary');
+                dislikeBtn.classList.add('btn-outline-secondary');
+                dislikeBtn.disabled = false;
+                dislikeBtn.innerHTML = '<i class="bi bi-hand-thumbs-down me-2"></i>Dislike';
+            } else {
+                dislikeBtn.classList.add('btn-secondary');
+                dislikeBtn.classList.remove('btn-outline-secondary');
+                dislikeBtn.disabled = true;
+                dislikeBtn.innerHTML = '<i class="bi bi-hand-thumbs-down me-2"></i>Disliked';
+                
+                likeBtn.classList.remove('btn-success');
+                likeBtn.classList.add('btn-outline-success');
+                likeBtn.disabled = false;
+                likeBtn.innerHTML = '<i class="bi bi-hand-thumbs-up me-2"></i>Like';
+            }
+            
+            // Update counts
+            if (likeCount) likeCount.textContent = data.likes;
+            if (dislikeCount) dislikeCount.textContent = data.dislikes;
+            
+            // Show success message
+            showNotification(data.message, 'success');
+        } else {
+            // Re-enable buttons if there was an error
+            likeBtn.disabled = false;
+            dislikeBtn.disabled = false;
+            showNotification(data.error || 'Vote failed', 'error');
+        }
+    })
+    .catch(error => {
+        // Re-enable buttons on error
+        likeBtn.disabled = false;
+        dislikeBtn.disabled = false;
+        showNotification('Network error occurred', 'error');
+    });
+}
+
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 250px;
+}
+
+function translatePage(language) {
+    // Store selected language in localStorage
+    localStorage.setItem('selectedLanguage', language);
+    
+    // Reload page with language parameter
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('lang', language);
+    window.location.href = currentUrl.toString();
+}
+
+// Set language on page load based on localStorage
+document.addEventListener('DOMContentLoaded', function() {
+    const savedLanguage = localStorage.getItem('selectedLanguage');
+    if (savedLanguage) {
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('lang', savedLanguage);
+        window.location.href = currentUrl.toString();
+    }
+});
+    `;
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
+}
+</script>
 {% endblock %}

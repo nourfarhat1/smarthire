@@ -41,8 +41,6 @@ class JobCategoryRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('jc')
             ->innerJoin('jc.jobOffers', 'jo')
-            ->where('jo.isActive = :active')
-            ->setParameter('active', true)
             ->orderBy('jc.name', 'ASC')
             ->getQuery()
             ->getResult();

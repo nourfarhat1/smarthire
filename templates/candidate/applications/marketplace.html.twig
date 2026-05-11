@@ -1,4 +1,3 @@
-{# maram git version #}
 {% extends 'candidate/layout.html.twig' %}
 
 {% block title %}Job Marketplace - SmartHire{% endblock %}
@@ -19,22 +18,17 @@ setTimeout(function() {
     console.log('Original search found:', !!originalSearch);
     
     if (originalSearch) {
-        // All jobs from database
+        // Use actual jobs from the database (passed from Twig)
         const allJobs = [
-            { id: 1, title: 'Full-Stack Developer', location: 'Tunis', category: 'IT', description: 'Looking for experienced full-stack developer with React and Node.js skills...' },
-            { id: 2, title: 'Designer', location: 'Sfax', category: 'Design', description: 'Creative designer needed for UI/UX projects...' },
-            { id: 4, title: 'Financial Analyst', location: 'Tunis', category: 'Finance', description: 'Financial analyst position with accounting background...' },
-            { id: 5, title: 'Graphic Designer', location: 'Megrine', category: 'Design', description: 'Graphic designer for marketing materials...' },
-            { id: 6, title: 'Data Analyst', location: 'Tunis', category: 'IT', description: 'Data analyst with SQL and Python experience...' },
-            { id: 7, title: 'Marketing Manager', location: 'Tunis', category: 'Marketing', description: 'Marketing manager for digital campaigns...' },
-            { id: 9, title: 'HR Specialist', location: 'Sousse', category: 'HR', description: 'HR specialist for recruitment and training...' },
-            { id: 11, title: 'Sales Representative', location: 'Tunis', category: 'Sales', description: 'Sales representative for B2B clients...' },
-            { id: 12, title: 'Backend Developer', location: 'Sfax', category: 'IT', description: 'Backend developer with PHP and MySQL experience...' },
-            { id: 13, title: 'Frontend Developer', location: 'Tunis', category: 'IT', description: 'Frontend developer with React and Vue.js skills...' },
-            { id: 14, title: 'Project Manager', location: 'Tunis', category: 'Management', description: 'Project manager for IT projects...' },
-            { id: 15, title: 'Business Analyst', location: 'Sousse', category: 'Finance', description: 'Business analyst for process improvement...' },
-            { id: 16, title: 'Quality Assurance', location: 'Tunis', category: 'IT', description: 'QA engineer for software testing...' },
-            { id: 17, title: 'DevOps Engineer', location: 'Tunis', category: 'IT', description: 'DevOps engineer with Docker and Kubernetes experience...' }
+            {% for jobOffer in jobOffers %}
+            { 
+                id: {{ jobOffer.id }}, 
+                title: '{{ jobOffer.title|escape('js') }}', 
+                location: '{{ jobOffer.location|escape('js') }}', 
+                category: '{{ jobOffer.category|escape('js') }}', 
+                description: '{{ jobOffer.description|slice(0, 200)|escape('js') }}...'
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
         ];
         
         // Make parent relative for positioning
@@ -92,7 +86,7 @@ setTimeout(function() {
                             <div style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background-color 0.2s;" 
                                  onmouseover="this.style.backgroundColor='#f8f9fa'" 
                                  onmouseout="this.style.backgroundColor='white'"
-                                 onclick="window.location.href='/candidate/applications/apply/${job.id}'">
+                                 onclick="const modal = document.getElementById('jobModal${job.id}'); if(modal) { const bsModal = new bootstrap.Modal(modal); bsModal.show(); } else { window.location.href='/candidate/applications/job-marketplace'; }">
                                 <div style="font-weight: 600; color: #2c3e50; margin-bottom: 4px; font-size: 14px;">${highlightText(job.title, value)}</div>
                                 <div style="color: #6c757d; font-size: 13px; margin-bottom: 6px; line-height: 1.4;">${job.description.substring(0, 120)}...</div>
                                 <div style="display: flex; gap: 12px; font-size: 12px; color: #868e96;">
@@ -167,35 +161,9 @@ setTimeout(function() {
                         </select>
                     </div>
                     <div class="col-md-2">
-    <label for="location" class="form-label">Location</label>
-    <select class="form-select" id="location" name="location">
-        <option value="">All Locations</option>
-        <option value="Tunis" {{ selectedLocation == 'Tunis' ? 'selected' : '' }}>Tunis</option>
-        <option value="Ariana" {{ selectedLocation == 'Ariana' ? 'selected' : '' }}>Ariana</option>
-        <option value="Ben Arous" {{ selectedLocation == 'Ben Arous' ? 'selected' : '' }}>Ben Arous</option>
-        <option value="Manouba" {{ selectedLocation == 'Manouba' ? 'selected' : '' }}>Manouba</option>
-        <option value="Nabeul" {{ selectedLocation == 'Nabeul' ? 'selected' : '' }}>Nabeul</option>
-        <option value="Zaghouan" {{ selectedLocation == 'Zaghouan' ? 'selected' : '' }}>Zaghouan</option>
-        <option value="Bizerte" {{ selectedLocation == 'Bizerte' ? 'selected' : '' }}>Bizerte</option>
-        <option value="Béja" {{ selectedLocation == 'Béja' ? 'selected' : '' }}>Béja</option>
-        <option value="Jendouba" {{ selectedLocation == 'Jendouba' ? 'selected' : '' }}>Jendouba</option>
-        <option value="Kef" {{ selectedLocation == 'Kef' ? 'selected' : '' }}>Kef</option>
-        <option value="Siliana" {{ selectedLocation == 'Siliana' ? 'selected' : '' }}>Siliana</option>
-        <option value="Sousse" {{ selectedLocation == 'Sousse' ? 'selected' : '' }}>Sousse</option>
-        <option value="Monastir" {{ selectedLocation == 'Monastir' ? 'selected' : '' }}>Monastir</option>
-        <option value="Mahdia" {{ selectedLocation == 'Mahdia' ? 'selected' : '' }}>Mahdia</option>
-        <option value="Sfax" {{ selectedLocation == 'Sfax' ? 'selected' : '' }}>Sfax</option>
-        <option value="Kairouan" {{ selectedLocation == 'Kairouan' ? 'selected' : '' }}>Kairouan</option>
-        <option value="Kasserine" {{ selectedLocation == 'Kasserine' ? 'selected' : '' }}>Kasserine</option>
-        <option value="Sidi Bouzid" {{ selectedLocation == 'Sidi Bouzid' ? 'selected' : '' }}>Sidi Bouzid</option>
-        <option value="Gabès" {{ selectedLocation == 'Gabès' ? 'selected' : '' }}>Gabès</option>
-        <option value="Medenine" {{ selectedLocation == 'Medenine' ? 'selected' : '' }}>Medenine</option>
-        <option value="Tataouine" {{ selectedLocation == 'Tataouine' ? 'selected' : '' }}>Tataouine</option>
-        <option value="Gafsa" {{ selectedLocation == 'Gafsa' ? 'selected' : '' }}>Gafsa</option>
-        <option value="Tozeur" {{ selectedLocation == 'Tozeur' ? 'selected' : '' }}>Tozeur</option>
-        <option value="Kebili" {{ selectedLocation == 'Kebili' ? 'selected' : '' }}>Kebili</option>
-    </select>
-</div>
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" name="location" value="{{ selectedLocation }}" placeholder="City or Country">
+                    </div>
                     <div class="col-md-2">
                         <label for="type" class="form-label">Job Type</label>
                         <select class="form-select" id="type" name="type">
@@ -203,7 +171,6 @@ setTimeout(function() {
                             <option value="full-time" {{ selectedType == 'full-time' ? 'selected' : '' }}>Full Time</option>
                             <option value="part-time" {{ selectedType == 'part-time' ? 'selected' : '' }}>Part Time</option>
                             <option value="contract" {{ selectedType == 'contract' ? 'selected' : '' }}>Contract</option>
-                
                             <option value="remote" {{ selectedType == 'remote' ? 'selected' : '' }}>Remote</option>
                         </select>
                     </div>
@@ -291,24 +258,24 @@ setTimeout(function() {
                                     </div>
                                     <div class="btn-group" role="group">
                                         <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#jobModal{{ jobOffer.id }}">
-                                            <i class="bi bi-eye"></i>
+                                            <i class="bi bi-eye me-1"></i>View
                                         </button>
                                         {% if jobOffer.id in savedJobIds %}
                                             <form method="post" action="{{ path('app_candidate_unsave_job', {'id': jobOffer.id}) }}" class="d-inline">
                                                 <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                    <i class="bi bi-heart-fill"></i>
+                                                    <i class="bi bi-heart-fill me-1"></i>Unsave
                                                 </button>
                                             </form>
                                         {% else %}
                                             <form method="post" action="{{ path('app_candidate_save_job', {'id': jobOffer.id}) }}" class="d-inline">
                                                 <button type="submit" class="btn btn-sm btn-outline-warning">
-                                                    <i class="bi bi-heart"></i>
+                                                    <i class="bi bi-heart me-1"></i>Save
                                                 </button>
                                             </form>
                                         {% endif %}
                                         {% if jobOffer.id not in appliedJobIds %}
                                             <a href="{{ path('app_candidate_apply_job', {'id': jobOffer.id}) }}" class="btn btn-sm btn-success">
-                                                <i class="bi bi-send"></i>
+                                                <i class="bi bi-send me-1"></i>Apply
                                             </a>
                                         {% endif %}
                                     </div>
@@ -415,23 +382,23 @@ setTimeout(function() {
                 {% if jobOffer.id in savedJobIds %}
                     <form method="post" action="{{ path('app_candidate_unsave_job', {'id': jobOffer.id}) }}" class="d-inline">
                         <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-heart-fill"></i>
+                            <i class="bi bi-heart-fill me-1"></i>Unsave Job
                         </button>
                     </form>
                 {% else %}
                     <form method="post" action="{{ path('app_candidate_save_job', {'id': jobOffer.id}) }}" class="d-inline">
                         <button type="submit" class="btn btn-warning">
-                            <i class="bi bi-heart"></i>
+                            <i class="bi bi-heart me-1"></i>Save Job
                         </button>
                     </form>
                 {% endif %}
                 {% if jobOffer.id not in appliedJobIds %}
                     <a href="{{ path('app_candidate_apply_job', {'id': jobOffer.id}) }}" class="btn btn-success">
-                        <i class="bi bi-send"></i>
+                        <i class="bi bi-send me-1"></i>Apply Now
                     </a>
                 {% else %}
                     <button class="btn btn-success" disabled>
-                        <i class="bi bi-check-circle"></i>
+                        <i class="bi bi-check-circle me-1"></i>Applied
                     </button>
                 {% endif %}
             </div>

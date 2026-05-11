@@ -13,7 +13,11 @@
             </div>
             <div class="card-body text-center">
                 {% if candidate.profilePicture %}
-                    <img src="{{ asset('uploads/profile_pictures/' ~ candidate.profilePicture) }}" alt="Profile Picture" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% if candidate.profilePicture starts with 'http' %}
+                        <img src="{{ candidate.profilePicture }}" alt="Profile Picture" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ candidate.firstName }}+{{ candidate.lastName }}&background=87a042&color=fff&size=150';">
+                    {% else %}
+                        <img src="{{ asset('uploads/profile_pictures/' ~ candidate.profilePicture) }}" alt="Profile Picture" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ candidate.firstName }}+{{ candidate.lastName }}&background=87a042&color=fff&size=150';">
+                    {% endif %}
                 {% else %}
                     <div class="avatar-circle bg-success text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 150px; height: 150px; font-size: 3rem;">
                         {{ candidate.firstName|first }}{{ candidate.lastName|first }}

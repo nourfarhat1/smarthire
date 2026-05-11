@@ -13,6 +13,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+//ines +
+use App\Service\SalarySuggestionService;
+use App\Service\AIGeneratorService;
+use App\Service\HuggingFaceSalaryService;
+use App\Service\AlgoliaService;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/candidate/applications')]
 #[IsGranted('ROLE_CANDIDATE')]
@@ -22,7 +29,12 @@ class CandidateApplicationController extends AbstractController
         private JobOfferRepository $jobOfferRepository,
         private JobRequestRepository $jobRequestRepository,
         private TrainingRepository $trainingRepository,
-        private ApplicationService $applicationService
+        private ApplicationService $applicationService,
+        //
+         private AIGeneratorService $aiGeneratorService,
+        private SalarySuggestionService $salarySuggestionService,
+        private HuggingFaceSalaryService $huggingFaceSalaryService,
+        private AlgoliaService $algoliaService
     ) {
     }
 
@@ -93,7 +105,7 @@ class CandidateApplicationController extends AbstractController
             'selectedType' => $type,
         ]);
     }
-
+//I'didn't touch this function
     #[Route('/job-marketplace', name: 'app_candidate_job_marketplace')]
     public function jobMarketplace(Request $request): Response
     {
@@ -104,7 +116,6 @@ class CandidateApplicationController extends AbstractController
 
         // Get all job offers with filtering
         $qb = $this->jobOfferRepository->createQueryBuilder('jo')
-            ->leftJoin('jo.category', 'c')
             ->orderBy('jo.postedDate', 'DESC');
 
         // Apply search filter
@@ -115,7 +126,7 @@ class CandidateApplicationController extends AbstractController
 
         // Apply category filter
         if (!empty($category)) {
-            $qb->andWhere('c.name = :category')
+            $qb->andWhere('jo.category = :category')
                ->setParameter('category', $category);
         }
 
@@ -205,7 +216,8 @@ class CandidateApplicationController extends AbstractController
         ]);
     }
 
-    #[Route('/spontaneous', name: 'app_candidate_spontaneous_application', methods: ['GET', 'POST'])]
+
+     #[Route('/spontaneous', name: 'app_candidate_spontaneous_application', methods: ['GET', 'POST'])]
     public function spontaneousApplication(Request $request): Response
     {
         $user = $this->getUser();
@@ -214,6 +226,9 @@ class CandidateApplicationController extends AbstractController
             $subject = $request->request->get('subject');
             $description = $request->request->get('description');
             $category = $request->request->get('category');
+            $location = $request->request->get('location');
+            $expectedSalary = $request->request->get('expectedSalary');
+            error_log("Received expectedSalary in spontaneous app: " . ($expectedSalary ?? 'NULL'));
 
             // Basic validation
             if (empty($subject) || empty($description)) {
@@ -227,6 +242,15 @@ class CandidateApplicationController extends AbstractController
             $jobRequest->setJobTitle($subject);
             $jobRequest->setCoverLetter($description);
             $jobRequest->setCategorie($category);
+            $jobRequest->setLocation($location);
+            
+            // Convert salary to float, handling empty values
+            $salaryFloat = null;
+            if ($expectedSalary !== null && $expectedSalary !== '') {
+                $salaryFloat = (float) $expectedSalary;
+            }
+            $jobRequest->setSuggestedSalary($salaryFloat);
+            error_log("Setting suggestedSalary to: " . ($salaryFloat ?? 'NULL'));
             $jobRequest->setSubmissionDate(new \DateTime());
             $jobRequest->setStatus('PENDING');
 
@@ -237,6 +261,22 @@ class CandidateApplicationController extends AbstractController
         }
 
         return $this->render('candidate/applications/spontaneous.html.twig');
+    }
+    //I add this one 
+    
+    #[Route('/view/{id}', name: 'app_candidate_view_application', methods: ['GET'])]
+    public function viewApplication(int $id, JobRequestRepository $jobRequestRepository): Response
+    {
+        $user = $this->getUser();
+        
+        $jobRequest = $jobRequestRepository->find($id);
+        if (!$jobRequest || $jobRequest->getCandidate() !== $user) {
+            throw $this->createAccessDeniedException('You can only view your own applications.');
+        }
+
+        return $this->render('candidate/applications/view.html.twig', [
+            'jobRequest' => $jobRequest,
+        ]);
     }
 
     #[Route('/edit/{id}', name: 'app_candidate_edit_application', methods: ['GET', 'POST'])]
@@ -255,17 +295,41 @@ class CandidateApplicationController extends AbstractController
         }
 
         if ($request->isMethod('POST')) {
+            // Handle both job applications and spontaneous applications
             $coverLetter = $request->request->get('coverLetter');
+            $description = $request->request->get('description');
             $expectedSalary = $request->request->get('expectedSalary');
+            $subject = $request->request->get('subject');
+            $category = $request->request->get('category');
+            $location = $request->request->get('location');
+
+            // Use description for spontaneous applications, coverLetter for job applications
+            $letterContent = null;
+            if (!empty($description)) {
+                $letterContent = $description;
+            } elseif (!empty($coverLetter)) {
+                $letterContent = $coverLetter;
+            }
 
             // Basic validation
-            if (empty($coverLetter)) {
+            if (empty($letterContent)) {
                 $this->addFlash('error', 'Please provide a cover letter.');
                 return $this->redirectToRoute('app_candidate_edit_application', ['id' => $id]);
             }
 
             // Update job request
-            $jobRequest->setCoverLetter($coverLetter);
+            $jobRequest->setCoverLetter($letterContent);
+            
+            // Update spontaneous application specific fields
+            if ($subject) {
+                $jobRequest->setJobTitle($subject);
+            }
+            if ($category) {
+                $jobRequest->setCategorie($category);
+            }
+            if ($location) {
+                $jobRequest->setLocation($location);
+            }
             
             if (!empty($expectedSalary)) {
                 $jobRequest->setSuggestedSalary($expectedSalary);
@@ -277,7 +341,10 @@ class CandidateApplicationController extends AbstractController
             return $this->redirectToRoute('app_candidate_applications');
         }
 
-        return $this->render('candidate/applications/edit.html.twig', [
+        // Use different template based on whether it's a job application or spontaneous application
+        $template = $jobRequest->getJobOffer() ? 'candidate/applications/edit.html.twig' : 'candidate/applications/edit_spontaneous.html.twig';
+        
+        return $this->render($template, [
             'jobRequest' => $jobRequest,
         ]);
     }
@@ -349,6 +416,99 @@ class CandidateApplicationController extends AbstractController
             'categories' => $categories,
         ]);
     }
+
+//add those :
+
+ #[Route('/generate-cover-letter', name: 'app_candidate_applications_generate_cover_letter', methods: ['POST'])]
+    public function generateCoverLetter(Request $request): JsonResponse
+    {
+        $subject = $request->request->get('subject');
+        $category = $request->request->get('category');
+
+        if (empty($subject) || empty($category)) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Subject and category are required'
+            ], 400);
+        }
+
+        try {
+            $coverLetter = $this->aiGeneratorService->generateCoverLetter($subject, $category);
+            
+            return new JsonResponse([
+                'success' => true,
+                'cover_letter' => $coverLetter
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Failed to generate cover letter: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+#[Route('/suggest-salary', name: 'app_candidate_applications_suggest_salary', methods: ['POST'])]
+public function suggestSalary(Request $request): JsonResponse
+{
+    $subject = $request->request->get('subject');
+    $location = $request->request->get('location');
+    $category = $request->request->get('category', '');
+    
+    // Ensure we don't pass the string "null" or "undefined" to the API
+    if ($location === 'null' || $location === 'undefined') {
+        $location = '';
+    }
+    if ($category === 'null' || $category === 'undefined') {
+        $category = '';
+    }
+
+    if (empty($subject)) {
+        return new JsonResponse([
+            'success' => false,
+            'error' => 'Subject is required'
+        ], 400);
+    }
+
+    try {
+        // Check if Hugging Face service is available
+        if (!$this->huggingFaceSalaryService->isAvailable()) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Hugging Face API key is not configured'
+            ], 500);
+        }
+
+        error_log("Calling Hugging Face salary service with subject: $subject, location: " . ($location ?? 'NULL') . ", category: " . ($category ?? 'NULL'));
+        
+        // Generate salary suggestion using Hugging Face
+        $salaryData = $this->huggingFaceSalaryService->generateSalarySuggestion(
+            $subject,
+            '', // job description not available in spontaneous form
+            $location,
+            $category
+        );
+        
+        error_log("Hugging Face service returned: " . json_encode($salaryData));
+        
+        // Return the average salary as the main suggestion
+        $suggestedSalary = $salaryData['average_salary'] ?? 0;
+        $currency = $salaryData['currency'] ?? 'USD';
+        
+        return new JsonResponse([
+            'success' => true,
+            'suggested_salary' => $currency . number_format($suggestedSalary, 2),
+            'salary_data' => $salaryData // Include full data for debugging
+        ]);
+        } catch (\Exception $e) {
+            error_log("Service exception: " . $e->getMessage());
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }    
+
+
 
     #[Route('/save-job/{id}', name: 'app_candidate_save_job', methods: ['POST'])]
     public function saveJob(Request $request, int $id, JobOfferRepository $jobOfferRepository): Response

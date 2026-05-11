@@ -223,9 +223,37 @@ class JobManagementController extends AbstractController
     }
 
     #[Route('/applications', name: 'app_admin_applications')]
-    public function applications(): Response
+    public function applications(Request $request): Response
     {
-        $applications = $this->jobRequestRepository->findAll();
+        $status = $request->query->get('status', '');
+        $search = $request->query->get('search', '');
+        $jobOfferId = $request->query->get('job_offer', '');
+        
+        // Build query for filtering
+        $qb = $this->jobRequestRepository->createQueryBuilder('jr')
+            ->leftJoin('jr.jobOffer', 'jo')
+            ->leftJoin('jr.candidate', 'c')
+            ->orderBy('jr.submissionDate', 'DESC');
+        
+        // Apply status filter
+        if (!empty($status)) {
+            $qb->andWhere('jr.status = :status')
+               ->setParameter('status', $status);
+        }
+        
+        // Apply search filter (search by candidate name, email, or job title)
+        if (!empty($search)) {
+            $qb->andWhere('c.firstName LIKE :search OR c.lastName LIKE :search OR c.email LIKE :search OR jo.title LIKE :search')
+               ->setParameter('search', '%' . $search . '%');
+        }
+        
+        // Apply job offer filter
+        if (!empty($jobOfferId)) {
+            $qb->andWhere('jo.id = :jobOfferId')
+               ->setParameter('jobOfferId', $jobOfferId);
+        }
+        
+        $applications = $qb->getQuery()->getResult();
         
         // Get statistics
         $totalApplications = count($applications);
@@ -235,11 +263,17 @@ class JobManagementController extends AbstractController
         
         return $this->render('admin/jobs/applications.html.twig', [
             'applications' => $applications,
+            'all_job_offers' => $this->jobOfferRepository->findAll(),
             'stats' => [
                 'total' => $totalApplications,
                 'pending' => $pendingApplications,
                 'accepted' => $acceptedApplications,
                 'rejected' => $rejectedApplications
+            ],
+            'filters' => [
+                'status' => $status,
+                'search' => $search,
+                'job_offer' => $jobOfferId
             ]
         ]);
     }
@@ -328,7 +362,7 @@ class JobManagementController extends AbstractController
                 $monthlyJobStats[$month] = ['posted' => 0, 'active' => 0];
             }
             $monthlyJobStats[$month]['posted']++;
-            if ($job->isActive()) $monthlyJobStats[$month]['active']++;
+            $monthlyJobStats[$month]['active']++;
         }
         
         // Job categories performance

@@ -9,7 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(name: 'app:index-jobs', description: 'Index all jobs to Algolia')]
-class IndexJobsCommand extends Command
+class IndexJobCommand extends Command
 {
     public function __construct(private AlgoliaService $algoliaService)
     {

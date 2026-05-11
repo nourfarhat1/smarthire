@@ -79,33 +79,36 @@
             <div class="col-md-4">
                 <label for="search" class="form-label">Search Candidates</label>
                 <input type="text" class="form-control" id="search" name="search" 
-                       placeholder="Search by name or email...">
+                       placeholder="Search by name or email..." value="{{ filters.search }}">
             </div>
             <div class="col-md-3">
                 <label for="status" class="form-label">Application Status</label>
                 <select class="form-select" id="status" name="status">
                     <option value="">All Status</option>
-                    <option value="PENDING">Pending</option>
-                    <option value="ACCEPTED">Accepted</option>
-                    <option value="REJECTED">Rejected</option>
+                    <option value="PENDING" {% if filters.status == 'PENDING' %}selected{% endif %}>Pending</option>
+                    <option value="ACCEPTED" {% if filters.status == 'ACCEPTED' %}selected{% endif %}>Accepted</option>
+                    <option value="REJECTED" {% if filters.status == 'REJECTED' %}selected{% endif %}>Rejected</option>
                 </select>
             </div>
             <div class="col-md-3">
                 <label for="jobOffer" class="form-label">Job Offer</label>
                 <select class="form-select" id="jobOffer" name="jobOffer">
                     <option value="">All Job Offers</option>
-                    {% for job_request in job_requests %}
-                        {% if job_request.jobOffer %}
-                            <option value="{{ job_request.jobOffer.id }}">{{ job_request.jobOffer.title }}</option>
-                        {% endif %}
+                    {% for job_offer in all_job_offers %}
+                        <option value="{{ job_offer.id }}" {% if filters.jobOffer == job_offer.id %}selected{% endif %}>{{ job_offer.title }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="col-md-2">
                 <label class="form-label">&nbsp;</label><br>
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-search me-1"></i> Search
-                </button>
+                <div class="btn-group w-100" role="group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-1"></i> Search
+                    </button>
+                    <a href="{{ path('app_hr_job_requests') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle me-1"></i> Clear
+                    </a>
+                </div>
             </div>
         </form>
     </div>
@@ -202,12 +205,16 @@
                                             <a href="{{ path('app_hr_interviews_schedule', {'jobRequestId': job_request.id}) }}" class="btn btn-sm btn-outline-success" title="Schedule Interview">
                                                 <i class="bi bi-calendar-plus"></i>
                                             </a>
-                                            <button type="button" class="btn btn-sm btn-outline-success" title="Accept">
-                                                <i class="bi bi-check"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-outline-danger" title="Reject">
-                                                <i class="bi bi-x"></i>
-                                            </button>
+                                            <form method="post" action="{{ path('app_hr_job_request_accept', {'id': job_request.id}) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to accept this application?');">
+                                                <button type="submit" class="btn btn-sm btn-outline-success" title="Accept">
+                                                    <i class="bi bi-check"></i>
+                                                </button>
+                                            </form>
+                                            <form method="post" action="{{ path('app_hr_job_request_reject', {'id': job_request.id}) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to reject this application?');">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Reject">
+                                                    <i class="bi bi-x"></i>
+                                                </button>
+                                            </form>
                                         {% endif %}
                                     </div>
                                 </td>
@@ -298,12 +305,16 @@
             </div>
             <div class="modal-footer">
                 {% if job_request.status == 'PENDING' %}
-                    <button type="button" class="btn btn-success">
-                        <i class="bi bi-check me-2"></i>Accept Application
-                    </button>
-                    <button type="button" class="btn btn-danger">
-                        <i class="bi bi-x me-2"></i>Reject Application
-                    </button>
+                    <form method="post" action="{{ path('app_hr_job_request_accept', {'id': job_request.id}) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to accept this application?');">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check me-2"></i>Accept Application
+                        </button>
+                    </form>
+                    <form method="post" action="{{ path('app_hr_job_request_reject', {'id': job_request.id}) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to reject this application?');">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-x me-2"></i>Reject Application
+                        </button>
+                    </form>
                 {% endif %}
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>

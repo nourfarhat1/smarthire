@@ -204,6 +204,61 @@ class ProfanityFilterService
     }
 
     /**
+     * Extract words from text
+     */
+    private function extractWords(string $text): array
+    {
+        // Remove punctuation and split by whitespace
+        $cleanText = preg_replace('/[^\w\s]/', ' ', $text);
+        return array_filter(explode(' ', $cleanText));
+    }
+
+    /**
+     * Get severity level for a bad word
+     */
+    private function getWordSeverity(string $word): string
+    {
+        $severeWords = ['damn', 'hell', 'crap', 'shit'];
+        $moderateWords = ['stupid', 'idiot', 'fool', 'dumb'];
+        
+        if (in_array($word, $severeWords)) {
+            return 'severe';
+        } elseif (in_array($word, $moderateWords)) {
+            return 'moderate';
+        } else {
+            return 'mild';
+        }
+    }
+
+    /**
+     * Validate text and return detailed analysis
+     */
+    public function validateText(string $text): array
+    {
+        $words = $this->extractWords($text);
+        $wordCount = count($words);
+        
+        $foundWords = [];
+        $severityCounts = ['mild' => 0, 'moderate' => 0, 'severe' => 0];
+        
+        foreach ($words as $word) {
+            $lowerWord = strtolower($word);
+            if (in_array($lowerWord, $this->localBadWords)) {
+                $severity = $this->getWordSeverity($lowerWord);
+                $foundWords[] = ['word' => $word, 'severity' => $severity];
+                $severityCounts[$severity]++;
+            }
+        }
+        
+        return [
+            'word_count' => $wordCount,
+            'found_words' => $foundWords,
+            'severity_counts' => $severityCounts,
+            'is_appropriate' => $this->isAppropriate($text)
+        ];
+    }
+
+    /**
      * Get the current bad words list
      */
     public function getBadWordsList(): array

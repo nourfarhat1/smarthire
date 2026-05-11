@@ -1,4 +1,3 @@
-{# maram git version #}
 {% extends 'hr/layout.html.twig' %}
 
 {% block title %}Create New Job Offer - SmartHire{% endblock %}
@@ -68,38 +67,13 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-    <div class="mb-3">
-        <label for="location" class="form-label">Location <span class="text-danger">*</span></label>
-        <select class="form-select" id="location" name="location" required>
-            <option value="">Select a governorate...</option>
-            <option value="Tunis">Tunis</option>
-            <option value="Ariana">Ariana</option>
-            <option value="Ben Arous">Ben Arous</option>
-            <option value="Manouba">Manouba</option>
-            <option value="Nabeul">Nabeul</option>
-            <option value="Zaghouan">Zaghouan</option>
-            <option value="Bizerte">Bizerte</option>
-            <option value="Béja">Béja</option>
-            <option value="Jendouba">Jendouba</option>
-            <option value="Kef">Kef</option>
-            <option value="Siliana">Siliana</option>
-            <option value="Sousse">Sousse</option>
-            <option value="Monastir">Monastir</option>
-            <option value="Mahdia">Mahdia</option>
-            <option value="Sfax">Sfax</option>
-            <option value="Kairouan">Kairouan</option>
-            <option value="Kasserine">Kasserine</option>
-            <option value="Sidi Bouzid">Sidi Bouzid</option>
-            <option value="Gabès">Gabès</option>
-            <option value="Medenine">Medenine</option>
-            <option value="Tataouine">Tataouine</option>
-            <option value="Gafsa">Gafsa</option>
-            <option value="Tozeur">Tozeur</option>
-            <option value="Kebili">Kebili</option>
-        </select>
-        <div class="form-text">Select the job location.</div>
-    </div>
-</div>
+                            <div class="mb-3">
+                                <label for="location" class="form-label">Location <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="location" name="location" 
+                                       placeholder="e.g. Tunis, Tunisia or Remote" required>
+                                <div class="form-text">City, Country or "Remote".</div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="row">

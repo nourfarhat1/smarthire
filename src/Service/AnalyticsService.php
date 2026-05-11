@@ -50,14 +50,14 @@ class AnalyticsService
 
     private function getUserStatistics(): array
     {
-        $qb = $this->entityManager->createQueryBuilder('u')
+        $qb = $this->entityManager->createQueryBuilder()
             ->select('COUNT(u.id) as totalUsers')
+            ->from('App\Entity\User', 'u')
             ->addSelect('SUM(CASE WHEN u.isVerified = true THEN 1 ELSE 0 END) as verifiedUsers')
             ->addSelect('SUM(CASE WHEN u.isBanned = true THEN 1 ELSE 0 END) as bannedUsers')
             ->addSelect('SUM(CASE WHEN u.roleId = 1 THEN 1 ELSE 0 END) as candidates')
             ->addSelect('SUM(CASE WHEN u.roleId = 2 THEN 1 ELSE 0 END) as hrUsers')
-            ->addSelect('SUM(CASE WHEN u.roleId = 3 THEN 1 ELSE 0 END) as adminUsers')
-            ->from(User::class, 'u');
+            ->addSelect('SUM(CASE WHEN u.roleId = 3 THEN 1 ELSE 0 END) as adminUsers');
 
         $result = $qb->getQuery()->getSingleResult();
 
@@ -74,14 +74,14 @@ class AnalyticsService
 
     private function getJobStatistics(): array
     {
-        $qb = $this->entityManager->createQueryBuilder('j')
+        $qb = $this->entityManager->createQueryBuilder()
             ->select('COUNT(j.id) as totalJobs')
+            ->from(JobOffer::class, 'j')
             ->addSelect('SUM(CASE WHEN j.jobType = \'Full-time\' THEN 1 ELSE 0 END) as fullTimeJobs')
             ->addSelect('SUM(CASE WHEN j.jobType = \'Part-time\' THEN 1 ELSE 0 END) as partTimeJobs')
             ->addSelect('SUM(CASE WHEN j.jobType = \'Remote\' THEN 1 ELSE 0 END) as remoteJobs')
             ->addSelect('AVG(CASE WHEN j.salaryMin IS NOT NULL AND j.salaryMax IS NOT NULL THEN (j.salaryMin + j.salaryMax) / 2 ELSE 0 END) as avgSalary')
-            ->addSelect('COUNT(DISTINCT j.postedBy) as activeRecruiters')
-            ->from(JobOffer::class, 'j');
+            ->addSelect('COUNT(DISTINCT j.recruiter) as activeRecruiters');
 
         $result = $qb->getQuery()->getSingleResult();
 
@@ -97,14 +97,14 @@ class AnalyticsService
 
     private function getApplicationStatistics(): array
     {
-        $qb = $this->entityManager->createQueryBuilder('jr')
+        $qb = $this->entityManager->createQueryBuilder()
             ->select('COUNT(jr.id) as totalApplications')
+            ->from(JobRequest::class, 'jr')
             ->addSelect('SUM(CASE WHEN jr.status = \'PENDING\' THEN 1 ELSE 0 END) as pendingApplications')
             ->addSelect('SUM(CASE WHEN jr.status = \'APPROVED\' THEN 1 ELSE 0 END) as approvedApplications')
             ->addSelect('SUM(CASE WHEN jr.status = \'REJECTED\' THEN 1 ELSE 0 END) as rejectedApplications')
             ->addSelect('SUM(CASE WHEN jr.status = \'INTERVIEW_SCHEDULED\' THEN 1 ELSE 0 END) as interviewScheduled')
-            ->addSelect('AVG(CASE WHEN jr.expectedSalary IS NOT NULL THEN jr.expectedSalary ELSE 0 END) as avgSuggestedSalary')
-            ->from(JobRequest::class, 'jr');
+            ->addSelect('AVG(CASE WHEN jr.suggestedSalary IS NOT NULL THEN jr.suggestedSalary ELSE 0 END) as avgSuggestedSalary');
 
         $result = $qb->getQuery()->getSingleResult();
 
@@ -121,13 +121,13 @@ class AnalyticsService
 
     private function getEventStatistics(): array
     {
-        $qb = $this->entityManager->createQueryBuilder('e')
+        $qb = $this->entityManager->createQueryBuilder()
             ->select('COUNT(e.id) as totalEvents')
+            ->from(AppEvent::class, 'e')
             ->addSelect('SUM(CASE WHEN e.eventDate >= CURRENT_DATE() THEN 1 ELSE 0 END) as upcomingEvents')
             ->addSelect('SUM(CASE WHEN e.eventDate < CURRENT_DATE() THEN 1 ELSE 0 END) as pastEvents')
             ->addSelect('AVG(CASE WHEN e.maxParticipants IS NOT NULL THEN e.maxParticipants ELSE 0 END) as avgMaxParticipants')
-            ->addSelect('SUM(CASE WHEN e.maxParticipants IS NOT NULL THEN e.maxParticipants ELSE 0 END) as totalCapacity')
-            ->from(AppEvent::class, 'e');
+            ->addSelect('SUM(CASE WHEN e.maxParticipants IS NOT NULL THEN e.maxParticipants ELSE 0 END) as totalCapacity');
 
         $result = $qb->getQuery()->getSingleResult();
 
@@ -142,13 +142,13 @@ class AnalyticsService
 
     private function getTrainingStatistics(): array
     {
-        $qb = $this->entityManager->createQueryBuilder('t')
-            ->addSelect('COUNT(t.id) as totalTrainings')
+        $qb = $this->entityManager->createQueryBuilder()
+            ->select('COUNT(t.id) as totalTrainings')
+            ->from(Training::class, 't')
             ->addSelect('SUM(t.likes) as totalLikes')
             ->addSelect('SUM(t.dislikes) as totalDislikes')
             ->addSelect('AVG(t.likes) as avgLikes')
-            ->addSelect('COUNT(DISTINCT t.admin) as uniqueAuthors')
-            ->from(Training::class, 't');
+            ->addSelect('COUNT(DISTINCT t.admin) as uniqueAuthors');
 
         $result = $qb->getQuery()->getSingleResult();
 
@@ -165,12 +165,12 @@ class AnalyticsService
 
     private function getComplaintStatistics(): array
     {
-        $qb = $this->entityManager->createQueryBuilder('c')
+        $qb = $this->entityManager->createQueryBuilder()
             ->select('COUNT(c.id) as totalComplaints')
+            ->from(Complaint::class, 'c')
             ->addSelect('SUM(CASE WHEN c.status = \'OPEN\' THEN 1 ELSE 0 END) as openComplaints')
             ->addSelect('SUM(CASE WHEN c.status = \'RESOLVED\' THEN 1 ELSE 0 END) as resolvedComplaints')
-            ->addSelect('SUM(CASE WHEN c.status = \'IN_PROGRESS\' THEN 1 ELSE 0 END) as inProgressComplaints')
-            ->from(Complaint::class, 'c');
+            ->addSelect('SUM(CASE WHEN c.status = \'IN_PROGRESS\' THEN 1 ELSE 0 END) as inProgressComplaints');
 
         $result = $qb->getQuery()->getSingleResult();
 
@@ -187,13 +187,15 @@ class AnalyticsService
     private function getGrowthStatistics(): array
     {
         // User growth over last 30 days
-        $userGrowthQb = $this->entityManager->createQueryBuilder('u')
+        $userGrowthQb = $this->entityManager->createQueryBuilder()
             ->select('COUNT(u.id) as usersLast30Days')
+            ->from(User::class, 'u')
             ->where('u.createdAt >= :date')
             ->setParameter('date', new \DateTime('-30 days'));
 
-        $userGrowthPrevQb = $this->entityManager->createQueryBuilder('u')
+        $userGrowthPrevQb = $this->entityManager->createQueryBuilder()
             ->select('COUNT(u.id) as usersPrevious30Days')
+            ->from(User::class, 'u')
             ->where('u.createdAt >= :startDate AND u.createdAt < :endDate')
             ->setParameter('startDate', new \DateTime('-60 days'))
             ->setParameter('endDate', new \DateTime('-30 days'));

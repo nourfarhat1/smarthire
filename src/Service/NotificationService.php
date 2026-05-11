@@ -7,6 +7,7 @@ use App\Entity\JobRequest;
 use App\Entity\AppEvent;
 use App\Entity\Complaint;
 use App\Entity\Interview;
+use App\Entity\Notification;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
@@ -23,16 +24,16 @@ class NotificationService
         $this->projectDir = $parameterBag->get('kernel.project_dir');
     }
 
-    public function createNotification(string $type, string $message, ?User $user = null, ?string $route = null): void
+    public function createNotification(string $type, string $message, ?User $user = null, ?string $route = null, ?array $routeParameters = null): void
     {
-        $notification = [
-            'type' => $type,
-            'message' => $message,
-            'user' => $user,
-            'route' => $route,
-            'createdAt' => new \DateTime(),
-            'isRead' => false,
-        ];
+        $notification = new Notification();
+        $notification->setType($type);
+        $notification->setMessage($message);
+        $notification->setUser($user);
+        $notification->setRoute($route);
+        $notification->setRouteParameters($routeParameters);
+        $notification->setCreatedAt(new \DateTime());
+        $notification->setIsRead(false);
 
         $this->entityManager->persist($notification);
         $this->entityManager->flush();
@@ -107,7 +108,9 @@ class NotificationService
 
     public function getUnreadNotifications(?User $user = null): array
     {
-        $qb = $this->entityManager->createQueryBuilder('n')
+        $qb = $this->entityManager->createQueryBuilder()
+            ->select('n')
+            ->from(Notification::class, 'n')
             ->where('n.isRead = :isRead')
             ->setParameter('isRead', false);
 
@@ -135,7 +138,7 @@ class NotificationService
 
     public function markAllAsRead(?User $user = null): void
     {
-        $qb = $this->entityManager->createQueryBuilder('n')
+        $qb = $this->entityManager->createQueryBuilder()
             ->update('App\Entity\Notification', 'n')
             ->set('n.isRead', true)
             ->set('n.readAt', ':readAt');
@@ -155,8 +158,9 @@ class NotificationService
 
     public function getNotificationCount(?User $user = null): int
     {
-        $qb = $this->entityManager->createQueryBuilder('n')
+        $qb = $this->entityManager->createQueryBuilder()
             ->select('COUNT(n.id)')
+            ->from(Notification::class, 'n')
             ->where('n.isRead = :isRead')
             ->setParameter('isRead', false);
 
@@ -180,15 +184,11 @@ class NotificationService
 
     public function createRealtimeNotification(string $type, array $data): void
     {
-        // This would typically integrate with WebSocket or Server-Sent Events
-        // For now, we'll store in a temporary cache or database table
-        
-        $notification = [
-            'type' => $type,
-            'data' => json_encode($data),
-            'createdAt' => new \DateTime(),
-            'expiresAt' => new \DateTime('+5 minutes'), // Notifications expire after 5 minutes
-        ];
+        $notification = new Notification();
+        $notification->setType($type);
+        $notification->setMessage(json_encode($data));
+        $notification->setCreatedAt(new \DateTime());
+        $notification->setRouteParameters($data);
 
         $this->entityManager->persist($notification);
         $this->entityManager->flush();
@@ -196,7 +196,9 @@ class NotificationService
 
     public function getActiveNotifications(?User $user = null): array
     {
-        $qb = $this->entityManager->createQueryBuilder('n')
+        $qb = $this->entityManager->createQueryBuilder()
+            ->select('n')
+            ->from(Notification::class, 'n')
             ->where('n.createdAt >= :threshold')
             ->setParameter('threshold', new \DateTime('-24 hours')); // Last 24 hours
 

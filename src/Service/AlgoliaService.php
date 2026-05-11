@@ -20,9 +20,9 @@ class AlgoliaService
     ) {
         $this->entityManager = $entityManager;
         $this->httpClient = $httpClient;
-        $this->appId = $_ENV['ALGOLIA_APP_ID'] ?? 'your_algolia_app_id_here';
-        $this->adminKey = $_ENV['ALGOLIA_ADMIN_KEY'] ?? 'your_algolia_admin_key_here';
-        $this->searchKey = $_ENV['ALGOLIA_SEARCH_KEY'] ?? 'your_algolia_search_key_here';
+        $this->appId = $_ENV['ALGOLIA_APP_ID'] ?? 'YOUR_APP_ID';
+        $this->adminKey = $_ENV['ALGOLIA_ADMIN_KEY'] ?? 'YOUR_ADMIN_API_KEY';
+        $this->searchKey = $_ENV['ALGOLIA_SEARCH_KEY'] ?? 'YOUR_SEARCH_ONLY_KEY';
         
         // Set up synonyms for enhanced typo tolerance (commented out due to permission issues)
         // $this->setupSynonyms();

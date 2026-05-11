@@ -12,7 +12,7 @@ class SMSService
     private string $authToken;
     private string $fromNumber;
 
-    public function __construct(string $accountSid = 'your_twilio_account_sid_here', string $authToken = 'your_twilio_auth_token_here', string $fromNumber = '+your_twilio_phone_number_here')
+    public function __construct(string $accountSid = 'REMOVED', string $authToken = 'REMOVED', string $fromNumber = '+16812926760')
     {
         $this->client = HttpClient::create();
         $this->accountSid = $accountSid;

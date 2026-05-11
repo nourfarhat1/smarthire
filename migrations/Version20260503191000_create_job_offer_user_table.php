@@ -1,5 +1,4 @@
 <?php
-// maram git version
 
 declare(strict_types=1);
 

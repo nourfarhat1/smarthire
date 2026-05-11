@@ -227,4 +227,22 @@ class JobRequest
     {
         return $this->candidate?->getEmail();
     }
+
+    public function setApplicationDate(\DateTimeInterface $applicationDate): self
+    {
+        $this->submissionDate = $applicationDate;
+        return $this;
+    }
+
+    public function setCvFile(?string $cvFile): self
+    {
+        $this->cvUrl = $cvFile;
+        return $this;
+    }
+
+    public function setExpectedSalary(?float $expectedSalary): self
+    {
+        $this->suggestedSalary = $expectedSalary;
+        return $this;
+    }
 }

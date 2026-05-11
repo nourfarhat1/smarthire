@@ -4,8 +4,73 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5c96ac43d20ac65b0e15b4717c52234d",
+    "content-hash": "544dbc2a3fcbb1b1b8c7b744cb4bbbf8",
     "packages": [
+        {
+            "name": "addweb/gtranslate-bundle",
+            "version": "0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/AddWebSolution/symfony-gtranslate.git",
+                "reference": "fe900468bd47d2b856560063246ab8bc368d1047"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/AddWebSolution/symfony-gtranslate/zipball/fe900468bd47d2b856560063246ab8bc368d1047",
+                "reference": "fe900468bd47d2b856560063246ab8bc368d1047",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1",
+                "symfony/framework-bundle": "^6.4 || ^7.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^1.11",
+                "phpunit/phpunit": "^10.5",
+                "symfony/phpunit-bridge": "^6.4 || ^7.0",
+                "twig/twig": "^3.10"
+            },
+            "suggest": {
+                "symfony/twig-bundle": "Required to use the Twig function `gtranslate_widget`"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "symfony": {
+                    "bundle": {
+                        "AddWeb\\GtranslateBundle\\GtranslateBundle": "all"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AddWeb\\GtranslateBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "AddWeb Solution Pvt Ltd",
+                    "email": "contact@addwebsolution.com"
+                }
+            ],
+            "description": "A Symfony bundle that integrates the GTranslate.io widget, providing a Twig function and configurable service to easily add automatic website translation.",
+            "keywords": [
+                "bundle",
+                "gtranslate",
+                "multilingual",
+                "symfony",
+                "translation",
+                "widget"
+            ],
+            "support": {
+                "issues": "https://github.com/AddWebSolution/symfony-gtranslate/issues",
+                "source": "https://github.com/AddWebSolution/symfony-gtranslate/tree/0.1"
+            },
+            "time": "2025-10-14T07:44:45+00:00"
+        },
         {
             "name": "algolia/algoliasearch-client-php",
             "version": "4.43.0",
@@ -5194,16 +5259,16 @@
         },
         {
             "name": "symfony/mailer",
-            "version": "v7.4.6",
+            "version": "v7.4.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/mailer.git",
-                "reference": "b02726f39a20bc65e30364f5c750c4ddbf1f58e9"
+                "reference": "f6ea532250b476bfc1b56699b388a1bdbf168f62"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/mailer/zipball/b02726f39a20bc65e30364f5c750c4ddbf1f58e9",
-                "reference": "b02726f39a20bc65e30364f5c750c4ddbf1f58e9",
+                "url": "https://api.github.com/repos/symfony/mailer/zipball/f6ea532250b476bfc1b56699b388a1bdbf168f62",
+                "reference": "f6ea532250b476bfc1b56699b388a1bdbf168f62",
                 "shasum": ""
             },
             "require": {
@@ -5254,7 +5319,7 @@
             "description": "Helps sending emails",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/mailer/tree/v7.4.6"
+                "source": "https://github.com/symfony/mailer/tree/v7.4.8"
             },
             "funding": [
                 {
@@ -5274,7 +5339,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-02-25T16:50:00+00:00"
+            "time": "2026-03-24T13:12:05+00:00"
         },
         {
             "name": "symfony/mime",
@@ -8130,6 +8195,76 @@
             "time": "2026-02-09T09:33:46+00:00"
         },
         {
+            "name": "tattali/calendar-bundle",
+            "version": "v7.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tattali/CalendarBundle.git",
+                "reference": "fccf63cd886691690e1d8d9ee44809c088f690f0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tattali/CalendarBundle/zipball/fccf63cd886691690e1d8d9ee44809c088f690f0",
+                "reference": "fccf63cd886691690e1d8d9ee44809c088f690f0",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=8.2",
+                "symfony/dependency-injection": "^7.0",
+                "symfony/event-dispatcher": "^7.0",
+                "symfony/framework-bundle": "^7.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.65",
+                "phpstan/phpstan": "^2.0",
+                "phpunit/phpunit": "^11.2",
+                "symfony/dotenv": "^7.0",
+                "symfony/phpunit-bridge": "^7.0",
+                "symfony/yaml": "^7.0"
+            },
+            "suggest": {
+                "doctrine/mongodb-odm-bundle": "To support MongoDB.",
+                "symfony/orm-pack": "To support Doctrine ORM and Migration."
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "CalendarBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Théo Attali",
+                    "email": "theoattali@gmail.com",
+                    "homepage": "https://theoattali.fr"
+                }
+            ],
+            "description": "Provides event calendar for your Symfony 7+ project. Compatible with API like Google Calendar.",
+            "homepage": "https://github.com/tattali/CalendarBundle",
+            "keywords": [
+                "calendar",
+                "fullcalendar",
+                "symfony",
+                "symfony calendar"
+            ],
+            "support": {
+                "issues": "https://github.com/tattali/CalendarBundle/issues",
+                "source": "https://github.com/tattali/CalendarBundle/tree/v7.0.2"
+            },
+            "funding": [
+                {
+                    "url": "https://www.paypal.com/donate/?hosted_button_id=T2QGPQVMQFU5U",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-11-22T14:15:43+00:00"
+        },
+        {
             "name": "twig/extra-bundle",
             "version": "v3.24.0",
             "source": {
@@ -8394,6 +8529,177 @@
     ],
     "packages-dev": [
         {
+            "name": "ahmed-bhs/doctrine-doctor",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ahmed-bhs/doctrine-doctor.git",
+                "reference": "cacebcb65db55ecfcc8ae2cf4699851173c6b7a3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ahmed-bhs/doctrine-doctor/zipball/cacebcb65db55ecfcc8ae2cf4699851173c6b7a3",
+                "reference": "cacebcb65db55ecfcc8ae2cf4699851173c6b7a3",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/doctrine-bundle": "^2.12",
+                "doctrine/orm": "^2.10|^3.0|^4.0",
+                "nikic/php-parser": "^5.6",
+                "php": "^8.2",
+                "phpmyadmin/sql-parser": "^6.0",
+                "symfony/framework-bundle": "^6.0|^7.0",
+                "webmozart/assert": "^1.11"
+            },
+            "require-dev": {
+                "bitbag/coding-standard": "^3.0",
+                "deptrac/deptrac": "^4.2",
+                "php-parallel-lint/php-parallel-lint": "^1.4",
+                "phpmd/phpmd": "^2.15",
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan": "^2.1",
+                "phpstan/phpstan-doctrine": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpstan/phpstan-symfony": "^2.0",
+                "phpunit/phpunit": "^10.0",
+                "symfony/stopwatch": "^6.0|^7.0",
+                "symfony/var-dumper": "^6.0|^7.0",
+                "symfony/var-exporter": "^6.4|^7.0",
+                "symplify/easy-coding-standard": "^12.6",
+                "twig/twig": "^3.0"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "symfony": {
+                    "require": "^6.0|^7.0",
+                    "allow-contrib": false
+                },
+                "branch-alias": {
+                    "dev-main": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhmedBhs\\DoctrineDoctor\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ahmed EBEN HASSINE",
+                    "email": "ahmedbhs123@gmail.com",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "Runtime analysis tool for Doctrine ORM integrated into Symfony Web Profiler. Unlike static linters, it analyzes actual query execution at runtime to detect performance bottlenecks, security vulnerabilities, and best practice violations during development with real execution context and data.",
+            "homepage": "https://github.com/ahmed-bhs/doctrine-doctor",
+            "keywords": [
+                "Best-Practices",
+                "analyzer",
+                "code-quality",
+                "database-performance",
+                "debugging",
+                "developer-tools",
+                "development-tools",
+                "doctrine",
+                "doctrine-analyzer",
+                "doctrine-orm",
+                "dql",
+                "missing-indexes",
+                "n-plus-one",
+                "n-plus-one-detection",
+                "orm-debugging",
+                "performance",
+                "performance-monitoring",
+                "profiler",
+                "query-analysis",
+                "query-analyzer",
+                "query-optimization",
+                "runtime-analysis",
+                "security",
+                "slow-queries",
+                "sql-profiler",
+                "symfony",
+                "symfony-bundle",
+                "web-profiler"
+            ],
+            "support": {
+                "issues": "https://github.com/ahmed-bhs/doctrine-doctor/issues",
+                "source": "https://github.com/ahmed-bhs/doctrine-doctor"
+            },
+            "time": "2026-03-10T18:51:00+00:00"
+        },
+        {
+            "name": "masterminds/html5",
+            "version": "2.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Masterminds/html5-php.git",
+                "reference": "fcf91eb64359852f00d921887b219479b4f21251"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/fcf91eb64359852f00d921887b219479b4f21251",
+                "reference": "fcf91eb64359852f00d921887b219479b4f21251",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.35 || ^5.7.21 || ^6 || ^7 || ^8 || ^9"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.7-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Masterminds\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matt Butcher",
+                    "email": "technosophos@gmail.com"
+                },
+                {
+                    "name": "Matt Farina",
+                    "email": "matt@mattfarina.com"
+                },
+                {
+                    "name": "Asmir Mustafic",
+                    "email": "goetas@gmail.com"
+                }
+            ],
+            "description": "An HTML5 parser and serializer.",
+            "homepage": "http://masterminds.github.io/html5-php",
+            "keywords": [
+                "HTML5",
+                "dom",
+                "html",
+                "parser",
+                "querypath",
+                "serializer",
+                "xml"
+            ],
+            "support": {
+                "issues": "https://github.com/Masterminds/html5-php/issues",
+                "source": "https://github.com/Masterminds/html5-php/tree/2.10.0"
+            },
+            "time": "2025-07-25T09:04:22+00:00"
+        },
+        {
             "name": "myclabs/deep-copy",
             "version": "1.13.4",
             "source": {
@@ -8628,6 +8934,223 @@
                 "source": "https://github.com/phar-io/version/tree/3.2.1"
             },
             "time": "2022-02-21T01:04:05+00:00"
+        },
+        {
+            "name": "phpmyadmin/sql-parser",
+            "version": "6.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpmyadmin/sql-parser.git",
+                "reference": "75397801ef687ef6b850e907a40c60b9d6b755db"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpmyadmin/sql-parser/zipball/75397801ef687ef6b850e907a40c60b9d6b755db",
+                "reference": "75397801ef687ef6b850e907a40c60b9d6b755db",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.2",
+                "symfony/polyfill-mbstring": "^1.24"
+            },
+            "conflict": {
+                "phpmyadmin/motranslator": "<5.2"
+            },
+            "require-dev": {
+                "phpbench/phpbench": "^1.2",
+                "phpmyadmin/coding-standard": "^4.0",
+                "phpmyadmin/motranslator": "^5.3",
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan": "^2.1",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpstan/phpstan-strict-rules": "^2.0",
+                "phpunit/phpunit": "^11.5",
+                "psalm/plugin-phpunit": "^0.19.2",
+                "vimeo/psalm": "^6.0",
+                "zumba/json-serializer": "^3.2"
+            },
+            "suggest": {
+                "ext-mbstring": "For best performance",
+                "phpmyadmin/motranslator": "Translate messages to your favorite locale"
+            },
+            "bin": [
+                "bin/sql-parser"
+            ],
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "6.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PhpMyAdmin\\SqlParser\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "The phpMyAdmin Team",
+                    "email": "developers@phpmyadmin.net",
+                    "homepage": "https://www.phpmyadmin.net/team/"
+                }
+            ],
+            "description": "A validating SQL lexer and parser with a focus on MySQL dialect.",
+            "homepage": "https://github.com/phpmyadmin/sql-parser",
+            "keywords": [
+                "analysis",
+                "lexer",
+                "parser",
+                "query linter",
+                "sql",
+                "sql lexer",
+                "sql linter",
+                "sql parser",
+                "sql syntax highlighter",
+                "sql tokenizer"
+            ],
+            "support": {
+                "issues": "https://github.com/phpmyadmin/sql-parser/issues",
+                "source": "https://github.com/phpmyadmin/sql-parser"
+            },
+            "funding": [
+                {
+                    "url": "https://www.phpmyadmin.net/donate/",
+                    "type": "other"
+                }
+            ],
+            "time": "2025-10-31T22:05:33+00:00"
+        },
+        {
+            "name": "phpstan/phpstan",
+            "version": "2.1.54",
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/8be50c3992107dc837b17da4d140fbbdf9a5c5bd",
+                "reference": "8be50c3992107dc837b17da4d140fbbdf9a5c5bd",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.4|^8.0"
+            },
+            "conflict": {
+                "phpstan/phpstan-shim": "*"
+            },
+            "bin": [
+                "phpstan",
+                "phpstan.phar"
+            ],
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "PHPStan - PHP Static Analysis Tool",
+            "keywords": [
+                "dev",
+                "static analysis"
+            ],
+            "support": {
+                "docs": "https://phpstan.org/user-guide/getting-started",
+                "forum": "https://github.com/phpstan/phpstan/discussions",
+                "issues": "https://github.com/phpstan/phpstan/issues",
+                "security": "https://github.com/phpstan/phpstan/security/policy",
+                "source": "https://github.com/phpstan/phpstan-src"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/ondrejmirtes",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/phpstan",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-04-29T13:31:09+00:00"
+        },
+        {
+            "name": "phpstan/phpstan-symfony",
+            "version": "2.0.15",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpstan/phpstan-symfony.git",
+                "reference": "9b85ab476969b87bbe2253b69e265a9359b2f395"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpstan/phpstan-symfony/zipball/9b85ab476969b87bbe2253b69e265a9359b2f395",
+                "reference": "9b85ab476969b87bbe2253b69e265a9359b2f395",
+                "shasum": ""
+            },
+            "require": {
+                "ext-simplexml": "*",
+                "php": "^7.4 || ^8.0",
+                "phpstan/phpstan": "^2.1.13"
+            },
+            "conflict": {
+                "symfony/framework-bundle": "<3.0"
+            },
+            "require-dev": {
+                "php-parallel-lint/php-parallel-lint": "^1.2",
+                "phpstan/phpstan-phpunit": "^2.0.8",
+                "phpstan/phpstan-strict-rules": "^2.0",
+                "phpunit/phpunit": "^9.6",
+                "psr/container": "1.1.2",
+                "symfony/config": "^5.4 || ^6.1",
+                "symfony/console": "^5.4 || ^6.1",
+                "symfony/dependency-injection": "^5.4 || ^6.1",
+                "symfony/form": "^5.4 || ^6.1",
+                "symfony/framework-bundle": "^5.4 || ^6.1",
+                "symfony/http-foundation": "^5.4 || ^6.1",
+                "symfony/messenger": "^5.4",
+                "symfony/polyfill-php80": "^1.24",
+                "symfony/serializer": "^5.4",
+                "symfony/service-contracts": "^2.2.0"
+            },
+            "type": "phpstan-extension",
+            "extra": {
+                "phpstan": {
+                    "includes": [
+                        "extension.neon",
+                        "rules.neon"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PHPStan\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Lukáš Unger",
+                    "email": "looky.msc@gmail.com",
+                    "homepage": "https://lookyman.net"
+                }
+            ],
+            "description": "Symfony Framework extensions and rules for PHPStan",
+            "keywords": [
+                "static analysis"
+            ],
+            "support": {
+                "issues": "https://github.com/phpstan/phpstan-symfony/issues",
+                "source": "https://github.com/phpstan/phpstan-symfony/tree/2.0.15"
+            },
+            "time": "2026-02-26T10:15:59+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -10125,6 +10648,148 @@
             "time": "2024-10-20T05:08:20+00:00"
         },
         {
+            "name": "symfony/browser-kit",
+            "version": "v7.4.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/browser-kit.git",
+                "reference": "41850d8f8ddef9a9cd7314fa9f4902cf48885521"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/browser-kit/zipball/41850d8f8ddef9a9cd7314fa9f4902cf48885521",
+                "reference": "41850d8f8ddef9a9cd7314fa9f4902cf48885521",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2",
+                "symfony/deprecation-contracts": "^2.5|^3",
+                "symfony/dom-crawler": "^6.4|^7.0|^8.0"
+            },
+            "require-dev": {
+                "symfony/css-selector": "^6.4|^7.0|^8.0",
+                "symfony/http-client": "^6.4|^7.0|^8.0",
+                "symfony/mime": "^6.4|^7.0|^8.0",
+                "symfony/process": "^6.4|^7.0|^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\BrowserKit\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Simulates the behavior of a web browser, allowing you to make requests, click on links and submit forms programmatically",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/browser-kit/tree/v7.4.8"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-03-24T13:12:05+00:00"
+        },
+        {
+            "name": "symfony/css-selector",
+            "version": "v7.4.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/css-selector.git",
+                "reference": "b75663ed96cf4756e28e3105476f220f92886cc4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/css-selector/zipball/b75663ed96cf4756e28e3105476f220f92886cc4",
+                "reference": "b75663ed96cf4756e28e3105476f220f92886cc4",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\CssSelector\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Jean-François Simon",
+                    "email": "jeanfrancois.simon@sensiolabs.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Converts CSS selectors to XPath expressions",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/css-selector/tree/v7.4.9"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-04-18T13:18:21+00:00"
+        },
+        {
             "name": "symfony/debug-bundle",
             "version": "v7.4.8",
             "source": {
@@ -10178,6 +10843,78 @@
             "homepage": "https://symfony.com",
             "support": {
                 "source": "https://github.com/symfony/debug-bundle/tree/v7.4.8"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-03-24T13:12:05+00:00"
+        },
+        {
+            "name": "symfony/dom-crawler",
+            "version": "v7.4.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/dom-crawler.git",
+                "reference": "2918e7c2ba964defca1f5b69c6f74886529e2dc8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/2918e7c2ba964defca1f5b69c6f74886529e2dc8",
+                "reference": "2918e7c2ba964defca1f5b69c6f74886529e2dc8",
+                "shasum": ""
+            },
+            "require": {
+                "masterminds/html5": "^2.6",
+                "php": ">=8.2",
+                "symfony/deprecation-contracts": "^2.5|^3",
+                "symfony/polyfill-ctype": "~1.8",
+                "symfony/polyfill-mbstring": "~1.0"
+            },
+            "require-dev": {
+                "symfony/css-selector": "^6.4|^7.0|^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\DomCrawler\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Eases DOM navigation for HTML and XML documents",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/dom-crawler/tree/v7.4.8"
             },
             "funding": [
                 {
@@ -10449,6 +11186,96 @@
             "time": "2026-01-26T15:07:59+00:00"
         },
         {
+            "name": "symfony/web-profiler-bundle",
+            "version": "v7.4.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/web-profiler-bundle.git",
+                "reference": "36dd8b8c05da059925c5804641aad9159e5b73e8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/web-profiler-bundle/zipball/36dd8b8c05da059925c5804641aad9159e5b73e8",
+                "reference": "36dd8b8c05da059925c5804641aad9159e5b73e8",
+                "shasum": ""
+            },
+            "require": {
+                "composer-runtime-api": ">=2.1",
+                "php": ">=8.2",
+                "symfony/config": "^7.3|^8.0",
+                "symfony/deprecation-contracts": "^2.5|^3",
+                "symfony/framework-bundle": "^6.4.13|^7.1.6|^8.0",
+                "symfony/http-kernel": "^6.4.13|^7.1.6|^8.0",
+                "symfony/routing": "^6.4|^7.0|^8.0",
+                "symfony/twig-bundle": "^6.4|^7.0|^8.0",
+                "twig/twig": "^3.15"
+            },
+            "conflict": {
+                "symfony/form": "<6.4",
+                "symfony/mailer": "<6.4",
+                "symfony/messenger": "<6.4",
+                "symfony/serializer": "<7.2",
+                "symfony/workflow": "<7.3"
+            },
+            "require-dev": {
+                "symfony/browser-kit": "^6.4|^7.0|^8.0",
+                "symfony/console": "^6.4|^7.0|^8.0",
+                "symfony/css-selector": "^6.4|^7.0|^8.0",
+                "symfony/runtime": "^6.4.13|^7.1.6|^8.0",
+                "symfony/stopwatch": "^6.4|^7.0|^8.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Bundle\\WebProfilerBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides a development tool that gives detailed information about the execution of any request",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "dev"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/web-profiler-bundle/tree/v7.4.9"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-04-22T15:21:55+00:00"
+        },
+        {
             "name": "theseer/tokenizer",
             "version": "1.3.1",
             "source": {
@@ -10497,6 +11324,64 @@
                 }
             ],
             "time": "2025-11-17T20:03:58+00:00"
+        },
+        {
+            "name": "webmozart/assert",
+            "version": "1.12.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/webmozarts/assert.git",
+                "reference": "9be6926d8b485f55b9229203f962b51ed377ba68"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/webmozarts/assert/zipball/9be6926d8b485f55b9229203f962b51ed377ba68",
+                "reference": "9be6926d8b485f55b9229203f962b51ed377ba68",
+                "shasum": ""
+            },
+            "require": {
+                "ext-ctype": "*",
+                "ext-date": "*",
+                "ext-filter": "*",
+                "php": "^7.2 || ^8.0"
+            },
+            "suggest": {
+                "ext-intl": "",
+                "ext-simplexml": "",
+                "ext-spl": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.10-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Webmozart\\Assert\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bernhard Schussek",
+                    "email": "bschussek@gmail.com"
+                }
+            ],
+            "description": "Assertions to validate method input/output with nice error messages.",
+            "keywords": [
+                "assert",
+                "check",
+                "validate"
+            ],
+            "support": {
+                "issues": "https://github.com/webmozarts/assert/issues",
+                "source": "https://github.com/webmozarts/assert/tree/1.12.1"
+            },
+            "time": "2025-10-29T15:56:20+00:00"
         }
     ],
     "aliases": [],

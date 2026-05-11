@@ -67,9 +67,16 @@ class UserType extends AbstractType
                 'required' => false,
                 'constraints' => [
                     new Assert\File([
-                        'maxSize' => '2M',
-                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/gif'],
-                        'mimeTypesMessage' => 'Please upload a valid image file (JPEG, PNG, or GIF)',
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png', 
+                            'image/gif',
+                            'image/jpg',
+                            'image/webp'
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid image file (JPEG, PNG, GIF, or WebP)',
+                        'maxSizeMessage' => 'The file is too large. Maximum allowed size is 5MB.',
                     ]),
                 ],
             ])

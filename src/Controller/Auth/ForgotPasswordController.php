@@ -5,7 +5,8 @@ namespace App\Controller\Auth;
 use App\Repository\UserRepository;
 use App\Service\SMSService;
 use App\Service\EmailService;
-use App\Form\ResetPasswordType;
+use App\Form\ForgotPasswordType;
+use App\Form\OTPVerificationType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,25 +28,27 @@ class ForgotPasswordController extends AbstractController
     #[Route('/', name: 'app_forgot_password', methods: ['GET', 'POST'])]
     public function requestOtp(Request $request): Response
     {
-        if ($request->isMethod('POST')) {
-            $email = trim($request->request->get('email', ''));
+        $form = $this->createForm(ForgotPasswordType::class);
+        $form->handleRequest($request);
 
-            if (empty($email)) {
-                $this->addFlash('error', 'Please enter your email address.');
-                return $this->redirectToRoute('app_forgot_password');
-            }
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $email = $form->get('email')->getData();
+                error_log('ForgotPassword: Form submitted with email: ' . $email);
+                
+                $user = $this->userRepository->findOneByEmail($email);
 
-            $user = $this->userRepository->findOneByEmail($email);
+                if (!$user) {
+                    // Don't reveal whether email exists
+                    $this->addFlash('success', 'If this email is registered, you will receive a reset code shortly.');
+                    return $this->redirectToRoute('app_forgot_password');
+                }
 
-            if (!$user) {
-                // Don't reveal whether email exists
-                $this->addFlash('success', 'If this email is registered, you will receive a reset code shortly.');
-                return $this->redirectToRoute('app_forgot_password');
-            }
+                error_log('ForgotPassword: User found: ' . $user->getEmail());
 
             // Generate 6-digit OTP
             $otpCode = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-            $otpExpiry = new \DateTime('+10 minutes');
+            $otpExpiry = new \DateTime('+15 minutes');
 
             $user->setOtpCode($otpCode);
             $user->setOtpExpiry($otpExpiry);
@@ -69,12 +72,16 @@ class ForgotPasswordController extends AbstractController
                 }
             }
 
-            // Send via email
+            // Send via email using Symfony Mailer
             try {
                 $this->emailService->sendOtp($user->getEmail(), $otpCode);
                 $emailSent = true;
+                $this->addFlash('info', 'Email sent successfully via Gmail');
+                error_log('Email sent successfully to ' . $user->getEmail());
             } catch (\Exception $e) {
                 // Email failed
+                $this->addFlash('warning', 'Email service error: ' . $e->getMessage());
+                error_log('Email service exception: ' . $e->getMessage());
             }
 
             if (!$smsSent && !$emailSent) {
@@ -92,9 +99,16 @@ class ForgotPasswordController extends AbstractController
             $this->addFlash('success', 'A 6-digit reset code has been sent to your ' . implode(' and ', $channels) . '.');
 
             return $this->redirectToRoute('app_forgot_password_verify');
+            } catch (\Exception $e) {
+                error_log('ForgotPassword Exception: ' . $e->getMessage());
+                $this->addFlash('error', 'An error occurred: ' . $e->getMessage());
+                return $this->redirectToRoute('app_forgot_password');
+            }
         }
 
-        return $this->render('auth/forgot_password.html.twig');
+        return $this->render('auth/forgot_password.html.twig', [
+            'form' => $form->createView()
+        ]);
     }
 
     /**
@@ -110,8 +124,14 @@ class ForgotPasswordController extends AbstractController
             return $this->redirectToRoute('app_forgot_password');
         }
 
-        if ($request->isMethod('POST')) {
-            $enteredOtp = trim($request->request->get('otp_code', ''));
+        $form = $this->createForm(OTPVerificationType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $enteredOtp = $data['otpCode'];
+            $newPassword = $data['newPassword'];
+            $confirmPassword = $data['confirmPassword'];
 
             $user = $this->userRepository->findOneByEmail($email);
 
@@ -123,7 +143,7 @@ class ForgotPasswordController extends AbstractController
             // Check OTP expiry
             if (!$user->getOtpExpiry() || $user->getOtpExpiry() < new \DateTime()) {
                 $this->addFlash('error', 'Your code has expired. Please request a new one.');
-                return $this->redirectToRoute('app_forgot_password');
+                return $this->redirectToRoute('app_forgot_password_verify');
             }
 
             // Check OTP match
@@ -132,18 +152,29 @@ class ForgotPasswordController extends AbstractController
                 return $this->redirectToRoute('app_forgot_password_verify');
             }
 
-            // OTP is valid — clear it and allow password reset
+            // Check password confirmation
+            if ($newPassword !== $confirmPassword) {
+                $this->addFlash('error', 'Passwords do not match.');
+                return $this->redirectToRoute('app_forgot_password_verify');
+            }
+
+            // OTP is valid and passwords match — reset password
+            $user->setPassword($newPassword);
             $user->setOtpCode(null);
             $user->setOtpExpiry(null);
             $this->userRepository->save($user, true);
 
-            // Mark session as OTP verified
-            $request->getSession()->set('otp_verified', true);
+            // Clear session
+            $request->getSession()->remove('reset_email');
+            $request->getSession()->remove('otp_verified');
 
-            return $this->redirectToRoute('app_forgot_password_reset');
+            $this->addFlash('success', 'Your password has been reset successfully! You can now log in.');
+
+            return $this->redirectToRoute('app_login');
         }
 
         return $this->render('auth/verify_otp.html.twig', [
+            'form' => $form->createView(),
             'email' => $email
         ]);
     }
@@ -246,7 +277,12 @@ class ForgotPasswordController extends AbstractController
         try {
             $this->emailService->sendOtp($user->getEmail(), $otpCode);
             $sent = true;
-        } catch (\Exception $e) {}
+            $this->addFlash('info', 'Email resent successfully via Gmail');
+            error_log('Email resent successfully to ' . $user->getEmail());
+        } catch (\Exception $e) {
+            $this->addFlash('warning', 'Email service error: ' . $e->getMessage());
+            error_log('Email resend exception: ' . $e->getMessage());
+        }
 
         if ($sent) {
             $this->addFlash('success', 'A new code has been sent.');

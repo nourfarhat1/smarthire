@@ -2,75 +2,419 @@
 
 {% block title %}Enter Verification Code - SmartHire{% endblock %}
 
-{% block page_title %}Verify Your Identity{% endblock %}
+{% block stylesheets %}
+<style>
+/* Role-specific color schemes */
+.role-hr {
+    --role-primary: #e91e63;
+    --role-gradient: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+    --role-light: #fce4ec;
+}
+
+.role-candidate {
+    --role-primary: #87a042;
+    --role-gradient: linear-gradient(135deg, #87a042 0%, #6b8a35 100%);
+    --role-light: #f1f8e9;
+}
+
+.role-admin {
+    --role-primary: #2196f3;
+    --role-gradient: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    --role-light: #e3f2fd;
+}
+
+.role-default {
+    --role-primary: #6c757d;
+    --role-gradient: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    --role-light: #f8f9fa;
+}
+
+/* Animated background */
+.login-bg {
+    background: var(--role-gradient);
+    position: relative;
+    overflow: hidden;
+}
+
+.login-bg::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    animation: float 20s linear infinite;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(50px, 50px) rotate(360deg); }
+}
+
+/* Form enhancements */
+.form-control:focus {
+    border-color: var(--role-primary);
+    box-shadow: 0 0 0 0.2rem rgba(233, 30, 99, 0.25);
+}
+
+.btn-role {
+    background: linear-gradient(135deg, #87a042 0%, #6b8a35 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(135, 160, 66, 0.3);
+}
+
+.btn-role:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(135, 160, 66, 0.4);
+}
+
+.btn-outline-role {
+    background: transparent;
+    border: 2px solid #87a042;
+    color: #87a042;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-role:hover {
+    background: #87a042;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(135, 160, 66, 0.3);
+}
+
+/* Feature icons */
+.feature-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+    transform: scale(1.1) rotate(5deg);
+    background: rgba(255,255,255,0.3);
+}
+
+/* Session info */
+.session-info {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Loading state */
+.loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* OTP input styling */
+.otp-input {
+    font-size: 2rem;
+    letter-spacing: 0.5rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Password strength indicator */
+.password-strength {
+    height: 4px;
+    border-radius: 2px;
+    margin-top: 5px;
+    transition: all 0.3s ease;
+}
+
+.strength-weak { background: #dc3545; width: 33%; }
+.strength-medium { background: #ffc107; width: 66%; }
+.strength-strong { background: #28a745; width: 100%; }
+</style>
+{% endblock %}
 
 {% block body %}
-<div class="row justify-content-center">
-    <div class="col-lg-5">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white py-3">
-                <h4 class="mb-0">
-                    <i class="bi bi-shield-lock me-2"></i>Enter Verification Code
-                </h4>
-            </div>
-            <div class="card-body p-4 text-center">
-
-                <div class="mb-4">
-                    <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
-                         style="width: 70px; height: 70px;">
-                        <i class="bi bi-phone text-primary fs-2"></i>
+<div class="row min-vh-100">
+    <!-- Left Side - Verification Info -->
+    <div class="col-lg-6 d-none d-lg-block">
+        <div class="h-100 d-flex align-items-center justify-content-center login-bg role-default" id="loginBg">
+            <div class="text-center text-white p-5">
+                <h1 class="display-4 fw-bold mb-4">SmartHire</h1>
+                <p class="lead mb-5">Verify Your Identity</p>
+                
+                <!-- Session Information -->
+                <div class="session-info mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-shield-check me-2"></i>
+                            <span>Secure Verification</span>
+                        </div>
+                        <div>
+                            <i class="bi bi-clock me-2"></i>
+                            <span id="currentTime"></span>
+                        </div>
                     </div>
-                    <p class="text-muted">
-                        We sent a 6-digit code to<br>
-                        <strong>{{ email }}</strong><br>
-                        <small class="text-muted">and your registered phone number (if available)</small>
-                    </p>
-                    <p class="text-muted small">
-                        <i class="bi bi-clock me-1"></i>Code expires in <strong>10 minutes</strong>
-                    </p>
+                </div>
+                
+                <!-- Verification Status -->
+                <div class="mb-5">
+                    <h4 class="mb-3">Code Sent To</h4>
+                    <div class="text-center">
+                        <div class="feature-icon mx-auto mb-3">
+                            <i class="bi bi-envelope-fill fs-4"></i>
+                        </div>
+                        <h5 class="mb-2">{{ email }}</h5>
+                        <p class="opacity-75">Check your email for the 6-digit code</p>
+                        <div class="mt-3">
+                            <small class="opacity-75">
+                                <i class="bi bi-clock me-1"></i>Code expires in <strong>15 minutes</strong>
+                            </small>
+                        </div>
+                    </div>
                 </div>
 
-                <form method="POST" action="{{ path('app_forgot_password_verify') }}">
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Verification Code</label>
-                        <input type="text"
-                               name="otp_code"
-                               class="form-control form-control-lg text-center fw-bold"
-                               style="font-size: 2rem; letter-spacing: 0.5rem;"
-                               maxlength="6"
-                               placeholder="000000"
-                               pattern="\d{6}"
-                               inputmode="numeric"
-                               autocomplete="one-time-code"
-                               required
-                               autofocus>
-                        <div class="form-text">Enter the 6-digit code from your email or SMS</div>
-                    </div>
-
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="bi bi-check-circle me-2"></i>Verify Code
-                        </button>
-                    </div>
-                </form>
-
-                <hr class="my-3">
-
-                <form method="POST" action="{{ path('app_forgot_password_resend') }}">
-                    <p class="text-muted small mb-2">Didn't receive the code?</p>
-                    <button type="submit" class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-arrow-clockwise me-1"></i>Resend Code
-                    </button>
-                </form>
-
-                <div class="mt-3">
-                    <a href="{{ path('app_forgot_password') }}" class="text-muted small">
-                        <i class="bi bi-arrow-left me-1"></i>Use a different email
+                <!-- Quick Access -->
+                <div class="d-flex justify-content-center gap-2 mb-4">
+                    <a href="{{ path('app_forgot_password') }}" class="btn btn-outline-light">
+                        <i class="bi bi-arrow-left me-1"></i> Different Email
+                    </a>
+                    <a href="{{ path('app_login') }}" class="btn btn-outline-light">
+                        <i class="bi bi-box-arrow-in-left me-1"></i> Back to Login
                     </a>
                 </div>
 
+                <!-- Security Features -->
+                <div class="row text-start mt-5">
+                    <div class="col-md-6 mb-3">
+                        <div class="feature-card">
+                            <div class="feature-icon mx-auto">
+                                <i class="bi bi-shield-fill fs-4"></i>
+                            </div>
+                            <h6 class="mb-0">Secure Code</h6>
+                            <small class="opacity-75">Time-sensitive verification</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="feature-card">
+                            <div class="feature-icon mx-auto">
+                                <i class="bi bi-lock-fill fs-4"></i>
+                            </div>
+                            <h6 class="mb-0">One-Time Use</h6>
+                            <small class="opacity-75">Single verification code</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Side - Verification Form -->
+    <div class="col-lg-6">
+        <div class="h-100 d-flex align-items-center justify-content-center p-4">
+            <div class="w-100" style="max-width: 400px;">
+                <div class="text-center mb-4">
+                    <div class="mb-3">
+                        <div class="role-icon mx-auto" style="background: #6c757d;">
+                            <i class="bi bi-shield-lock"></i>
+                        </div>
+                    </div>
+                    <h2 class="fw-bold">Enter Code</h2>
+                    <p class="text-muted">Verify and reset your password</p>
+                </div>
+
+                {% for type, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
+                            <i class="bi bi-{{ type == 'success' ? 'check-circle' : type == 'error' ? 'exclamation-triangle' : 'info-circle' }} me-2"></i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'id': 'verifyForm'}}) }}
+                    <div class="mb-4">
+                        <label for="{{ form.otpCode.vars.id }}" class="form-label">
+                            <i class="bi bi-key me-1"></i>Verification Code
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-key"></i>
+                            </span>
+                            {{ form_widget(form.otpCode, {'attr': {'class': 'form-control form-control-lg otp-input', 'placeholder': '000000', 'maxlength': '6', 'pattern': '[0-9]{6}', 'inputmode': 'numeric', 'autofocus': true}}) }}
+                        </div>
+                        {{ form_errors(form.otpCode) }}
+                        <div class="form-text">Enter the 6-digit code from your email</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.newPassword.vars.id }}" class="form-label">
+                            <i class="bi bi-lock me-1"></i>New Password
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-lock"></i>
+                            </span>
+                            {{ form_widget(form.newPassword, {'attr': {'class': 'form-control form-control-lg', 'placeholder': 'Enter new password', 'id': 'newPasswordInput'}}) }}
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('newPasswordInput', 'newPasswordToggle')">
+                                <i class="bi bi-eye" id="newPasswordToggle"></i>
+                            </button>
+                        </div>
+                        {{ form_errors(form.newPassword) }}
+                        <div class="password-strength" id="passwordStrength"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.confirmPassword.vars.id }}" class="form-label">
+                            <i class="bi bi-lock-fill me-1"></i>Confirm Password
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-lock-fill"></i>
+                            </span>
+                            {{ form_widget(form.confirmPassword, {'attr': {'class': 'form-control form-control-lg', 'placeholder': 'Confirm new password', 'id': 'confirmPasswordInput'}}) }}
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirmPasswordInput', 'confirmPasswordToggle')">
+                                <i class="bi bi-eye" id="confirmPasswordToggle"></i>
+                            </button>
+                        </div>
+                        {{ form_errors(form.confirmPassword) }}
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        {{ form_widget(form.submit, {'attr': {'class': 'btn btn-role btn-lg', 'id': 'verifyBtn'}}) }}
+                    </div>
+
+                    <div class="text-center">
+                        <p class="mb-2">Didn't receive the code?</p>
+                        <form method="POST" action="{{ path('app_forgot_password_resend') }}" class="d-inline">
+                            <button type="submit" class="btn btn-outline-role">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Resend Code
+                            </button>
+                        </form>
+                    </div>
+                {{ form_end(form) }}
+
+                <!-- Additional Information -->
+                <div class="mt-4 text-center">
+                    <small class="text-muted">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Your verification is secure and encrypted
+                    </small>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function updateTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+    });
+    document.getElementById('currentTime').textContent = timeString;
+}
+
+function togglePassword(inputId, toggleId) {
+    const passwordInput = document.getElementById(inputId);
+    const toggleIcon = document.getElementById(toggleId);
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.className = 'bi bi-eye-slash';
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.className = 'bi bi-eye';
+    }
+}
+
+function checkPasswordStrength(password) {
+    const strengthBar = document.getElementById('passwordStrength');
+    let strength = 0;
+    
+    if (password.length >= 8) strength++;
+    if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+    if (password.match(/[0-9]/)) strength++;
+    if (password.match(/[^a-zA-Z0-9]/)) strength++;
+    
+    strengthBar.className = 'password-strength';
+    if (strength <= 1) strengthBar.classList.add('strength-weak');
+    else if (strength === 2) strengthBar.classList.add('strength-medium');
+    else strengthBar.classList.add('strength-strong');
+}
+
+// Form submission handling
+document.getElementById('verifyForm').addEventListener('submit', function(e) {
+    const btn = document.getElementById('verifyBtn');
+    
+    // Show loading state
+    btn.classList.add('loading');
+    btn.disabled = true;
+    
+    // Reset loading state after 3 seconds (in case of redirect issues)
+    setTimeout(() => {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+    }, 3000);
+});
+
+// Password strength checker
+document.getElementById('newPasswordInput').addEventListener('input', function() {
+    checkPasswordStrength(this.value);
+});
+
+// OTP input auto-focus and formatting
+document.getElementById('{{ form.otpCode.vars.id }}').addEventListener('input', function(e) {
+    // Only allow numbers
+    this.value = this.value.replace(/[^0-9]/g, '');
+    
+    // Auto-submit when 6 digits entered
+    if (this.value.length === 6) {
+        document.getElementById('newPasswordInput').focus();
+    }
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    updateTime();
+    setInterval(updateTime, 1000);
+    
+    // Focus on OTP field
+    document.getElementById('{{ form.otpCode.vars.id }}').focus();
+});
+</script>
 {% endblock %}

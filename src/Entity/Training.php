@@ -3,10 +3,12 @@
 namespace App\Entity;
 
 use App\Repository\TrainingRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TrainingRepository::class)]
-#[ORM\Table(name: 'training')]
+#[ORM\Table(name: 'training_new')]
 class Training
 {
     #[ORM\Id]
@@ -36,14 +38,18 @@ class Training
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'trainings')]
-    #[ORM\JoinColumn(name: 'admin_id')]
+    #[ORM\JoinColumn(name: 'admin_id', nullable: true, onDelete: 'SET NULL')]
     private ?User $admin = null;
+
+    #[ORM\OneToMany(mappedBy: 'training', targetEntity: UserTrainingVote::class)]
+    private Collection $userVotes;
 
     public function __construct()
     {
         $this->createdAt = new \DateTime();
         $this->likes = 0;
         $this->dislikes = 0;
+        $this->userVotes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -143,6 +149,33 @@ class Training
     public function setAdmin(?User $admin): self
     {
         $this->admin = $admin;
+
+        return $this;
+    }
+
+    public function getUserVotes(): Collection
+    {
+        return $this->userVotes;
+    }
+
+    public function addUserVote(UserTrainingVote $userVote): self
+    {
+        if (!$this->userVotes->contains($userVote)) {
+            $this->userVotes->add($userVote);
+            $userVote->setTraining($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserVote(UserTrainingVote $userVote): self
+    {
+        if ($this->userVotes->removeElement($userVote)) {
+            // set the owning side to null (unless already changed)
+            if ($userVote->getTraining() === $this) {
+                $userVote->setTraining(null);
+            }
+        }
 
         return $this;
     }

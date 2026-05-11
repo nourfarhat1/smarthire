@@ -1,0 +1,1 @@
+At line:1 char:162+ ... l.*?\}', '# Removed isActive method to avoid deadline reference' -Raw+                                                                      ~~~~Unexpected token '-Raw' in expression or statement.    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException    + FullyQualifiedErrorId : UnexpectedToken 

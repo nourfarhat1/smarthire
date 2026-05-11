@@ -35,6 +35,10 @@ class SearchService
         $this->trainingRepository = $trainingRepository;
     }
 
+    /**
+     * @param array<string, mixed> $criteria
+     * @return array<string, mixed>
+     */
     public function searchJobs(array $criteria): array
     {
         $qb = $this->jobOfferRepository->createQueryBuilder('j')
@@ -126,6 +130,10 @@ class SearchService
                   ->getResult();
     }
 
+    /**
+     * @param array<string, mixed> $criteria
+     * @return array<string, mixed>
+     */
     public function searchEvents(array $criteria): array
     {
         $qb = $this->appEventRepository->createQueryBuilder('e')
@@ -170,6 +178,10 @@ class SearchService
                   ->getResult();
     }
 
+    /**
+     * @param array<string, mixed> $criteria
+     * @return array<string, mixed>
+     */
     public function searchTraining(array $criteria): array
     {
         $qb = $this->trainingRepository->createQueryBuilder('t')
@@ -196,9 +208,14 @@ class SearchService
                   ->getResult();
     }
 
+    /**
+     * @param array<string, mixed> $criteria
+     * @return array<string, mixed>
+     */
     public function searchUsers(array $criteria): array
     {
-        $qb = $this->entityManager->createQueryBuilder('u')
+        $qb = $this->entityManager->createQueryBuilder()
+            ->select('u')
             ->from(User::class, 'u');
 
         if (!empty($criteria['search'])) {
@@ -222,23 +239,32 @@ class SearchService
                   ->getResult();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getPopularSearches(): array
     {
         // This would typically track search queries and return popular ones
         // For now, return some sample popular searches
         return [
-            'PHP Developer',
-            'Frontend Developer',
-            'Data Scientist',
-            'Project Manager',
-            'UX Designer',
-            'Full Stack Developer',
-            'DevOps Engineer',
-            'Marketing Manager',
-            'Sales Representative',
+            'searches' => [
+                'PHP Developer',
+                'Frontend Developer',
+                'Data Scientist',
+                'Project Manager',
+                'UX Designer',
+                'Full Stack Developer',
+                'DevOps Engineer',
+                'Marketing Manager',
+                'Sales Representative',
+            ],
+            'count' => 9
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getSearchSuggestions(string $query): array
     {
         if (strlen($query) < 2) {
@@ -273,6 +299,9 @@ class SearchService
             $suggestions[] = ['type' => 'location', 'text' => $location['location']];
         }
         
-        return $suggestions;
+        return [
+            'suggestions' => $suggestions,
+            'count' => count($suggestions)
+        ];
     }
 }

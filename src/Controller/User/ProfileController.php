@@ -146,16 +146,33 @@ class ProfileController extends AbstractController
 
             // Handle profile picture upload
             $profilePicture = $form->get('profilePicture')->getData();
+            
+            // Debug: Check if file was uploaded
             if ($profilePicture) {
-                $originalFilename = pathinfo($profilePicture->getClientOriginalName(), PATHINFO_FILENAME);
-                $extension = $profilePicture->guessExtension();
-                $newFilename = $originalFilename . '-' . uniqid() . '.' . $extension;
+                $this->addFlash('info', 'Profile picture detected: ' . $profilePicture->getClientOriginalName());
                 
-                $uploadsDir = $this->getParameter('kernel.project_dir') . '/public/uploads/profiles/';
-                $profilePicture->move($uploadsDir, $newFilename);
-                
-                // Update user profile
-                $user->setProfilePicture($newFilename);
+                try {
+                    $originalFilename = pathinfo($profilePicture->getClientOriginalName(), PATHINFO_FILENAME);
+                    $extension = $profilePicture->guessExtension();
+                    $newFilename = $originalFilename . '-' . uniqid() . '.' . $extension;
+                    
+                    $uploadsDir = $this->getParameter('kernel.project_dir') . '/public/uploads/profiles/';
+                    
+                    // Ensure directory exists
+                    if (!is_dir($uploadsDir)) {
+                        mkdir($uploadsDir, 0777, true);
+                    }
+                    
+                    $profilePicture->move($uploadsDir, $newFilename);
+                    
+                    // Update user profile
+                    $user->setProfilePicture($newFilename);
+                    $this->addFlash('success', 'Profile picture uploaded successfully!');
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Error uploading profile picture: ' . $e->getMessage());
+                    // Don't save the user if file upload failed
+                    return $this->redirectToRoute('app_profile_edit');
+                }
             }
 
             $this->userRepository->save($user, true);
