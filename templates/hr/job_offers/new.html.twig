@@ -1,0 +1,178 @@
+{% extends 'hr/layout.html.twig' %}
+
+{% block title %}Create New Job Offer - SmartHire{% endblock %}
+
+{% block hr_page_title %}Create New Job Offer{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%);">
+                <h5 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Create New Job Offer</h5>
+            </div>
+            <div class="card-body">
+                {% for flash in app.flashes('error') %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ flash }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% for flash in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ flash }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                <form method="POST" action="{{ path('app_hr_job_offers_new') }}">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Job Title <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="title" name="title" 
+                                       placeholder="e.g. Senior Software Developer" required>
+                                <div class="form-text">Be specific and include seniority level.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="jobType" class="form-label">Job Type <span class="text-danger">*</span></label>
+                                <select class="form-select" id="jobType" name="jobType" required>
+                                    <option value="">Select type...</option>
+                                    <option value="Full-time">Full-time</option>
+                                    <option value="Part-time">Part-time</option>
+                                    <option value="Contract">Contract</option>
+                                    <option value="Internship">Internship</option>
+                                    <option value="Remote">Remote</option>
+                                    <option value="Hybrid">Hybrid</option>
+                                </select>
+                                <div class="form-text">Choose the employment type.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="">Select category...</option>
+                                    {% for jobCategory in categories %}
+                                        <option value="{{ jobCategory.id }}">{{ jobCategory.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">Choose the most relevant category.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="location" class="form-label">Location <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="location" name="location" 
+                                       placeholder="e.g. Tunis, Tunisia or Remote" required>
+                                <div class="form-text">City, Country or "Remote".</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="salaryRange" class="form-label">Salary Range</label>
+                                <input type="text" class="form-control" id="salaryRange" name="salaryRange" 
+                                       placeholder="e.g. 3000-5000 TND/month">
+                                <div class="form-text">Optional but recommended for better visibility.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="postedDate" class="form-label">Posted Date</label>
+                                <input type="date" class="form-control" id="postedDate" name="postedDate" 
+                                       value="{{ "now"|date('Y-m-d') }}" readonly>
+                                <div class="form-text">Automatically set to today.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Job Description <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="description" name="description" rows="8" required
+                                  placeholder="Provide a detailed job description including responsibilities, requirements, and what you offer..."></textarea>
+                        <div class="form-text">Minimum 50 characters. Be specific about responsibilities and requirements.</div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Job Offer Guidelines:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Be specific about responsibilities and daily tasks</li>
+                            <li>List required skills and qualifications clearly</li>
+                            <li>Mention company culture and benefits</li>
+                            <li>Include application instructions if needed</li>
+                            <li>Proofread for spelling and grammar errors</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('app_hr_job_offers') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Job Offers
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-2"></i>Create Job Offer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+                <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>Help</h6>
+            </div>
+            <div class="card-body">
+                <h6>Writing Effective Job Titles</h6>
+                <ul class="small">
+                    <li>Include seniority level (Junior, Senior, Lead)</li>
+                    <li>Be specific about the role</li>
+                    <li>Avoid internal jargon</li>
+                    <li>Include key technologies if relevant</li>
+                </ul>
+
+                <hr>
+
+                <h6>Job Description Best Practices</h6>
+                <ul class="small">
+                    <li>Start with a compelling overview</li>
+                    <li>Use bullet points for requirements</li>
+                    <li>Be realistic about qualifications</li>
+                    <li>Mention growth opportunities</li>
+                    <li>Keep it under 500 words</li>
+                </ul>
+
+                <hr>
+
+                <h6>Salary Guidelines</h6>
+                <p class="small">
+                    Providing a salary range increases application quality by 40%. 
+                    Research market rates for your location and industry.
+                </p>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);">
+                <h6 class="mb-0"><i class="bi bi-shield-exclamation me-2"></i>Important</h6>
+            </div>
+            <div class="card-body">
+                <p class="small mb-0">
+                    Once published, your job offer will be visible to all candidates. 
+                    You can edit or delete it at any time from your job offers dashboard.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

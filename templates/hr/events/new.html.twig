@@ -1,0 +1,244 @@
+{% extends 'hr/layout.html.twig' %}
+
+{% block title %}Create New Event - SmartHire{% endblock %}
+
+{% block hr_page_title %}Create New Event{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%);">
+                <h5 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Create New Event</h5>
+            </div>
+            <div class="card-body">
+                {% for flash in app.flashes('error') %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ flash }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% for flash in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ flash }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                <form method="post">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Event Name <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="name" 
+                                       name="name" 
+                                       value="{{ event.name }}" 
+                                       required
+                                       placeholder="Enter event name">
+                                <div class="form-text">Choose a descriptive name for your event.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="eventDate" class="form-label">Event Date <span class="text-danger">*</span></label>
+                                <input type="datetime-local" 
+                                       class="form-control" 
+                                       id="eventDate" 
+                                       name="eventDate" 
+                                       value="{{ event.eventDate ? event.eventDate|date('Y-m-d\\TH:i') : '' }}" 
+                                       required>
+                                <div class="form-text">Date and time when the event will take place.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="maxParticipants" class="form-label">Max Participants <span class="text-danger">*</span></label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="maxParticipants" 
+                                       name="maxParticipants" 
+                                       value="{{ event.maxParticipants }}" 
+                                       min="1" 
+                                       required
+                                       placeholder="Maximum participants">
+                                <div class="form-text">Maximum number of attendees allowed.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Régions de Tunisie - Sélection unique -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="location" class="form-label">Région / Gouvernorat <span class="text-danger">*</span></label>
+                                <select class="form-select" id="location" name="location" required>
+                                    <option value="">-- Sélectionnez une région --</option>
+                                    <option value="Tunis" {% if event.location == 'Tunis' %}selected{% endif %}>🇹🇳 Tunis</option>
+                                    <option value="Ariana" {% if event.location == 'Ariana' %}selected{% endif %}>🇹🇳 Ariana</option>
+                                    <option value="Ben Arous" {% if event.location == 'Ben Arous' %}selected{% endif %}>🇹🇳 Ben Arous</option>
+                                    <option value="Manouba" {% if event.location == 'Manouba' %}selected{% endif %}>🇹🇳 Manouba</option>
+                                    <option value="Nabeul" {% if event.location == 'Nabeul' %}selected{% endif %}>🇹🇳 Nabeul</option>
+                                    <option value="Zaghouan" {% if event.location == 'Zaghouan' %}selected{% endif %}>🇹🇳 Zaghouan</option>
+                                    <option value="Bizerte" {% if event.location == 'Bizerte' %}selected{% endif %}>🇹🇳 Bizerte</option>
+                                    <option value="Béja" {% if event.location == 'Béja' %}selected{% endif %}>🇹🇳 Béja</option>
+                                    <option value="Jendouba" {% if event.location == 'Jendouba' %}selected{% endif %}>🇹🇳 Jendouba</option>
+                                    <option value="Le Kef" {% if event.location == 'Le Kef' %}selected{% endif %}>🇹🇳 Le Kef</option>
+                                    <option value="Siliana" {% if event.location == 'Siliana' %}selected{% endif %}>🇹🇳 Siliana</option>
+                                    <option value="Kairouan" {% if event.location == 'Kairouan' %}selected{% endif %}>🇹🇳 Kairouan</option>
+                                    <option value="Kasserine" {% if event.location == 'Kasserine' %}selected{% endif %}>🇹🇳 Kasserine</option>
+                                    <option value="Sidi Bouzid" {% if event.location == 'Sidi Bouzid' %}selected{% endif %}>🇹🇳 Sidi Bouzid</option>
+                                    <option value="Sousse" {% if event.location == 'Sousse' %}selected{% endif %}>🇹🇳 Sousse</option>
+                                    <option value="Monastir" {% if event.location == 'Monastir' %}selected{% endif %}>🇹🇳 Monastir</option>
+                                    <option value="Mahdia" {% if event.location == 'Mahdia' %}selected{% endif %}>🇹🇳 Mahdia</option>
+                                    <option value="Sfax" {% if event.location == 'Sfax' %}selected{% endif %}>🇹🇳 Sfax</option>
+                                    <option value="Gabès" {% if event.location == 'Gabès' %}selected{% endif %}>🇹🇳 Gabès</option>
+                                    <option value="Médenine" {% if event.location == 'Médenine' %}selected{% endif %}>🇹🇳 Médenine</option>
+                                    <option value="Tataouine" {% if event.location == 'Tataouine' %}selected{% endif %}>🇹🇳 Tataouine</option>
+                                    <option value="Gafsa" {% if event.location == 'Gafsa' %}selected{% endif %}>🇹🇳 Gafsa</option>
+                                    <option value="Tozeur" {% if event.location == 'Tozeur' %}selected{% endif %}>🇹🇳 Tozeur</option>
+                                    <option value="Kebili" {% if event.location == 'Kebili' %}selected{% endif %}>🇹🇳 Kebili</option>
+                                </select>
+                                <div class="form-text">Sélectionnez le gouvernorat où aura lieu l'événement.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Adresse détaillée (optionnelle) -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="address_detail" class="form-label">Adresse détaillée <span class="text-muted">(optionnel)</span></label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="address_detail" 
+                                       name="address_detail" 
+                                       placeholder="Ex: Technopark El Ghazala, Bureau 5"
+                                       value="{{ event.addressDetail ?? '' }}">
+                                <div class="form-text">Ajoutez des détails supplémentaires sur le lieu (bâtiment, étage, salle...).</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                        <textarea class="form-control" 
+                                  id="description" 
+                                  name="description" 
+                                  rows="6" 
+                                  required
+                                  placeholder="Provide detailed information about your event...">{{ event.description }}</textarea>
+                        <div class="form-text">Describe the event purpose, agenda, and what participants should expect.</div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Event Guidelines:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Set a realistic maximum capacity for your venue</li>
+                            <li>Provide clear location details (include room number if applicable)</li>
+                            <li>Allow enough time for setup and cleanup</li>
+                            <li>Include contact information for questions</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('app_hr_events') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Events
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-2"></i>Create Event
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+                <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>Help</h6>
+            </div>
+            <div class="card-body">
+                <h6>Event Tips</h6>
+                <ul class="small">
+                    <li>Choose a catchy but descriptive event name</li>
+                    <li>Set participant limits based on venue capacity</li>
+                    <li>Select the correct region for accurate weather information</li>
+                    <li>Include event duration in description</li>
+                    <li>Mention any materials participants should bring</li>
+                </ul>
+
+                <hr>
+
+                <h6>Régions disponibles</h6>
+                <div class="small">
+                    <div class="row">
+                        <div class="col-6">
+                            <ul class="mb-0">
+                                <li>🇹🇳 Tunis</li>
+                                <li>🇹🇳 Ariana</li>
+                                <li>🇹🇳 Ben Arous</li>
+                                <li>🇹🇳 Manouba</li>
+                                <li>🇹🇳 Nabeul</li>
+                                <li>🇹🇳 Bizerte</li>
+                            </ul>
+                        </div>
+                        <div class="col-6">
+                            <ul class="mb-0">
+                                <li>🇹🇳 Sousse</li>
+                                <li>🇹🇳 Monastir</li>
+                                <li>🇹🇳 Sfax</li>
+                                <li>🇹🇳 Kairouan</li>
+                                <li>🇹🇳 Gabès</li>
+                                <li>🇹🇳 Tozeur</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <h6>Capacity Planning</h6>
+                <p class="small">
+                    Consider venue size, facilitator availability, and participant engagement when setting capacity limits.
+                </p>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);">
+                <h6 class="mb-0"><i class="bi bi-shield-exclamation me-2"></i>Important</h6>
+            </div>
+            <div class="card-body">
+                <p class="small mb-0">
+                    Once created, you can manage participants, adjust capacity, and edit event details. 
+                    Participants will receive email confirmations when they register.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const regionSelect = document.getElementById('location');
+    const addressDetail = document.getElementById('address_detail');
+    
+    if (regionSelect) {
+        regionSelect.addEventListener('change', function() {
+            if (this.value) {
+                console.log('Région sélectionnée:', this.value);
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}

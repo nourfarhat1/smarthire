@@ -1,0 +1,162 @@
+{% extends 'base.html.twig' %}
+
+{% block page_title %}Setup Face Login{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white text-center py-3">
+                    <h4 class="mb-0">
+                        <i class="bi bi-person-bounding-box me-2"></i>
+                        {% if already_enrolled %}Update{% else %}Enable{% endif %} Face Login
+                    </h4>
+                </div>
+                <div class="card-body text-center p-4">
+
+                    {% if already_enrolled %}
+                        <div class="alert alert-success mb-4">
+                            <i class="bi bi-check-circle me-2"></i>
+                            Face login is currently <strong>enabled</strong> on your account.
+                        </div>
+                        <p class="text-muted mb-4">You can re-enroll your face or disable face login below.</p>
+                    {% else %}
+                        <p class="text-muted mb-4">
+                            Enroll your face to enable fast, password-free login.<br>
+                            Make sure you are in a well-lit area and your face is clearly visible.
+                        </p>
+                    {% endif %}
+
+                    <button id="enrollBtn" class="btn btn-success btn-lg px-5 mb-3">
+                        <i class="bi bi-camera me-2"></i>
+                        {% if already_enrolled %}Re-enroll My Face{% else %}Enroll My Face{% endif %}
+                    </button>
+
+                    {% if already_enrolled %}
+                    <br>
+                    <button id="disableBtn" class="btn btn-outline-danger mt-2">
+                        <i class="bi bi-x-circle me-2"></i>Disable Face Login
+                    </button>
+                    {% endif %}
+
+                    <!-- Status Messages -->
+                    <div id="statusMessage" class="mt-4"></div>
+
+                </div>
+                <div class="card-footer text-center py-3">
+                    <a href="{{ path('app_profile') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+
+<script src="https://cdn.faceio.net/fio.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const faceio = new faceIO('{{ faceio_app_id }}');
+
+    const enrollBtn = document.getElementById('enrollBtn');
+    const disableBtn = document.getElementById('disableBtn');
+    const statusDiv = document.getElementById('statusMessage');
+
+    function showStatus(message, type) {
+        statusDiv.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+    }
+
+    // Enroll face
+    enrollBtn.addEventListener('click', async function () {
+        enrollBtn.disabled = true;
+        enrollBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Scanning...';
+        statusDiv.innerHTML = '';
+
+        try {
+            // Faceio enrolls the face and returns a unique facialId
+            const response = await faceio.enroll({
+                locale: 'auto',
+                payload: {
+                    email: '{{ app.user.email }}'
+                }
+            });
+
+            const facialId = response.facialId;
+
+            showStatus('Face scanned! Saving to your account...', 'info');
+
+            // Send facialId to backend to store on user
+            const res = await fetch('{{ path('app_face_login_enroll_save') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ facialId: facialId })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                showStatus('✅ ' + data.message, 'success');
+                enrollBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Enrolled Successfully';
+                setTimeout(() => {
+                    window.location.href = '{{ path('app_profile') }}';
+                }, 2000);
+            } else {
+                showStatus('❌ ' + data.error, 'danger');
+                enrollBtn.disabled = false;
+                enrollBtn.innerHTML = '<i class="bi bi-camera me-2"></i>Try Again';
+            }
+
+        } catch (err) {
+            console.error('Faceio error:', err);
+            showStatus('❌ Enrollment failed. Please try again in a well-lit area.', 'danger');
+            enrollBtn.disabled = false;
+            enrollBtn.innerHTML = '<i class="bi bi-camera me-2"></i>Try Again';
+        }
+    });
+
+    // Disable face login
+    {% if already_enrolled %}
+    disableBtn.addEventListener('click', async function () {
+        if (!confirm('Are you sure you want to disable face login?')) return;
+
+        disableBtn.disabled = true;
+
+        const res = await fetch('{{ path('app_face_login_disable') }}', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            showStatus('✅ Face login disabled.', 'success');
+            setTimeout(() => {
+                window.location.href = '{{ path('app_profile') }}';
+            }, 1500);
+        } else {
+            showStatus('❌ ' + data.error, 'danger');
+            disableBtn.disabled = false;
+        }
+    });
+    {% endif %}
+
+});
+</script>
+{% endblock %}

@@ -1,0 +1,222 @@
+{% extends 'hr/layout.html.twig' %}
+
+{% block title %}HR Events - SmartHire{% endblock %}
+
+{% block hr_page_title %}My Events{% endblock %}
+
+{% block hr_content %}
+<!-- Event Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stats-card text-white" style="background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ events|length }}</h4>
+                        <p class="card-text">Total Events</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-calendar-event fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card text-white" style="background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ events|filter(e => e.eventDate >= date())|length }}</h4>
+                        <p class="card-text">Upcoming</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-clock-history fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card text-white" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ events|filter(e => e.eventDate < date())|length }}</h4>
+                        <p class="card-text">Past Events</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-calendar-check fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card text-white" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ events|reduce((sum, e) => sum + e.participants.count, 0) }}</h4>
+                        <p class="card-text">Total Participants</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-people fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Event Button -->
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{{ path('app_hr_events_new') }}" class="btn btn-success btn-lg">
+            <i class="bi bi-plus-circle me-2"></i>Create New Event
+        </a>
+    </div>
+</div>
+
+<!-- Events List -->
+<div class="card">
+    <div class="card-header text-white" style="background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);">
+        <h5 class="mb-0"><i class="bi bi-calendar-event me-2"></i>My Events</h5>
+    </div>
+    <div class="card-body">
+        {% if events|length > 0 %}
+            <div class="row">
+                {% for event in events %}
+                    <div class="col-xl-4 col-lg-6 mb-4">
+                        <div class="card shadow h-100 border-0">
+                            <div class="card-header text-white" style="background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);">
+                                <h6 class="m-0 font-weight-bold">{{ event.name }}</h6>
+                                <small class="text-white">
+                                    <i class="bi bi-calendar"></i> {{ event.eventDate|date('M d, Y H:i') }}
+                                </small>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">{{ event.description|slice(0, 100) }}...</p>
+                                
+                                <div class="row text-center mb-3">
+                                    <div class="col">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase">Location</div>
+                                        <div class="h6 mb-0">{{ event.location }}</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase">Capacity</div>
+                                        <div class="h6 mb-0">
+                                            {{ event.participants.count }} / {{ event.maxParticipants }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Progress bar for capacity -->
+                                {% if event.maxParticipants > 0 %}
+                                    {% set capacityPercent = (event.participants.count / event.maxParticipants) * 100 %}
+                                    <div class="progress mt-2" style="height: 8px;">
+                                        <div class="progress-bar {% if capacityPercent < 50 %}bg-success{% elseif capacityPercent < 80 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                            style="width: {{ capacityPercent }}%"></div>
+                                    </div>
+                                    <small class="text-muted">{{ capacityPercent|round }}% Full</small>
+                                {% else %}
+                                    <small class="text-muted">📌 Unlimited capacity (no limit)</small>
+                                {% endif %}
+                            </div>
+                            <div class="card-footer bg-light">
+                                <div class="btn-group w-100" role="group">
+                                    <a href="{{ path('app_hr_events_participants', {'id': event.id}) }}" 
+                                       class="btn btn-outline-info btn-sm" title="View Participants">
+                                        <i class="bi bi-people"></i>
+                                    </a>
+                                    <a href="{{ path('app_hr_events_capacity', {'id': event.id}) }}" 
+                                       class="btn btn-outline-warning btn-sm" title="Manage Capacity">
+                                        <i class="bi bi-graph-up"></i>
+                                    </a>
+                                    <a href="{{ path('app_hr_events_edit', {'id': event.id}) }}" 
+                                       class="btn btn-outline-primary btn-sm" title="Edit Event">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-calendar-event fs-1 text-muted mb-3"></i>
+                <h5 class="text-muted">No events created yet</h5>
+                <p class="text-muted">
+                    You haven't created any events yet. 
+                    <a href="{{ path('app_hr_events_new') }}" class="btn btn-success">Create your first event</a>.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.stats-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    border: none;
+    border-radius: 10px 10px 0 0;
+}
+
+.card-footer {
+    border: none;
+    border-radius: 0 0 10px 10px;
+}
+
+.progress {
+    border-radius: 4px;
+    background-color: #e9ecef;
+}
+
+.btn-group .btn {
+    border-radius: 6px;
+    margin: 0 2px;
+    transition: all 0.3s ease;
+}
+
+.btn-group .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-lg {
+    padding: 12px 24px;
+    font-size: 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-lg:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+</style>
+{% endblock %}

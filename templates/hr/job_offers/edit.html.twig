@@ -1,0 +1,237 @@
+{% extends 'hr/layout.html.twig' %}
+
+{% block title %}Edit Job Offer - SmartHire{% endblock %}
+
+{% block hr_page_title %}Edit Job Offer{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);">
+                <h5 class="mb-0"><i class="bi bi-pencil me-2"></i>Edit Job Offer</h5>
+            </div>
+            <div class="card-body">
+                {% for flash in app.flashes('error') %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ flash }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% for flash in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ flash }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Note:</strong> You can edit job offer details at any time. Changes will be visible immediately to candidates.
+                </div>
+
+                <form method="POST" action="{{ path('app_hr_job_offers_edit', {'id': jobOffer.id}) }}">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Job Title <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="title" name="title" 
+                                       value="{{ jobOffer.title }}" placeholder="e.g. Senior Software Developer" required>
+                                <div class="form-text">Be specific and include seniority level.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="jobType" class="form-label">Job Type <span class="text-danger">*</span></label>
+                                <select class="form-select" id="jobType" name="jobType" required>
+                                    <option value="">Select type...</option>
+                                    <option value="Full-time" {% if jobOffer.jobType == 'Full-time' %}selected{% endif %}>Full-time</option>
+                                    <option value="Part-time" {% if jobOffer.jobType == 'Part-time' %}selected{% endif %}>Part-time</option>
+                                    <option value="Contract" {% if jobOffer.jobType == 'Contract' %}selected{% endif %}>Contract</option>
+                                    <option value="Internship" {% if jobOffer.jobType == 'Internship' %}selected{% endif %}>Internship</option>
+                                    <option value="Remote" {% if jobOffer.jobType == 'Remote' %}selected{% endif %}>Remote</option>
+                                    <option value="Hybrid" {% if jobOffer.jobType == 'Hybrid' %}selected{% endif %}>Hybrid</option>
+                                </select>
+                                <div class="form-text">Choose the employment type.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="">Select category...</option>
+                                    {% for jobCategory in categories %}
+                                        <option value="{{ jobCategory.id }}" 
+                                                {% if jobOffer.category and jobOffer.category.id == jobCategory.id %}selected{% endif %}>
+                                            {{ jobCategory.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">Choose the most relevant category.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="location" class="form-label">Location <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="location" name="location" 
+                                       value="{{ jobOffer.location }}" placeholder="e.g. Tunis, Tunisia or Remote" required>
+                                <div class="form-text">City, Country or "Remote".</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="salaryRange" class="form-label">Salary Range</label>
+                                <input type="text" class="form-control" id="salaryRange" name="salaryRange" 
+                                       value="{{ jobOffer.salaryRange }}" placeholder="e.g. 3000-5000 TND/month">
+                                <div class="form-text">Optional but recommended for better visibility.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="postedDate" class="form-label">Posted Date</label>
+                                <input type="date" class="form-control" id="postedDate" name="postedDate" 
+                                       value="{{ jobOffer.postedDate|date('Y-m-d') }}" readonly>
+                                <div class="form-text">Original posting date.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Job Description <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="description" name="description" rows="8" required
+                                  placeholder="Provide a detailed job description including responsibilities, requirements, and what you offer...">{{ jobOffer.description }}</textarea>
+                        <div class="form-text">Minimum 50 characters. Be specific about responsibilities and requirements.</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Original Posting:</strong><br>
+                            <small class="text-muted">{{ jobOffer.postedDate|date('M d, Y H:i') }}</small>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Current Applications:</strong><br>
+                            <small class="text-muted">{{ jobOffer.jobRequests.count }} applications received</small>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Important:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Changes will be visible immediately to all candidates</li>
+                            <li>{{ jobOffer.jobRequests.count }} candidates have already applied</li>
+                            <li>Consider notifying existing applicants of major changes</li>
+                            <li>Salary changes may affect candidate expectations</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <a href="{{ path('app_hr_job_offers') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to Job Offers
+                            </a>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-danger me-2" 
+                                    data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="bi bi-trash me-2"></i>Delete
+                            </button>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save me-2"></i>Update Job Offer
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+                <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>Edit Guidelines</h6>
+            </div>
+            <div class="card-body">
+                <h6>What You Can Edit</h6>
+                <ul class="small">
+                    <li>Job title and description</li>
+                    <li>Category and job type</li>
+                    <li>Location details</li>
+                    <li>Salary range</li>
+                </ul>
+
+                <hr>
+
+                <h6>Editing Rules</h6>
+                <ul class="small">
+                    <li>All required fields must be filled</li>
+                    <li>Description must be at least 50 characters</li>
+                    <li>Changes are applied immediately</li>
+                    <li>Existing applicants can see updates</li>
+                </ul>
+
+                <hr>
+
+                <h6>Best Practices</h6>
+                <ul class="small">
+                    <li>Keep job titles consistent</li>
+                    <li>Update requirements as needed</li>
+                    <li>Adjust salary based on market changes</li>
+                    <li>Improve description based on feedback</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);">
+                <h6 class="mb-0"><i class="bi bi-people me-2"></i>Applicant Impact</h6>
+            </div>
+            <div class="card-body">
+                <p class="small mb-0">
+                    {{ jobOffer.jobRequests.count }} candidates have applied to this job offer. 
+                    Consider how your changes might affect existing applicants before making updates.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Job Offer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this job offer?</p>
+                <p class="text-danger">
+                    <strong>This action cannot be undone.</strong><br>
+                    The job offer will be permanently removed and no longer visible to candidates.
+                </p>
+                {% if jobOffer.jobRequests.count > 0 %}
+                    <div class="alert alert-warning">
+                        <strong>Warning:</strong> {{ jobOffer.jobRequests.count }} candidates have applied to this job offer.
+                    </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ path('app_hr_job_offers_delete', {'id': jobOffer.id}) }}" class="d-inline">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-2"></i>Delete Job Offer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
