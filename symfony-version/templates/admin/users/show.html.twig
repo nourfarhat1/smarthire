@@ -1,0 +1,115 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block admin_page_title %}User Details{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">User Details</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ path('app_admin_users') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">User Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Full Name:</strong> {{ user.fullName }}</p>
+                        <p><strong>Email:</strong> {{ user.email }}</p>
+                        <p><strong>Phone:</strong> {{ user.phoneNumber ?? 'Not provided' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Role:</strong> 
+                            {% if user.roleId == 1 %}
+                                Administrator
+                            {% elseif user.roleId == 2 %}
+                                HR Manager
+                            {% elseif user.roleId == 3 %}
+                                Recruiter
+                            {% else %}
+                                Candidate
+                            {% endif %}
+                        </p>
+                        <p><strong>Created:</strong> {{ user.createdAt|date('M d, Y H:i') }}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Status:</strong> 
+                            {% if user.isBanned %}
+                                <span class="badge bg-danger">Banned</span>
+                            {% else %}
+                                <span class="badge bg-success">Active</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Verified:</strong> 
+                            {% if user.isVerified %}
+                                <span class="badge bg-info">Verified</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Not Verified</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">User Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if user.isBanned %}
+                        <form method="post" action="{{ path('app_admin_users_unban', {'id': user.id}) }}" onsubmit="return confirm('Are you sure you want to unban this user?');" class="d-inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('unban' ~ user.id) }}">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-shield-check me-2"></i>Unban User
+                            </button>
+                        </form>
+                    {% else %}
+                        <form method="post" action="{{ path('app_admin_users_ban', {'id': user.id}) }}" onsubmit="return confirm('Are you sure you want to ban this?');" class="d-inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('ban' ~ user.id) }}">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-shield-x me-2"></i>Ban User
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+
+                <div class="d-grid gap-2">
+                    {% if user.isVerified %}
+                        <form method="post" action="{{ path('app_admin_users_unverify', {'id': user.id}) }}" onsubmit="return confirm('Are you sure you want to unverify this user?');" class="d-inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('unverify' ~ user.id) }}">
+                            <button type="submit" class="btn btn-outline-warning">
+                                <i class="bi bi-x-circle me-2"></i>Unverify User
+                            </button>
+                        </form>
+                    {% else %}
+                        <form method="post" action="{{ path('app_admin_users_verify', {'id': user.id}) }}" onsubmit="return confirm('Are you sure you want to verify this user?');" class="d-inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('verify' ~ user.id) }}">
+                            <button type="submit" class="btn btn-outline-success">
+                                <i class="bi bi-check-circle me-2"></i>Verify User
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

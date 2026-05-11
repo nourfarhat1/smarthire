@@ -1,0 +1,198 @@
+{% extends 'hr/layout.html.twig' %}
+
+{% block title %}Job Categories - SmartHire{% endblock %}
+
+{% block hr_page_title %}Job Categories Management{% endblock %}
+
+{% block hr_content %}
+<!-- Categories Statistics -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card stats-card text-white" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ categories|length }}</h4>
+                        <p class="card-text">Total Categories</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-tags fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stats-card text-white" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ categories|reduce((sum, cat) => sum + cat.jobOffers.count, 0) }}</h4>
+                        <p class="card-text">Total Job Offers</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-briefcase fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stats-card text-white" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ categories|filter(cat => cat.jobOffers.count > 0)|length }}</h4>
+                        <p class="card-text">Active Categories</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-check-circle fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Back Button -->
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{{ path('app_hr_job_offers') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Job Offers
+        </a>
+    </div>
+</div>
+
+<!-- Categories List -->
+<div class="card">
+    <div class="card-header text-white" style="background: linear-gradient(135deg, #495057 0%, #343a40 100%);">
+        <h5 class="mb-0"><i class="bi bi-tags me-2"></i>Job Categories</h5>
+    </div>
+    <div class="card-body">
+        {% if categories|length > 0 %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Category Name</th>
+                            <th>Job Offers Count</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in categories %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-tag-fill me-2 text-primary"></i>
+                                        <strong>{{ category.name }}</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ category.jobOffers.count }}</span>
+                                    {% if category.jobOffers.count > 0 %}
+                                        <small class="text-muted ms-2">active offers</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if category.jobOffers.count > 0 %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Unused</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        {% if category.jobOffers.count == 0 %}
+                                            <button type="button" class="btn btn-sm btn-outline-warning" title="Edit Category">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete Category" 
+                                                    onclick="return confirm('Are you sure you want to delete this category?')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        {% else %}
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" title="Cannot delete - has job offers" disabled>
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-tags fs-1 text-muted mb-3"></i>
+                <h5 class="text-muted">No categories found</h5>
+                <p class="text-muted">
+                    No job categories have been created yet. 
+                    Contact your administrator to create categories.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+                <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Category Management</h6>
+            </div>
+            <div class="card-body">
+                <h6>Guidelines</h6>
+                <ul class="small">
+                    <li>Categories help organize job offers effectively</li>
+                    <li>Each job offer must belong to one category</li>
+                    <li>Categories with job offers cannot be deleted</li>
+                    <li>Keep category names short and descriptive</li>
+                </ul>
+
+                <hr>
+
+                <h6>Common Categories</h6>
+                <div class="row">
+                    <div class="col-6">
+                        <ul class="small mb-0">
+                            <li>Technology</li>
+                            <li>Marketing</li>
+                            <li>Sales</li>
+                            <li>Finance</li>
+                        </ul>
+                    </div>
+                    <div class="col-6">
+                        <ul class="small mb-0">
+                            <li>Human Resources</li>
+                            <li>Operations</li>
+                            <li>Customer Service</li>
+                            <li>Administration</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);">
+                <h6 class="mb-0"><i class="bi bi-shield-exclamation me-2"></i>Important Notes</h6>
+            </div>
+            <div class="card-body">
+                <p class="small mb-2">
+                    <strong>Category Deletion:</strong> Categories that have associated job offers cannot be deleted to maintain data integrity.
+                </p>
+                <p class="small mb-2">
+                    <strong>Job Offer Impact:</strong> Changing a category may affect how candidates find and filter job offers.
+                </p>
+                <p class="small mb-0">
+                    <strong>Admin Access:</strong> Only administrators can create new categories. Contact HR admin for category requests.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

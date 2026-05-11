@@ -1,0 +1,576 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block admin_page_title %}Complaint Details{% endblock %}
+
+{% block admin_content %}
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* Soft, professional color palette */
+.soft-blue {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+}
+
+.soft-teal {
+    background: linear-gradient(135deg, #5D9C9E, #4A7C7E);
+    color: white;
+}
+
+.soft-sage {
+    background: linear-gradient(135deg, #87A96B, #6B8E5A);
+    color: white;
+}
+
+.soft-coral {
+    background: linear-gradient(135deg, #E6B89C, #D4A574);
+    color: white;
+}
+
+.soft-lavender {
+    background: linear-gradient(135deg, #9B8FB3, #7F6B8F);
+    color: white;
+}
+
+.soft-cream {
+    background: linear-gradient(135deg, #F5E6D3, #E8D5B7);
+    color: #333;
+}
+
+.btn-gradient {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+    background: linear-gradient(135deg, #4A6FA5, #6B8CAE);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(107, 140, 174, 0.2);
+    color: white;
+}
+
+.response-card {
+    background: linear-gradient(135deg, #F8F9FA, #E9ECEF);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(107, 140, 174, 0.1);
+}
+
+.priority-high {
+    background: linear-gradient(135deg, #E6B89C, #D4A574);
+    color: white;
+}
+
+.priority-medium {
+    background: linear-gradient(135deg, #F5E6D3, #E8D5B7);
+    color: #333;
+}
+
+.priority-low {
+    background: linear-gradient(135deg, #5D9C9E, #4A7C7E);
+    color: white;
+}
+
+.status-open {
+    background: linear-gradient(135deg, #E6B89C, #D4A574);
+    color: white;
+}
+
+.status-pending {
+    background: linear-gradient(135deg, #F5E6D3, #E8D5B7);
+    color: #333;
+}
+
+.status-resolved {
+    background: linear-gradient(135deg, #87A96B, #6B8E5A);
+    color: white;
+}
+
+/* Soft hover effects */
+.btn-action {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(107, 140, 174, 0.2);
+}
+
+.btn-action:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(107, 140, 174, 0.2);
+}
+</style>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Complaint Details</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ path('app_admin_reclamations') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to List
+            </a>
+            {% if complaint.status != 'RESOLVED' %}
+                <a href="{{ path('app_admin_reclamations_respond', {'id': complaint.id}) }}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-reply me-1"></i>Respond
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Complaint Details -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header soft-blue text-white">
+                <h5 class="card-title mb-0">Complaint Information</h5>
+                <div class="card-tools">
+                    {% if complaint.status == 'OPEN' %}
+                        <span class="badge status-open">OPEN</span>
+                    {% elseif complaint.status == 'PENDING' %}
+                        <span class="badge status-pending">PENDING</span>
+                    {% elseif complaint.status == 'RESOLVED' %}
+                        <span class="badge status-resolved">RESOLVED</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ complaint.status }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>ID:</strong> #{{ complaint.id }}</p>
+                        <p><strong>Subject:</strong> {{ complaint.subject }}</p>
+                        <p><strong>Type:</strong> 
+                            {% if complaint.type %}
+                                <span class="badge bg-info">{{ complaint.type.name }}</span>
+                                <button type="button" class="btn btn-sm btn-outline-primary ms-2" 
+                                        data-bs-toggle="modal" data-bs-target="#editTypeModal"
+                                        onclick="setCurrentType('{{ complaint.type.name }}', '{{ complaint.type.id }}')">
+                                    <i class="bi bi-pencil"></i> Edit Type
+                                </button>
+                            {% else %}
+                                <span class="text-muted">No type</span>
+                                <button type="button" class="btn btn-sm btn-outline-primary ms-2" 
+                                        data-bs-toggle="modal" data-bs-target="#editTypeModal"
+                                        onclick="setCurrentType('', '')">
+                                    <i class="bi bi-plus"></i> Add Type
+                                </button>
+                            {% endif %}
+                        </p>
+                        <p><strong>Priority:</strong>
+                            {% if complaint.priority == 'HIGH' %}
+                                <span class="badge priority-high">{{ complaint.priority }}</span>
+                            {% elseif complaint.priority == 'MEDIUM' %}
+                                <span class="badge priority-medium">{{ complaint.priority }}</span>
+                            {% else %}
+                                <span class="badge priority-low">{{ complaint.priority }}</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Submitted:</strong> {{ complaint.submissionDate|date('M d, Y H:i') }}</p>
+                        <p><strong>Status:</strong> 
+                            {% if complaint.status == 'OPEN' %}
+                                <span class="badge bg-danger">OPEN</span>
+                            {% elseif complaint.status == 'PENDING' %}
+                                <span class="badge bg-warning">PENDING</span>
+                            {% elseif complaint.status == 'RESOLVED' %}
+                                <span class="badge bg-success">RESOLVED</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ complaint.status }}</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Urgency Score:</strong> 
+                            {% if complaint.urgencyScore %}
+                                {{ complaint.urgencyScore }}/100
+                            {% else %}
+                                <span class="text-muted">Not calculated</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Sentiment:</strong>
+                            {% if complaint.sentiment %}
+                                <span class="badge bg-{{ complaint.sentiment == 'POSITIVE' ? 'success' : complaint.sentiment == 'NEGATIVE' ? 'danger' : 'warning' }}">
+                                    {{ complaint.sentiment }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">Not analyzed</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="mb-3">
+                    <h6>Description:</h6>
+                    <div class="p-3 rounded" style="background: linear-gradient(135deg, #F8F9FA, #E9ECEF);">
+                        {{ complaint.description|nl2br }}
+                    </div>
+                </div>
+                
+                {% if complaint.aiSummary %}
+                <div class="mb-3">
+                    <h6>AI Summary:</h6>
+                    <div class="p-3 bg-info bg-opacity-10 rounded">
+                        {{ complaint.aiSummary|nl2br }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Responses Section -->
+        <div class="card mt-4">
+            <div class="card-header soft-lavender text-white">
+                <h5 class="card-title mb-0">Responses ({{ responses|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% for response in responses %}
+                <div class="response-card">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h6 class="mb-1">
+                                <i class="bi bi-person-circle me-2"></i>System Administrator
+                                <small class="text-muted">(admin@smarthire.com)</small>
+                            </h6>
+                            <small class="text-muted">{{ response.responseDate|date('M d, Y H:i') }}</small>
+                        </div>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ path('app_admin_reclamations_edit_response', {'id': response.id}) }}" 
+                               class="btn btn-outline-primary" title="Edit Response">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form method="post" action="{{ path('app_admin_reclamations_delete_response', {'id': response.id}) }}" 
+                                  style="display: inline;" onsubmit="return confirm('Delete this response?')">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_response' ~ response.id) }}">
+                                <button type="submit" class="btn btn-outline-danger" title="Delete Response">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-white rounded">
+                        {{ response.message|nl2br }}
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-chat-square-dots fs-1 text-muted"></i>
+                    <p class="text-muted mt-2">No responses yet</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Information -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">User Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div class="avatar-lg bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white mx-auto mb-3">
+                        {{ complaint.user.fullName|first|upper }}
+                    </div>
+                    <h6>{{ complaint.user.fullName }}</h6>
+                    <p class="text-muted">{{ complaint.user.email }}</p>
+                </div>
+                
+                <hr>
+                
+                <p><strong>Phone:</strong> {{ complaint.user.phoneNumber|default('Not provided') }}</p>
+                <p><strong>Account Status:</strong>
+                    {% if complaint.user.isBanned %}
+                        <span class="badge bg-danger">Banned</span>
+                    {% else %}
+                        <span class="badge bg-success">Active</span>
+                    {% endif %}
+                </p>
+                <p><strong>Verified:</strong>
+                    {% if complaint.user.isVerified %}
+                        <span class="badge bg-success">Yes</span>
+                    {% else %}
+                        <span class="badge bg-warning">No</span>
+                    {% endif %}
+                </p>
+                <p><strong>Member Since:</strong> {{ complaint.user.createdAt|date('M d, Y') }}</p>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="card mt-3">
+            <div class="card-header soft-coral text-white">
+                <h5 class="card-title mb-0">Actions</h5>
+            </div>
+            <div class="card-body">
+                {% if complaint.status != 'RESOLVED' %}
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('app_admin_reclamations_respond', {'id': complaint.id}) }}" class="btn btn-gradient">
+                            <i class="bi bi-reply me-2"></i>Add Response
+                        </a>
+                        <form method="post" action="{{ path('app_admin_reclamations_resolve', {'id': complaint.id}) }}" 
+                              onsubmit="return confirm('Mark this complaint as resolved?')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('resolve' ~ complaint.id) }}">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="bi bi-check me-2"></i>Mark as Resolved
+                            </button>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="d-grid">
+                        <form method="post" action="{{ path('app_admin_reclamations_reopen', {'id': complaint.id}) }}" 
+                              onsubmit="return confirm('Reopen this complaint?')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('reopen' ~ complaint.id) }}">
+                            <button type="submit" class="btn btn-warning w-100">
+                                <i class="bi bi-arrow-counterclockwise me-2"></i>Reopen Complaint
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- AI Tools -->
+        <div class="card mt-3">
+            <div class="card-header soft-cream text-white">
+                <h5 class="card-title mb-0">AI Tools</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-info" onclick="summarizeComplaint({{ complaint.id }})">
+                        <i class="bi bi-file-text me-2"></i>Summarize
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="translateComplaint({{ complaint.id }})">
+                        <i class="bi bi-translate me-2"></i>Translate
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="generateResponse({{ complaint.id }})">
+                        <i class="bi bi-robot me-2"></i>AI Response
+                    </button>
+                </div>
+                <div id="ai-results" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function summarizeComplaint(complaintId) {
+    const resultsDiv = document.getElementById('ai-results');
+    resultsDiv.innerHTML = '<div class="alert alert-info"><i class="bi bi-hourglass-split me-2"></i>Generating summary...</div>';
+    
+    fetch(`/admin/reclamations/${complaintId}/summarize`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            resultsDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <h6><i class="bi bi-file-text me-2"></i>AI Summary</h6>
+                    <p>${data.summary}</p>
+                </div>
+            `;
+        } else {
+            resultsDiv.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+        }
+    })
+    .catch(error => {
+        resultsDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+    });
+}
+
+function translateComplaint(complaintId) {
+    const resultsDiv = document.getElementById('ai-results');
+    resultsDiv.innerHTML = '<div class="alert alert-info"><i class="bi bi-hourglass-split me-2"></i>Translating...</div>';
+    
+    fetch(`/admin/reclamations/${complaintId}/translate`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            resultsDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <h6><i class="bi bi-translate me-2"></i>Translation</h6>
+                    <p><strong>Detected Language:</strong> ${data.detectedLanguage}</p>
+                    <p><strong>Translation:</strong> ${data.translation}</p>
+                </div>
+            `;
+        } else {
+            resultsDiv.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+        }
+    })
+    .catch(error => {
+        resultsDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+    });
+}
+
+function generateResponse(complaintId) {
+    const resultsDiv = document.getElementById('ai-results');
+    resultsDiv.innerHTML = '<div class="alert alert-info"><i class="bi bi-hourglass-split me-2"></i>Generating AI response...</div>';
+    
+    fetch(`/admin/reclamations/${complaintId}/ai-response`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            resultsDiv.innerHTML = `
+                <div class="alert alert-warning">
+                    <h6><i class="bi bi-robot me-2"></i>AI Suggested Response</h6>
+                    <p>${data.response}</p>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <strong>Urgency:</strong> ${data.urgency} | 
+                            <strong>Sentiment:</strong> ${data.sentiment}
+                        </small>
+                    </div>
+                    <div class="mt-2">
+                        <button type="button" class="btn btn-sm btn-primary" onclick="useAIResponse('${data.response.replace(/'/g, "\\'")}')">
+                            <i class="bi bi-check-circle me-1"></i>Use This Response
+                        </button>
+                    </div>
+                </div>
+            `;
+        } else {
+            resultsDiv.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+        }
+    })
+    .catch(error => {
+        resultsDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+    });
+}
+
+function useAIResponse(response) {
+    // Always redirect to respond page with AI response
+    window.location.href = `/admin/reclamations/{{ complaint.id }}/respond?message=${encodeURIComponent(response)}`;
+}
+</script>
+
+<!-- Edit Complaint Type Modal -->
+<div class="modal fade" id="editTypeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #6B8CAE, #4A6FA5); color: white;">
+                <h5 class="modal-title"><i class="bi bi-tag me-2"></i>Edit Complaint Type</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{{ path('app_admin_reclamations_update_type', {'id': complaint.id}) }}">
+                <input type="hidden" name="complaint_id" value="{{ complaint.id }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="complaintType" class="form-label">Complaint Type</label>
+                        <select class="form-select" id="complaintType" name="type">
+                            <option value="">Select a type...</option>
+                            {% if complaint_types %}
+                                {% for type in complaint_types %}
+                                    <option value="{{ type.id }}">{{ type.name }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                        <div class="form-text">Choose the appropriate category for this complaint</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newType" class="form-label">Or Create New Type</label>
+                        <input type="text" class="form-control" id="newType" name="newType" placeholder="Enter new type name">
+                        <div class="form-text">Create a new complaint type if needed</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" name="submit_type_update">
+                        <i class="bi bi-save me-1"></i>Update Type
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function setCurrentType(currentTypeName, currentTypeId) {
+    const typeSelect = document.getElementById('complaintType');
+    const newTypeInput = document.getElementById('newType');
+    
+    // Reset fields
+    typeSelect.value = '';
+    newTypeInput.value = '';
+    
+    // Set current type if exists
+    if (currentTypeId) {
+        typeSelect.value = currentTypeId;
+    }
+}
+
+// Handle form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const editTypeForm = document.querySelector('#editTypeModal form');
+    if (editTypeForm) {
+        editTypeForm.addEventListener('submit', function(e) {
+            console.log('Form submission started');
+            
+            const typeSelect = document.getElementById('complaintType');
+            const newTypeInput = document.getElementById('newType');
+            
+            console.log('Type selected:', typeSelect.value);
+            console.log('New type entered:', newTypeInput.value);
+            
+            // Validate that either a type is selected or a new type is entered
+            if (!typeSelect.value && !newTypeInput.value.trim()) {
+                e.preventDefault();
+                alert('Please select an existing type or enter a new type name.');
+                return false;
+            }
+            
+            // If both are selected, prioritize the new type
+            if (typeSelect.value && newTypeInput.value.trim()) {
+                if (!confirm('You have both selected an existing type and entered a new type. The new type will be created and used. Continue?')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+            
+            // Show loading state but let the form submit normally
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="bi bi-spinner me-1"></i>Updating...';
+            submitBtn.disabled = true;
+            
+            console.log('Form submitted to:', this.action);
+            
+            // Close the modal immediately to allow the form to submit
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editTypeModal'));
+            if (modal) {
+                modal.hide();
+            }
+            
+            // Don't prevent default - let the form submit normally
+        });
+    }
+});
+</script>
+{% endblock %}
