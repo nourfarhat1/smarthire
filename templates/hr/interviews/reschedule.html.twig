@@ -1,0 +1,110 @@
+{% extends 'hr/layout.html.twig' %}
+
+{% block title %}Reschedule Interview - SmartHire{% endblock %}
+
+{% block hr_page_title %}Reschedule Interview{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);">
+                <h5 class="mb-0"><i class="bi bi-calendar-event me-2"></i>Reschedule Interview</h5>
+            </div>
+            <div class="card-body">
+                {% for flash in app.flashes('error') %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ flash }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% for flash in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ flash }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                <!-- Current Interview Details -->
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Current Interview Details:</strong>
+                    <div class="mt-2">
+                        <p class="mb-1"><strong>Candidate:</strong> {{ interview.jobRequest.candidate.fullName }}</p>
+                        <p class="mb-1"><strong>Position:</strong> {{ interview.jobRequest.jobOffer.title }}</p>
+                        <p class="mb-1"><strong>Current Date & Time:</strong> {{ interview.dateTime|date('Y-m-d H:i') }}</p>
+                        <p class="mb-1"><strong>Location:</strong> {{ interview.location }}</p>
+                        {% if interview.notes %}
+                            {% set parts = interview.notes|split('Google Meet Link:') %}
+                            {% if parts|length > 1 %}
+                                <p class="mb-0"><strong>Meeting Link:</strong> <a href="{{ parts[1]|trim }}" target="_blank">{{ parts[1]|trim }}</a></p>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ path('app_hr_interviews_reschedule', {'id': interview.id}) }}">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="dateTime" class="form-label">New Interview Date & Time <span class="text-danger">*</span></label>
+                                <input type="datetime-local" class="form-control" id="dateTime" name="dateTime" required
+                                       value="{{ interview.dateTime|date('Y-m-d\\TH:i') }}">
+                                <div class="form-text">Select a new future date and time for the interview.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Rescheduling Information:</strong>
+                        <div class="mt-2">
+                            <p class="mb-1"><i class="bi bi-envelope text-warning me-1"></i> Email notification will be sent to candidate with new details</p>
+                            <p class="mb-1"><i class="bi bi-calendar-check text-warning me-1"></i> Google Calendar event will be updated</p>
+                            <p class="mb-0"><i class="bi bi-camera-video text-warning me-1"></i> Google Meet link will remain the same for online interviews</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('app_hr_interviews') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Interviews
+                        </a>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-calendar-event me-2"></i>Reschedule Interview
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+                <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Rescheduling Tips</h6>
+            </div>
+            <div class="card-body">
+                <h6>Best Practices</h6>
+                <ul class="small">
+                    <li>Provide at least 24 hours notice for rescheduling</li>
+                    <li>Explain the reason for rescheduling if possible</li>
+                    <li>Offer multiple alternative time slots</li>
+                    <li>Confirm candidate's availability before finalizing</li>
+                    <li>Update your personal calendar as well</li>
+                </ul>
+
+                <hr>
+
+                <h6>What Happens Next</h6>
+                <ul class="small">
+                    <li>Candidate receives email with new interview time</li>
+                    <li>Google Calendar event is automatically updated</li>
+                    <li>Meeting link remains unchanged</li>
+                    <li>Interview status remains "SCHEDULED"</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

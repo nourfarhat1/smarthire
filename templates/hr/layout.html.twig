@@ -1,0 +1,200 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}HR - SmartHire{% endblock %}
+
+{% block page_title %}HR Dashboard{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- HR Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+            <div class="position-sticky pt-3">
+                <!-- HR Menu (Pink header #e91e63) -->
+                <div class="hr-menu mb-4">
+                    <div class="role-header text-center py-2 mb-3 rounded" style="background-color: #e91e63;">
+                        <small class="text-white fw-bold">HR</small>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link text-white {{ app.request.get('_route') == 'app_hr_dashboard' ? 'active' : '' }}" href="{{ path('app_hr_dashboard') }}">
+                                <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white {{ app.request.get('_route') starts with 'app_hr_events' ? 'active' : '' }}" href="{{ path('app_hr_events') }}">
+                                <i class="bi bi-calendar-event me-2"></i> Manage Events
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white {{ app.request.get('_route') starts with 'app_hr_quizzes' ? 'active' : '' }}" href="{{ path('app_hr_quizzes') }}">
+                                <i class="bi bi-question-circle me-2"></i> Quizzes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white {{ app.request.get('_route') starts with 'app_hr_job_requests' ? 'active' : '' }}" href="{{ path('app_hr_job_requests') }}">
+                                <i class="bi bi-file-text me-2"></i> Job Applications
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white {{ app.request.get('_route') starts with 'app_hr_interviews' ? 'active' : '' }}" href="{{ path('app_hr_interviews') }}">
+                                <i class="bi bi-calendar-check me-2"></i> Interviews
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white {{ app.request.get('_route') starts with 'app_hr_complaints' ? 'active' : '' }}" href="{{ path('app_hr_complaints') }}">
+                                <i class="bi bi-exclamation-triangle me-2"></i> Complaints
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white {{ app.request.get('_route') starts with 'app_hr_job_offers' ? 'active' : '' }}" href="{{ path('app_hr_job_offers') }}">
+                                <i class="bi bi-briefcase me-2"></i> Job Offers
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <!-- Profile & Logout Section -->
+                    <div class="mt-4 pt-3 border-top border-light">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link text-white {{ app.request.get('_route') == 'app_hr_profile' ? 'active' : '' }}" href="{{ path('app_hr_profile') }}">
+                                    <i class="bi bi-person-circle me-2"></i> My Profile
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-danger" href="{{ path('app_logout') }}">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">{% block hr_page_title %}HR Dashboard{% endblock %}</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    {% block hr_actions %}{% endblock %}
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            {% for flash_message in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ flash_message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            {% for flash_message in app.flashes('error') %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ flash_message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            {% for flash_message in app.flashes('failure') %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ flash_message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            <!-- Page Content -->
+            {% block hr_content %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+<style>
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 48px 0 0;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+}
+
+.sidebar-heading {
+    font-size: .75rem;
+    text-transform: uppercase;
+}
+
+.sidebar .nav-link {
+    font-weight: 500;
+    color: #fff;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    margin: 0.125rem 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.sidebar .nav-link:hover {
+    color: #fff;
+    background-color: rgba(233, 30, 99, 0.2);
+    transform: translateX(5px);
+}
+
+.sidebar .nav-link.active {
+    color: #fff;
+    background-color: rgba(233, 30, 99, 0.3);
+    font-weight: 600;
+    border-left: 4px solid #e91e63;
+}
+
+.sidebar .nav-link.disabled {
+    color: #6c757d;
+    background-color: transparent;
+    cursor: not-allowed;
+}
+
+.sidebar .nav-link.disabled:hover {
+    color: #6c757d;
+    background-color: transparent;
+    transform: none;
+}
+
+.sidebar .nav-link.disabled small {
+    font-size: 0.7em;
+    display: block;
+    margin-top: 2px;
+}
+
+.sidebar .nav-link i {
+    width: 16px;
+    text-align: center;
+}
+
+.role-header {
+    background: linear-gradient(135deg, #e91e63 0%, #f06292 100%);
+    box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+    border: none;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: relative;
+        height: auto;
+        padding: 0;
+    }
+}
+
+main {
+    margin-left: 0;
+}
+
+@media (min-width: 768px) {
+    main {
+        margin-left: 240px;
+    }
+}
+</style>
+{% endblock %}

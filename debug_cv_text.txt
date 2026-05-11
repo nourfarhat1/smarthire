@@ -1,0 +1,55 @@
+hamza jellali
++tunisie,Ariana#jellali.hamza@esprit.tn�93791088`yourwebsite.com�hamza jellali
+�hamzajellali
+Professional Summary
+Enthusiastic and highly skilled Computer Science student with hands-on experience in developing innovative
+solutions in the fields of IoT, computer vision, and embedded systems. Proficient in programming languages such
+as C, C++, and Python, with a strong focus on Arduino-based projects and database management (Oracle SQL).
+Experienced in creating smart environments, including smart hotel management systems using Qt C++, and
+implementing automated employee management systems with CRUD functionalities, Excel/PDF data conversion,
+and emotion detection using OpenCV.
+Additionally, developed a full-stack astronomy-themed web platform using PHP, MySQL, JavaScript, Bootstrap,
+and XAMPP, featuring an e-commerce system, event booking, user profile management, resource sharing, and
+real-time collaboration tools similar to Messenger. Implemented secure user authentication with registration,
+login, password recovery via email token, and dynamic search functionalities. Integrated external APIs like
+Astronomy.net and Google Sky for celestial object detection, and built a dedicated admin back-office for managing
+users and site content efficiently.
+Adept at applying problem-solving skills to design and implement intelligent systems and integrating hardware
+with software to enhance user experiences. Passionate about leveraging technology to drive innovation and
+optimize processes. Currently seeking to apply my technical expertise in a challenging internship role within a
+dynamic and collaborative team.
+Education
+ESPRIT, computer science	Sept 2023 – May 2028
+Experience
+participation ieextreme
+2024
+Projects
+tounsi jeu sdl
+https://github.com/hamzajellali/jeu-
+SDL2
+◦Developed the background and scrolling mechanics for a 2D game, including a dynamic score system that
+increases with each coin collected. Designed and implemented a game menu with full-screen and minimize
+options, featuring buttons for Play, Settings, and Quit. Created an animated background with a title display
+and integrated a sound control feature that allows the user to adjust the game’s volume.
+◦Tools Used: C , SDL library
+hotel management system
+https://github.com/hamzajellali/projet-
+smart-hotel-integration-
+arduino2
+◦Designed and implemented a smart hotel management system using Qt C++, focusing on employee man-
+agement with CRUD functionalities. Developed features for converting data to PDF and Excel formats,
+along with integrating emotion detection for employees using OpenCV. Created a fully functional UI with
+dynamic notifications, allowing real-time updates in the application. Additionally, I developed a smart hotel
+room system where clients can monitor the room’s temperature, open the door through a keyboard interface,
+and activate an LED lamp when a motion detector senses the client. Notifications are displayed both on
+an Arduino screen and in the Qt application, including temperature alerts if the room becomes too hot,
+ensuring an interactive and responsive user experience.
+◦tools used : C++, Qt, SQL,Arduino,Opencv
+John Doe - Page 1 of 2
+Last updated in September 2024
+
+Technologies
+Languages:C, C++, Python, PHP, JavaScript, SQL
+Technologies:Qt (C++), Arduino, Oracle SQL, MySQL, XAMPP, Bootstrap, REST API, OpenCV, Git,
+Ubuntu
+John Doe - Page 2 of 2
