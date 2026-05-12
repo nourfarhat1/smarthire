@@ -1,0 +1,184 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}Candidate Settings - SmartHire{% endblock %}
+
+{% block candidate_page_title %}Account Settings{% endblock %}
+
+{% block candidate_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header candidate-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Account Settings</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ path('app_candidate_settings') }}">
+                    <div class="mb-4">
+                        <h6 class="mb-3"><i class="bi bi-shield-check me-2"></i>Security Settings</h6>
+                        
+                        <div class="form-check form-switch mb-3">
+                            <input type="checkbox" class="form-check-input" id="face_login_enabled" name="face_login_enabled" {{ candidate.faceLoginEnabled ? 'checked' : '' }}>
+                            <label class="form-check-label" for="face_login_enabled">
+                                <strong>Enable Face Login</strong><br>
+                                <small class="text-muted">Use facial recognition for faster login</small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check form-switch mb-3">
+                            <input type="checkbox" class="form-check-input" id="email_notifications" name="email_notifications" checked>
+                            <label class="form-check-label" for="email_notifications">
+                                <strong>Email Notifications</strong><br>
+                                <small class="text-muted">Receive updates about your applications</small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check form-switch mb-3">
+                            <input type="checkbox" class="form-check-input" id="job_alerts" name="job_alerts" checked>
+                            <label class="form-check-label" for="job_alerts">
+                                <strong>Job Alerts</strong><br>
+                                <small class="text-muted">Get notified about matching job opportunities</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h6 class="mb-3"><i class="bi bi-eye me-2"></i>Privacy Settings</h6>
+                        
+                        <div class="form-check form-switch mb-3">
+                            <input type="checkbox" class="form-check-input" id="profile_visibility" name="profile_visibility" checked>
+                            <label class="form-check-label" for="profile_visibility">
+                                <strong>Profile Visibility</strong><br>
+                                <small class="text-muted">Make your profile visible to recruiters</small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check form-switch mb-3">
+                            <input type="checkbox" class="form-check-input" id="show_activity" name="show_activity" checked>
+                            <label class="form-check-label" for="show_activity">
+                                <strong>Activity Status</strong><br>
+                                <small class="text-muted">Show when you're actively looking for jobs</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check me-2"></i>Save Settings
+                        </button>
+                        <a href="{{ path('app_candidate_profile') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Profile
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header candidate-warning text-dark">
+                <h5 class="mb-0"><i class="bi bi-download me-2"></i>Data Export</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">Download your personal data and application history.</p>
+                <button class="btn btn-outline-warning">
+                    <i class="bi bi-file-earmark-arrow-down me-2"></i>Export My Data
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header candidate-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Danger Zone</h5>
+            </div>
+            <div class="card-body">
+                <h6>Delete Account</h6>
+                <p class="text-muted small">Permanently delete your account and all associated data. This action cannot be undone.</p>
+                
+                <form method="post" action="{{ path('app_candidate_delete_account') }}" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_account') }}">
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash me-2"></i>Delete Account
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header candidate-info text-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Account Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <small class="text-muted">Account Type</small><br>
+                    <strong>Candidate Account</strong>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">Member Since</small><br>
+                    <strong>{{ candidate.createdAt|date('F j, Y') }}</strong>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">Verification Status</small><br>
+                    {% if candidate.isVerified %}
+                        <span class="badge bg-success">Verified</span>
+                    {% else %}
+                        <span class="badge bg-warning">Pending</span>
+                    {% endif %}
+                </div>
+                <div>
+                    <small class="text-muted">Account Status</small><br>
+                    {% if candidate.isBanned %}
+                        <span class="badge bg-danger">Suspended</span>
+                    {% else %}
+                        <span class="badge bg-success">Active</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.candidate-primary {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+}
+
+.candidate-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.candidate-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.candidate-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+}
+
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+    border: none;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #7a9038 0%, #95b35c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(135, 160, 66, 0.3);
+}
+
+.form-check-input:checked {
+    background-color: #87a042;
+    border-color: #87a042;
+}
+
+.form-check-input:focus {
+    border-color: #87a042;
+    box-shadow: 0 0 0 0.2rem rgba(135, 160, 66, 0.25);
+}
+</style>
+{% endblock %}

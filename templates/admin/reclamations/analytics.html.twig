@@ -1,0 +1,331 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block admin_page_title %}Complaint Analytics{% endblock %}
+
+{% block admin_content %}
+<style>
+.chart-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.stats-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.stats-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 12px rgba(0,0,0,0.12);
+}
+
+/* Soft, professional color palette */
+.soft-blue {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+}
+
+.soft-teal {
+    background: linear-gradient(135deg, #5D9C9E, #4A7C7E);
+    color: white;
+}
+
+.soft-sage {
+    background: linear-gradient(135deg, #87A96B, #6B8E5A);
+    color: white;
+}
+
+.soft-coral {
+    background: linear-gradient(135deg, #E6B89C, #D4A574);
+    color: white;
+}
+
+.soft-lavender {
+    background: linear-gradient(135deg, #9B8FB3, #7F6B8F);
+    color: white;
+}
+
+.soft-cream {
+    background: linear-gradient(135deg, #F5E6D3, #E8D5B7);
+    color: #333;
+}
+
+.pie-chart {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin: 0 auto;
+}
+
+/* Soft table styling */
+.table-striped {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table-striped thead th {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+    border: none;
+}
+
+.table-striped tbody tr:nth-child(odd) {
+    background-color: rgba(107, 140, 174, 0.05);
+}
+</style>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Complaint Analytics</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ path('app_admin_reclamations') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Management
+        </a>
+    </div>
+</div>
+
+<!-- Overview Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stats-card soft-blue text-white">
+            <div class="card-body text-center">
+                <h3>{{ analytics.total }}</h3>
+                <p class="mb-0">Total Complaints</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card soft-coral text-white">
+            <div class="card-body text-center">
+                <h3>{{ analytics.by_status.OPEN }}</h3>
+                <p class="mb-0">Open Cases</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card soft-sage text-white">
+            <div class="card-body text-center">
+                <h3>{{ analytics.by_status.RESOLVED }}</h3>
+                <p class="mb-0">Resolved</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card soft-teal text-white">
+            <div class="card-body text-center">
+                <h3>{{ analytics.by_status.PENDING }}</h3>
+                <p class="mb-0">Pending</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="chart-container">
+            <h5 class="mb-4"><i class="bi bi-pie-chart me-2"></i>Status Distribution</h5>
+            <canvas id="statusChart" width="400" height="400"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="chart-container">
+            <h5 class="mb-4"><i class="bi bi-pie-chart me-2"></i>Priority Distribution</h5>
+            <canvas id="priorityChart" width="400" height="400"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Type Distribution and Trends -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="chart-container">
+            <h5 class="mb-4"><i class="bi bi-bar-chart me-2"></i>Complaints by Type</h5>
+            <canvas id="typeChart" width="400" height="400"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="chart-container">
+            <h5 class="mb-4"><i class="bi bi-graph-up me-2"></i>Monthly Trends</h5>
+            <canvas id="trendsChart" width="400" height="400"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Statistics -->
+<div class="row">
+    <div class="col-12">
+        <div class="chart-container">
+            <h5 class="mb-4"><i class="bi bi-table me-2"></i>Detailed Statistics</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Status Breakdown</h6>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Count</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for status, count in analytics.by_status %}
+                            <tr>
+                                <td>{{ status }}</td>
+                                <td>{{ count }}</td>
+                                <td>{{ ((count / analytics.total) * 100)|number_format(1) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6>Priority Breakdown</h6>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Priority</th>
+                                <th>Count</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for priority, count in analytics.by_priority %}
+                            <tr>
+                                <td>{{ priority }}</td>
+                                <td>{{ count }}</td>
+                                <td>{{ ((count / analytics.total) * 100)|number_format(1) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Status Distribution Pie Chart
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+const statusChart = new Chart(statusCtx, {
+    type: 'pie',
+    data: {
+        labels: {{ analytics.by_status|keys|json_encode|raw }},
+        datasets: [{
+            data: {{ analytics.by_status|values|json_encode|raw }},
+            backgroundColor: [
+                '#ff6b9d',
+                '#feca57', 
+                '#48dbfb',
+                '#4facfe',
+                '#ff9ff3'
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Priority Distribution Pie Chart
+const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+const priorityChart = new Chart(priorityCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ analytics.by_priority|keys|json_encode|raw }},
+        datasets: [{
+            data: {{ analytics.by_priority|values|json_encode|raw }},
+            backgroundColor: [
+                '#ff6b6b',
+                '#feca57',
+                '#48dbfb'
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Type Distribution Bar Chart
+const typeCtx = document.getElementById('typeChart').getContext('2d');
+const typeChart = new Chart(typeCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ analytics.by_type|keys|json_encode|raw }},
+        datasets: [{
+            label: 'Complaints by Type',
+            data: {{ analytics.by_type|values|json_encode|raw }},
+            backgroundColor: 'rgba(102, 126, 234, 0.8)',
+            borderColor: 'rgba(102, 126, 234, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+
+// Monthly Trends Line Chart
+const trendsCtx = document.getElementById('trendsChart').getContext('2d');
+const trendsData = {{ analytics.monthly_trends|json_encode|raw }};
+const trendsChart = new Chart(trendsCtx, {
+    type: 'line',
+    data: {
+        labels: Object.keys(trendsData),
+        datasets: [{
+            label: 'Monthly Complaints',
+            data: Object.values(trendsData),
+            borderColor: 'rgba(255, 107, 157, 1)',
+            backgroundColor: 'rgba(255, 107, 157, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

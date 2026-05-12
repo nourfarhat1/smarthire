@@ -1,0 +1,8 @@
+twig:
+    globals:
+        faceio_app_id: '%faceio_app_id%'
+    file_name_pattern: '*.twig'
+
+when@test:
+    twig:
+        strict_variables: true

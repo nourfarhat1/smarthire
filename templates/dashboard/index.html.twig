@@ -1,0 +1,464 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard - SmartHire{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Dashboard</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary">Calendar</button>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-primary" onclick="location.href='{{ path('app_profile') }}'">
+                        <i class="bi bi-person me-1"></i>Edit Profile
+                    </button>
+                </div>
+            </div>
+
+            <!-- Welcome Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="alert alert-info" role="alert">
+                        <h4 class="alert-heading">Welcome back, {{ app.user.firstName }}! 👋</h4>
+                        <p class="mb-0">
+                            {% if is_granted('ROLE_ADMIN') %}
+                                As an administrator, you have full access to manage the platform, users, and system settings.
+                            {% elseif is_granted('ROLE_HR') %}
+                                As an HR professional, you can manage job postings, review applications, and schedule interviews.
+                            {% else %}
+                                As a candidate, you can browse jobs, submit applications, and track your job search progress.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="row mb-4">
+                {% if is_granted('ROLE_ADMIN') %}
+                    <!-- Admin Stats -->
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">{{ stats.total_users ?? 0 }}</h4>
+                                        <p class="card-text">Total Users</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="bi bi-people fs-1"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">{{ stats.total_jobs ?? 0 }}</h4>
+                                        <p class="card-text">Job Offers</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="bi bi-briefcase fs-1"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">{{ stats.total_applications ?? 0 }}</h4>
+                                        <p class="card-text">Applications</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="bi bi-file-text fs-1"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">{{ stats.total_complaints ?? 0 }}</h4>
+                                        <p class="card-text">Complaints</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="bi bi-exclamation-triangle fs-1"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% elseif is_granted('ROLE_HR') %}
+                    <!-- HR Stats -->
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">{{ stats.total_jobs ?? 0 }}</h4>
+                                        <p class="card-text">Active Jobs</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="bi bi-briefcase fs-1"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">{{ stats.total_applications ?? 0 }}</h4>
+                                        <p class="card-text">Applications</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="bi bi-file-text fs-1"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">{{ stats.pending_applications ?? 0 }}</h4>
+                                        <p class="card-text">Pending Review</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="bi bi-clock-history fs-1"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">{{ stats.interviews_scheduled ?? 0 }}</h4>
+                                        <p class="card-text">Interviews</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="bi bi-calendar-check fs-1"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Candidate Stats -->
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">{{ stats.total_applications ?? 0 }}</h4>
+                                        <p class="card-text">Applications</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="bi bi-file-text fs-1"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">{{ stats.pending_applications ?? 0 }}</h4>
+                                        <p class="card-text">Pending</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="bi bi-clock-history fs-1"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">{{ stats.profile_completion ?? 0 }}%</h4>
+                                        <p class="card-text">Profile Complete</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="bi bi-person-check fs-1"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">{{ stats.success_rate ?? 0 }}%</h4>
+                                        <p class="card-text">Success Rate</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="bi bi-graph-up fs-1"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <div class="col-md-3 mb-3">
+                                        <a href="{{ path('app_admin') }}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                                            <i class="bi bi-gear fs-1 mb-2"></i>
+                                            <span>Admin Panel</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="{{ path('app_users') }}" class="btn btn-outline-info w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                                            <i class="bi bi-people fs-1 mb-2"></i>
+                                            <span>Manage Users</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="{{ path('app_complaints') }}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                                            <i class="bi bi-exclamation-triangle fs-1 mb-2"></i>
+                                            <span>Complaints</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="{{ path('app_events') }}" class="btn btn-outline-success w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                                            <i class="bi bi-calendar-event fs-1 mb-2"></i>
+                                            <span>Events</span>
+                                        </a>
+                                    </div>
+                                {% elseif is_granted('ROLE_HR') %}
+                                    <div class="col-md-3 mb-3">
+                                        <a href="{{ path('app_hr') }}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                                            <i class="bi bi-briefcase fs-1 mb-2"></i>
+                                            <span>HR Dashboard</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="{{ path('app_jobs') }}" class="btn btn-outline-success w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                                            <i class="bi bi-plus-circle fs-1 mb-2"></i>
+                                            <span>Post Job</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="{{ path('app_applications') }}" class="btn btn-outline-info w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                                            <i class="bi bi-file-text fs-1 mb-2"></i>
+                                            <span>Applications</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="{{ path('app_events') }}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                                            <i class="bi bi-calendar-event fs-1 mb-2"></i>
+                                            <span>Events</span>
+                                        </a>
+                                    </div>
+                                {% else %}
+                                    <div class="col-md-3 mb-3">
+                                        <a href="{{ path('app_jobs') }}" class="btn btn-outline-success w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                                            <i class="bi bi-search fs-1 mb-2"></i>
+                                            <span>Browse Jobs</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="{{ path('app_applications') }}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                                            <i class="bi bi-file-text fs-1 mb-2"></i>
+                                            <span>My Applications</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="{{ path('app_events') }}" class="btn btn-outline-info w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                                            <i class="bi bi-calendar-event fs-1 mb-2"></i>
+                                            <span>Events</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="{{ path('app_profile') }}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 100px;">
+                                            <i class="bi bi-person fs-1 mb-2"></i>
+                                            <span>Edit Profile</span>
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Recent Activity</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <!-- Admin Recent Activity -->
+                                <div class="list-group list-group-flush">
+                                    {% for user in recent_users|default([]) %}
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1">{{ user.fullName }}</h6>
+                                                <small class="text-muted">New user registered</small>
+                                            </div>
+                                            <small class="text-muted">{{ user.createdAt|date('M d, Y') }}</small>
+                                        </div>
+                                    {% else %}
+                                        <p class="text-muted">No recent activity</p>
+                                    {% endfor %}
+                                </div>
+                            {% elseif is_granted('ROLE_HR') %}
+                                <!-- HR Recent Activity -->
+                                <div class="list-group list-group-flush">
+                                    {% for application in recent_applications|default([]) %}
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1">{{ application.jobTitle|default('Application') }}</h6>
+                                                <small class="text-muted">{{ application.candidateName|default('Candidate') }}</small>
+                                            </div>
+                                            <span class="badge bg-{{ application.status == 'PENDING' ? 'warning' : application.status == 'ACCEPTED' ? 'success' : 'danger' }}">
+                                                {{ application.status|default('UNKNOWN') }}
+                                            </span>
+                                        </div>
+                                    {% else %}
+                                        <p class="text-muted">No recent applications</p>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <!-- Candidate Recent Activity -->
+                                <div class="list-group list-group-flush">
+                                    {% for application in recent_applications|default([]) %}
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1">{{ application.jobTitle|default('Application') }}</h6>
+                                                <small class="text-muted">{{ application.submissionDate|date('M d, Y') }}</small>
+                                            </div>
+                                            <span class="badge bg-{{ application.status == 'PENDING' ? 'warning' : application.status == 'ACCEPTED' ? 'success' : 'danger' }}">
+                                                {{ application.status|default('UNKNOWN') }}
+                                            </span>
+                                        </div>
+                                    {% else %}
+                                        <p class="text-muted">No recent applications</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Upcoming Events</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group list-group-flush">
+                                {% for event in recent_events|default([]) %}
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">{{ event.name }}</h6>
+                                            <small class="text-muted">{{ event.location }}</small>
+                                        </div>
+                                        <small class="text-muted">{{ event.eventDate|date('M d') }}</small>
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted">No upcoming events</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<style>
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.btn-outline-primary:hover {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-outline-success:hover {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.btn-outline-info:hover {
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+}
+
+.btn-outline-warning:hover {
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
+.sidebar {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    min-height: 100vh;
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    transition: all 0.3s ease;
+}
+
+.sidebar .nav-link:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+.sidebar .nav-link.active {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+}
+</style>
+{% endblock %}

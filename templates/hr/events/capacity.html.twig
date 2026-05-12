@@ -1,0 +1,144 @@
+{% extends 'hr/layout.html.twig' %}
+
+{% block title %}Manage Event Capacity - SmartHire{% endblock %}
+
+{% block hr_page_title %}Manage Event Capacity{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">{{ event.name }}</h6>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ path('app_hr_events_capacity', {'id': event.id}) }}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="max_participants">Maximum Participants</label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="max_participants" 
+                                       name="max_participants" 
+                                       value="{{ currentCapacity }}" 
+                                       min="{{ registeredCount }}"
+                                       required>
+                                <small class="form-text text-muted">Cannot be less than currently registered participants ({{ registeredCount }})</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Current Status</label>
+                                <div class="p-3 bg-light rounded">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Registered:</span>
+                                        <strong>{{ registeredCount }}</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Available:</span>
+                                        <strong class="text-success">{{ availableSpots }}</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Occupancy:</span>
+                                        <strong>{{ ((registeredCount / currentCapacity) * 100)|number_format(1) }}%</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress mb-3">
+                        <div class="progress-bar" 
+                             role="progressbar" 
+                             style="width: {{ (registeredCount / currentCapacity) * 100 }}%"
+                             aria-valuenow="{{ registeredCount }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="{{ currentCapacity }}">
+                            {{ ((registeredCount / currentCapacity) * 100)|number_format(1) }}%
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Update Capacity
+                        </button>
+                        <a href="{{ path('app_hr_events') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Events
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">Event Details</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Date:</strong><br>
+                    {{ event.eventDate|date('F d, Y H:i') }}
+                </div>
+                <div class="mb-3">
+                    <strong>Location:</strong><br>
+                    {{ event.location }}
+                </div>
+                <div class="mb-3">
+                    <strong>Description:</strong><br>
+                    <small>{{ event.description }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Participants List -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold">Registered Participants ({{ participants|length }})</h6>
+            </div>
+            <div class="card-body">
+                {% if participants|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Registration Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for participant in participants %}
+                            <tr>
+                                <td>{{ participant.user.firstName }} {{ participant.user.lastName }}</td>
+                                <td>{{ participant.user.email }}</td>
+                                <td>{{ participant.joinedAt|date('M d, Y H:i') }}</td>
+                                <td>
+                                    <span class="badge badge-{{ participant.status == 'CONFIRMED' ? 'success' : 'warning' }}">
+                                        {{ participant.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-users fa-3x text-gray-300 mb-3"></i>
+                    <h5 class="text-gray-500">No participants yet</h5>
+                    <p class="text-gray-400">Participants will appear here once they register for the event.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
