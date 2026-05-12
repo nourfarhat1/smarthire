@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SmartHire{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    {% block stylesheets %}
+    {% endblock %}
+</head>
+<body class="bg-light">
+    
+    {% block body %}
+{% if app.user %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+            <div class="position-sticky pt-3">
+                <!-- SmartHire Brand -->
+                <div class="text-center mb-4">
+                    <h4 class="text-white fw-bold">SmartHire</h4>
+                </div>
+
+                <!-- User Profile Section -->
+                <div class="text-center mb-4">
+                    <div class="avatar-circle bg-white text-dark rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                        <span class="fw-bold">{{ app.user.firstName|first }}{{ app.user.lastName|first }}</span>
+                    </div>
+                    <h6 class="mb-1 text-white">{{ app.user.firstName }} {{ app.user.lastName }}</h6>
+                </div>
+
+                <!-- Role-Based Navigation Menus -->
+                {% if is_granted('ROLE_ADMIN') %}
+                    <!-- Admin Menu (Blue header #4686c2) -->
+                    <div class="admin-menu mb-4">
+                        <div class="role-header text-center py-2 mb-3 rounded" style="background-color: #4686c2;">
+                            <small class="text-white fw-bold">ADMINISTRATOR</small>
+                        </div>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_admin') }}">
+                                    <i class="bi bi-speedometer2 me-2"></i> Statistics
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_admin_events') }}">
+                                    <i class="bi bi-calendar-event me-2"></i> Admin Events
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_admin_complaint_types') }}">
+                                    <i class="bi bi-tags me-2"></i> Complaint Types
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_admin_reclamations') }}">
+                                    <i class="bi bi-exclamation-triangle me-2"></i> Manage Complaints
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_admin_job_categories') }}">
+                                    <i class="bi bi-tags me-2"></i> Job Categories
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_admin_jobs') }}">
+                                    <i class="bi bi-briefcase me-2"></i> Manage Job Offers
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_admin_applications') }}">
+                                    <i class="bi bi-file-text me-2"></i> Manage Applications
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_admin_users') }}">
+                                    <i class="bi bi-people me-2"></i> Manage Users
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_admin_trainings') }}">
+                                    <i class="bi bi-book me-2"></i> Manage Trainings
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                {% elseif is_granted('ROLE_HR') %}
+                    <!-- HR Menu (Pink header #e91e63) -->
+                    <div class="hr-menu mb-4">
+                        <div class="role-header text-center py-2 mb-3 rounded" style="background-color: #e91e63;">
+                            <small class="text-white fw-bold">HR MANAGER</small>
+                        </div>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_hr') }}">
+                                    <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_jobs') }}">
+                                    <i class="bi bi-briefcase me-2"></i> Manage Offers
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_hr_interviews') }}">
+                                    <i class="bi bi-calendar-check me-2"></i> Interviews
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_hr_events') }}">
+                                    <i class="bi bi-calendar-event me-2"></i> Manage Events
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_hr_quizzes') }}">
+                                    <i class="bi bi-question-circle me-2"></i> Quizzes
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_hr_job_requests') }}">
+                                    <i class="bi bi-file-text me-2"></i> Job Request
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                {% else %}
+                    <!-- Candidate Menu (Green header #87a042) -->
+                    <div class="candidate-menu mb-4">
+                        <div class="role-header text-center py-2 mb-3 rounded" style="background-color: #87a042;">
+                            <small class="text-white fw-bold">CANDIDATE</small>
+                        </div>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_home') }}">
+                                    <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_jobs') }}">
+                                    <i class="bi bi-briefcase me-2"></i> Job Market
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_applications') }}">
+                                    <i class="bi bi-file-text me-2"></i> My Applications
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_events') }}">
+                                    <i class="bi bi-calendar-event me-2"></i> Events
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_candidate_quizzes') }}">
+                                    <i class="bi bi-question-circle me-2"></i> Take Quiz
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white {{ app.request.get('_route') starts with 'app_candidate_complaints' ? 'active' : '' }}" href="{{ path('app_candidate_complaints') }}">
+                                    <i class="bi bi-exclamation-triangle me-2"></i> Support
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ path('app_training') }}">
+                                    <i class="bi bi-book me-2"></i> Training
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <hr>
+
+                <!-- Common Navigation -->
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.current_route starts with 'app_profile' ? 'active' : '' }}" href="{{ path('app_profile') }}">
+                            <i class="bi bi-person me-2"></i> Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.current_route starts with 'app_notifications' ? 'active' : '' }}" href="{{ path('app_notifications') }}">
+                            <i class="bi bi-bell me-2"></i> Notifications
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link logout-btn" href="{{ path('app_logout') }}">
+                            <i class="bi bi-box-arrow-right me-2"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            {% block page_header %}
+            {% if block('page_title') is defined %}
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">{% block page_title %}{% endblock %}</h1>
+                {% if block('page_actions') is defined %}
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    {% block page_actions %}{% endblock %}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% endblock %}
+
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+</div>
+{% else %}
+    <!-- Login/Register pages without sidebar -->
+    {% block auth_content %}{% endblock %}
+{% endif %}
+{% endblock %}
+
+<style>
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 48px 0 0;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    background-color: #2f4188 !important;
+}
+
+.sidebar .nav-link {
+    font-weight: 500;
+    color: white !important;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    margin: 0.125rem 0;
+    background-color: transparent;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.sidebar .nav-link:hover {
+    color: white !important;
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.sidebar .nav-link.active {
+    color: white !important;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar .nav-link i {
+    width: 20px;
+}
+
+.role-header {
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.avatar-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.logout-btn {
+    background-color: #d9534f !important;
+    border: none;
+    color: white !important;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: #c9302c !important;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: relative;
+        height: auto;
+        padding: 0;
+    }
+    
+    main {
+        margin-left: 0 !important;
+    }
+}
+
+body {
+    padding-top: 0;
+}
+</style>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Notification System JavaScript -->
+    {% if app.user %}
+    <script>
+        // Complete notification system implementation
+    </script>
+    {% endif %}
+    
+    {% block javascripts %}
+        {% block importmap %}{{ importmap('app') }}{% endblock %}
+    {% endblock %}
+</body>
+</html>

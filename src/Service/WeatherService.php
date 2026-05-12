@@ -13,8 +13,8 @@ class WeatherService
     public function __construct(HttpClientInterface $client)
     {
         $this->client = $client;
-        // Load from environment variables
-        $this->apiKey = $_ENV['OPENWEATHER_API_KEY'] ?? '';
+        // Clé API gratuite OpenWeatherMap (remplace par la tienne)
+        $this->apiKey = 'REMOVED';
         $this->apiUrl = 'https://api.openweathermap.org/data/2.5/weather';
     }
 

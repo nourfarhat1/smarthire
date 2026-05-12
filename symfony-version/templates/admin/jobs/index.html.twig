@@ -1,0 +1,332 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block admin_page_title %}Job Offers Management{% endblock %}
+
+{% block admin_content %}
+<style>
+.stats-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.stats-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 12px rgba(0,0,0,0.12);
+}
+
+.stats-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Soft, professional color palette */
+.soft-blue {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+}
+
+.soft-teal {
+    background: linear-gradient(135deg, #5D9C9E, #4A7C7E);
+    color: white;
+}
+
+.soft-sage {
+    background: linear-gradient(135deg, #87A96B, #6B8E5A);
+    color: white;
+}
+
+.soft-coral {
+    background: linear-gradient(135deg, #E6B89C, #D4A574);
+    color: white;
+}
+
+.soft-lavender {
+    background: linear-gradient(135deg, #9B8FB3, #7F6B8F);
+    color: white;
+}
+
+.soft-cream {
+    background: linear-gradient(135deg, #F5E6D3, #E8D5B7);
+    color: #333;
+}
+
+.filter-section {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+}
+
+.table-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(107, 140, 174, 0.08);
+}
+
+.btn-action {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(107, 140, 174, 0.2);
+}
+
+.btn-action:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(107, 140, 174, 0.2);
+}
+
+.status-active {
+    background: linear-gradient(135deg, #87A96B, #6B8E5A);
+    color: white;
+}
+
+.status-inactive {
+    background: linear-gradient(135deg, #9B8FB3, #7F6B8F);
+    color: white;
+}
+
+/* Calm table headers */
+.table-container .card-header {
+    background: linear-gradient(135deg, #6B8CAE, #4A6FA5);
+    color: white;
+    border: none;
+}
+
+/* Form controls with soft colors */
+.form-control:focus {
+    border-color: #6B8CAE;
+    box-shadow: 0 0 0 0.15rem rgba(107, 140, 174, 0.15);
+}
+
+.form-select:focus {
+    border-color: #6B8CAE;
+    box-shadow: 0 0 0 0.15rem rgba(107, 140, 174, 0.15);
+}
+</style>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Job Offers Management</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <span class="badge bg-secondary">All Jobs</span>
+            <span class="badge bg-info ms-1">{{ jobs|length }} Total</span>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="filter-section">
+    <h4 class="mb-3"><i class="bi bi-funnel me-2"></i>Filter Job Offers</h4>
+    <form method="GET" class="row g-3">
+        <div class="col-md-6">
+            <input type="text" name="search" class="form-control" placeholder="Search by title, location, or recruiter..." value="{{ app.request.get('search') }}">
+        </div>
+        <div class="col-md-4">
+            <select name="type" class="form-select">
+                <option value="">All Types</option>
+                <option value="FULL_TIME" {{ app.request.get('type') == 'FULL_TIME' ? 'selected' : '' }}>Full Time</option>
+                <option value="PART_TIME" {{ app.request.get('type') == 'PART_TIME' ? 'selected' : '' }}>Part Time</option>
+                <option value="CONTRACT" {{ app.request.get('type') == 'CONTRACT' ? 'selected' : '' }}>Contract</option>
+                <option value="INTERNSHIP" {{ app.request.get('type') == 'INTERNSHIP' ? 'selected' : '' }}>Internship</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-search me-2"></i>Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stats-card soft-blue text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.total }}</h4>
+                        <p class="card-text">Total Jobs</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-briefcase fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card soft-sage text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.total }}</h4>
+                        <p class="card-text">All Jobs</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-briefcase fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card soft-teal text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.recruiters|length }}</h4>
+                        <p class="card-text">Recruiters</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-people fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Section -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card stats-card soft-coral text-white">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-pie-chart me-2"></i>Job Statistics</h5>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h4>{{ stats.total }}</h4>
+                        <small>Total Jobs</small>
+                    </div>
+                    <div class="col-6">
+                        <h4>{{ stats.recruiters|length }}</h4>
+                        <small>Recruiters</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card stats-card soft-cream text-white">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-bar-chart me-2"></i>Quick Actions</h5>
+                <div class="d-grid gap-2">
+                    <a href="{{ path('app_admin_job_categories') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-tags me-2"></i>Manage Categories
+                    </a>
+                    <a href="{{ path('app_admin_applications_analytics') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-graph-up me-2"></i>View Analytics
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Job Offers Table -->
+<div class="table-container">
+    <div class="card-header" style="background: linear-gradient(135deg, #6B8CAE, #4A6FA5); color: white; border: none;">
+        <h5 class="card-title mb-0">All Job Offers</h5>
+        <div class="card-tools">
+            <div class="input-group input-group-sm" style="width: 200px;">
+                <input type="text" name="table_search" class="form-control float-right" placeholder="Search jobs...">
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-outline-secondary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body table-responsive p-0">
+        <table class="table table-hover text-nowrap">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Job Title</th>
+                    <th>Company</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Salary</th>
+                    <th>Posted</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <td>{{ job.id }}</td>
+                    <td>
+                        <div>
+                            <a href="#" class="text-decoration-none fw-bold">
+                                {{ job.title }}
+                            </a>
+                            {% if job.description %}
+                            <br>
+                            <small class="text-muted">{{ job.description|slice(0, 80) ~ '...' }}</small>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        {% if job.recruiter %}
+                            <span class="badge bg-info">{{ job.recruiter.fullName|default('Unknown') }}</span>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ job.location|default('N/A') }}</td>
+                    <td>
+                        <span class="badge bg-secondary">{{ job.jobType|default('N/A') }}</span>
+                    </td>
+                    <td>
+                        {% if job.salaryRange %}
+                            <span class="badge bg-success">{{ job.salaryRange }}</span>
+                        {% else %}
+                            <span class="text-muted">Not specified</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div>
+                            <strong>{{ job.postedDate|date('M d, Y') }}</strong>
+                            <br>
+                            <small class="text-muted">{{ job.postedDate|date('g:i A') }}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <form method="post" 
+                                  action="{{ path('app_admin_jobs_delete', {'id': job.id}) }}" 
+                                  style="display: inline;" 
+                                  onsubmit="return confirm('Delete this job offer? This action cannot be undone.')">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ job.id) }}">
+                                <button type="submit" class="btn btn-sm btn-action" title="Delete Job">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted">
+                        <div class="py-4">
+                            <i class="bi bi-briefcase fs-1 text-muted"></i>
+                            <p class="mt-2">No job offers found</p>
+                            <a href="{{ path('app_admin_jobs_new') }}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-2"></i>Create First Job Offer
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

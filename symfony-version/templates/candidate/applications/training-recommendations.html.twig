@@ -1,0 +1,278 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}Training Recommendations - SmartHire{% endblock %}
+
+{% block candidate_page_title %}Training Recommendations{% endblock %}
+
+{% block candidate_content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header candidate-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-mortarboard me-2"></i>AI Training Recommendations</h5>
+                    {{ gtranslate_widget() }}
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Introduction -->
+                <div class="alert alert-info">
+                    <h6><i class="bi bi-lightbulb me-2"></i>Personalized Learning Path</h6>
+                    <p class="mb-0">
+                        Based on your job applications and career interests, we've curated these training modules 
+                        to help you enhance your skills and improve your chances of landing your dream job.
+                    </p>
+                </div>
+
+                {% if categories|length > 0 %}
+                    <!-- Your Applied Categories -->
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">Based on your applications in:</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for category in categories %}
+                                <span class="badge bg-info">{{ category }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if recommendations|length > 0 %}
+                    <!-- Recommended Trainings -->
+                    <div class="row">
+                        {% for recommendation in recommendations %}
+                            {% set training = recommendation.training %}
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card h-100 border-0 shadow-sm training-card">
+                                    <div class="card-header candidate-info text-white">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1">{{ training.title }}</h6>
+                                                <small class="text-white-50">{{ training.category }}</small>
+                                            </div>
+                                            <div>
+                                                <span class="badge bg-light text-dark">
+                                                    {{ recommendation.match_score }}% Match
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <p class="card-text">
+                                                <span class="gtranslate" data-text="{{ training.description|slice(0, 120) }}...">
+                                                    {{ training.description|slice(0, 120) }}...
+                                                </span>
+                                            </p>
+                                        </div>
+                                        
+                                        <div class="mb-2">
+                                            <small class="text-muted">
+                                                <i class="bi bi-heart me-1"></i>{{ training.likes }} likes
+                                                <i class="bi bi-heart-fill text-danger ms-2 me-1"></i>{{ training.dislikes }} dislikes
+                                            </small>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <i class="bi bi-calendar3 me-1"></i>
+                                                    {{ training.createdAt|date('M d, Y') }}
+                                                </small>
+                                                {% if training.videoUrl %}
+                                                    <small class="text-success">
+                                                        <i class="bi bi-play-circle me-1"></i>Video Available
+                                                    </small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <small class="text-primary">
+                                                <i class="bi bi-lightbulb me-1"></i>
+                                                <strong>Why recommended:</strong> {{ recommendation.reason }}
+                                            </small>
+                                        </div>
+
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ path('app_candidate_training_show', {'id': training.id}) }}" class="btn btn-sm btn-success">
+                                                <i class="bi bi-eye me-1"></i>View Details
+                                            </a>
+                                            <div class="btn-group" role="group">
+                                                <form method="post" action="{{ path('app_candidate_training_like', {'id': training.id}) }}" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                                        <i class="bi bi-hand-thumbs-up me-1"></i>Like
+                                                    </button>
+                                                </form>
+                                                <form method="post" action="{{ path('app_candidate_training_dislike', {'id': training.id}) }}" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                                        <i class="bi bi-hand-thumbs-down me-1"></i>Dislike
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <!-- No Recommendations -->
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="bi bi-mortarboard text-muted" style="font-size: 4rem;"></i>
+                        </div>
+                        <h5 class="text-muted">No Training Recommendations Yet</h5>
+                        <p class="text-muted">
+                            Start applying for jobs to get personalized training recommendations based on your career interests.
+                        </p>
+                        <div class="mt-3">
+                            <a href="{{ path('app_candidate_job_marketplace') }}" class="btn btn-success">
+                                <i class="bi bi-briefcase me-2"></i>Browse Jobs
+                            </a>
+                            <a href="{{ path('app_candidate_training') }}" class="btn btn-outline-success ms-2">
+                                <i class="bi bi-book me-2"></i>Browse All Trainings
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sidebar -->
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header candidate-warning text-dark">
+                <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>How Recommendations Work</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success">
+                    <h6><i class="bi bi-cpu me-2"></i>AI-Powered Analysis</h6>
+                    <p class="mb-0">
+                        Our AI analyzes your job applications to identify skill gaps and recommend relevant training.
+                    </p>
+                </div>
+                
+                <div class="alert alert-info">
+                    <h6><i class="bi bi-target me-2"></i>Match Scoring</h6>
+                    <p class="mb-0">
+                        Each training is scored based on how well it matches your career goals and applied positions.
+                    </p>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <h6><i class="bi bi-arrow-repeat me-2"></i>Continuous Learning</h6>
+                    <p class="mb-0">
+                        Recommendations update as you apply to more jobs and explore different career paths.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header candidate-info text-white">
+                <h6 class="mb-0"><i class="bi bi-trophy me-2"></i>Popular Categories</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Technical Skills</h6>
+                                <small class="text-muted">Programming, Development</small>
+                            </div>
+                            <span class="badge bg-success">High Demand</span>
+                        </div>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Soft Skills</h6>
+                                <small class="text-muted">Communication, Leadership</small>
+                            </div>
+                            <span class="badge bg-info">Essential</span>
+                        </div>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Industry Knowledge</h6>
+                                <small class="text-muted">Domain-specific expertise</small>
+                            </div>
+                            <span class="badge bg-warning">Growing</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header candidate-success text-white">
+                <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Pro Tips</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-light">
+                    <h6><i class="bi bi-check-circle me-2"></i>Maximize Your Learning</h6>
+                    <ul class="mb-0">
+                        <li>Complete trainings in recommended order</li>
+                        <li>Apply skills to real projects</li>
+                        <li>Track your progress regularly</li>
+                        <li>Share certificates on your profile</li>
+                    </ul>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="{{ path('app_candidate_training') }}" class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-book me-1"></i>Explore All Trainings
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.candidate-primary {
+    background: linear-gradient(135deg, #87a042 0%, #a8c066 100%);
+}
+
+.candidate-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.candidate-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.candidate-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.training-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.btn-outline-success {
+    border-color: #87a042;
+    color: #87a042;
+}
+
+.btn-outline-success:hover {
+    background-color: #87a042;
+    border-color: #87a042;
+}
+</style>
+{% endblock %}

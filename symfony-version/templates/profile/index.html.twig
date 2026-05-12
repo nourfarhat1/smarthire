@@ -1,0 +1,219 @@
+{% extends 'candidate/layout.html.twig' %}
+
+{% block title %}My Profile - SmartHire{% endblock %}
+
+{% block candidate_page_title %}My Profile{% endblock %}
+
+{% block page_actions %}
+<a href="{{ path('app_profile_edit') }}" class="btn btn-primary">
+    <i class="bi bi-pencil me-2"></i>Edit Profile
+</a>
+<a href="{{ path('app_profile_change_password') }}" class="btn btn-outline-warning">
+    <i class="bi bi-lock me-2"></i>Change Password
+</a>
+{% endblock %}
+
+{% block candidate_content %}
+<div class="row">
+    <!-- Profile Overview -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body text-center">
+                {% if user.profilePicture %}
+                <img src="{{ asset('uploads/profiles/' ~ user.profilePicture) }}" 
+                     alt="Profile Picture" 
+                     class="rounded-circle mb-3" 
+                     style="width: 150px; height: 150px; object-fit: cover;">
+                {% else %}
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mb-3" 
+                     style="width: 150px; height: 150px; margin: 0 auto;">
+                    <h1 class="mb-0">{{ user.firstName|first }}{{ user.lastName|first }}</h1>
+                </div>
+                {% endif %}
+                
+                <h4>{{ user.fullName }}</h4>
+                <p class="text-muted">{{ user.email }}</p>
+                
+                <div class="mt-3">
+                    <span class="badge bg-{{ user.isBanned ? 'danger' : 'success' }}">
+                        {{ user.isBanned ? 'Banned' : 'Active' }}
+                    </span>
+                    <span class="badge bg-info">{{ user.roleName|default('User') }}</span>
+                </div>
+                
+                {% if user.phoneNumber %}
+                <div class="mt-3">
+                    <i class="bi bi-phone me-2"></i>{{ user.phoneNumber }}
+                </div>
+                {% endif %}
+                
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="bi bi-calendar me-1"></i>
+                        Member since {{ user.createdAt|date('F j, Y') }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ path('app_profile_edit') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil me-2"></i>Edit Profile
+                    </a>
+                    <a href="{{ path('app_profile_change_password') }}" class="btn btn-outline-warning">
+                        <i class="bi bi-lock me-2"></i>Change Password
+                    </a>
+                    <a href="{{ path('app_applications') }}" class="btn btn-outline-info">
+                        <i class="bi bi-file-text me-2"></i>My Applications
+                    </a>
+                    <a href="{{ path('app_candidate_quizzes') }}" class="btn btn-outline-success">
+                        <i class="bi bi-question-square me-2"></i>My Quizzes
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics & Activity -->
+    <div class="col-lg-8">
+        <!-- Statistics Dashboard -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-primary">{{ stats.total_applications }}</h3>
+                        <p class="text-muted">Total Applications</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-warning">{{ stats.pending_applications }}</h3>
+                        <p class="text-muted">Pending</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-info">{{ stats.interview_count }}</h3>
+                        <p class="text-muted">Interviews</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-success">{{ stats.approved_applications }}</h3>
+                        <p class="text-muted">Approved</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Applications -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-file-text me-2"></i>Recent Applications
+                    <a href="{{ path('app_applications') }}" class="btn btn-sm btn-outline-primary float-end">
+                        View All
+                    </a>
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_applications|length > 0 %}
+                    {% for application in recent_applications %}
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                        <div>
+                            <h6 class="mb-1">{{ application.jobTitle|default('Spontaneous Application') }}</h6>
+                            <small class="text-muted">
+                                Applied {{ application.submissionDate|date('M d, Y') }}
+                            </small>
+                        </div>
+                        <span class="badge bg-{{ application.status == 'APPROVED' ? 'success' : application.status == 'REJECTED' ? 'danger' : 'warning' }}">
+                            {{ application.status }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-3">
+                        <p class="text-muted">No applications yet. Start applying to jobs!</p>
+                        <a href="{{ path('app_jobs') }}" class="btn btn-primary btn-sm">
+                            Browse Jobs
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Quiz Performance -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-question-square me-2"></i>Quiz Performance
+                    <a href="{{ path('app_candidate_quizzes') }}" class="btn btn-sm btn-outline-primary float-end">
+                        View All
+                    </a>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <h4 class="text-primary">{{ stats.total_quizzes }}</h4>
+                            <p class="text-muted">Total Quizzes</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <h4 class="text-success">{{ stats.passed_quizzes }}</h4>
+                            <p class="text-muted">Passed</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <h4 class="text-info">{{ stats.average_score }}%</h4>
+                            <p class="text-muted">Average Score</p>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if recent_quiz_results|length > 0 %}
+                    {% for result in recent_quiz_results %}
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                        <div>
+                            <h6 class="mb-1">Quiz #{{ result.quizId }}</h6>
+                            <small class="text-muted">
+                                Taken {{ result.attemptDate|date('M d, Y') }}
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-{{ result.isPassed ? 'success' : 'danger' }}">
+                                {{ result.score }}%
+                            </span>
+                            <br>
+                            <small class="text-muted">{{ result.isPassed ? 'PASSED' : 'FAILED' }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-3">
+                        <p class="text-muted">No quiz attempts yet. Take your first assessment!</p>
+                        <a href="{{ path('app_candidate_quizzes') }}" class="btn btn-primary btn-sm">
+                            Browse Quizzes
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

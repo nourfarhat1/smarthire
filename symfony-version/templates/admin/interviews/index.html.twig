@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Interview Management - Admin - SmartHire{% endblock %}
+
+{% block page_title %}Interview Management{% endblock %}
+
+{% block page_actions %}
+<a href="{{ path('app_admin_interviews_calendar') }}" class="btn btn-info">
+    <i class="bi bi-calendar me-2"></i>Calendar View
+</a>
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-calendar-check me-2"></i>Scheduled Interviews
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if interviews|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Candidate</th>
+                                <th>Job Title</th>
+                                <th>Date & Time</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for interview in interviews %}
+                            <tr>
+                                <td>
+                                    <strong>{{ interview.jobRequest.candidateName|default('N/A') }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ interview.jobRequest.candidateEmail|default('N/A') }}</small>
+                                </td>
+                                <td>
+                                    {{ interview.jobRequest.jobTitle|default('N/A') }}
+                                </td>
+                                <td>
+                                    <strong>{{ interview.dateTime|date('M j, Y') }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ interview.dateTime|date('g:i A') }}</small>
+                                </td>
+                                <td>
+                                    {{ interview.location|default('N/A') }}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ interview.status == 'SCHEDULED' ? 'info' : interview.status == 'COMPLETED' ? 'success' : interview.status == 'CANCELLED' ? 'danger' : 'warning' }}">
+                                        {{ interview.status|replace('_', ' ')|title }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ path('app_admin_interviews_edit', {'id': interview.id}) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{{ path('app_admin_interviews_schedule', {'id': interview.jobRequest.id}) }}" 
+                                           class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-calendar-plus"></i>
+                                        </a>
+                                        <form method="post" 
+                                              action="{{ path('app_admin_interviews_delete', {'id': interview.id}) }}" 
+                                              onsubmit="return confirm('Are you sure you want to delete this interview?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete') }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-calendar-x fs-1 text-muted"></i>
+                    <h4 class="text-muted">No Interviews Scheduled</h4>
+                    <p class="text-muted">Schedule interviews with candidates by selecting job applications and setting up interview times.</p>
+                    <a href="{{ path('app_admin_job_requests') }}" class="btn btn-primary">
+                        <i class="bi bi-file-text me-2"></i>View Applications
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

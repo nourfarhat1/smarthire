@@ -1,0 +1,159 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Admin - Quiz Questions{% endblock %}
+
+{% block page_title %}Quiz Questions{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-question-diamond me-2"></i>
+                    Questions for "{{ quiz.title }}"
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{{ path('app_admin_quizzes') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i> Back to Quizzes
+                    </a>
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            {% for flash_message in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ flash_message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            <!-- Quiz Info -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <strong>Duration:</strong> {{ quiz.durationMinutes }} minutes
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>Passing Score:</strong> {{ quiz.passingScore }}%
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>Total Questions:</strong> {{ questions|length }}
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>Status:</strong> 
+                                    <span class="badge bg-success">Active</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-ul me-2"></i>
+                        Quiz Questions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if questions is empty %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox display-4 text-muted"></i>
+                            <h5 class="text-muted">No questions found</h5>
+                            <p class="text-muted">This quiz doesn't have any questions yet.</p>
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Question Text</th>
+                                        <th>Option A</th>
+                                        <th>Option B</th>
+                                        <th>Option C</th>
+                                        <th>Correct Answer</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for question in questions %}
+                                        <tr>
+                                            <td>{{ question.id }}</td>
+                                            <td>
+                                                <span class="text-truncate" style="max-width: 300px; display: inline-block;">
+                                                    {{ question.questionText }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="text-truncate" style="max-width: 150px; display: inline-block;">
+                                                    {{ question.optionA|default('N/A') }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="text-truncate" style="max-width: 150px; display: inline-block;">
+                                                    {{ question.optionB|default('N/A') }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="text-truncate" style="max-width: 150px; display: inline-block;">
+                                                    {{ question.optionC|default('N/A') }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle me-1"></i>
+                                                    {{ question.correctAnswer }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Admin Note -->
+            <div class="alert alert-info mt-4">
+                <h6><i class="bi bi-info-circle me-2"></i> Admin Access Information</h6>
+                <p class="mb-0">
+                    <strong>View Only Mode:</strong> As an administrator, you can view quiz questions and monitor quiz performance, but you cannot create or edit quizzes. Quiz creation and editing is handled by HR users.
+                </p>
+                <p class="mb-0">
+                    <strong>Quiz Deletion:</strong> You can delete quizzes if they are problematic or no longer needed.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.text-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+</style>
+{% endblock %}
